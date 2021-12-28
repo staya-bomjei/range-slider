@@ -1,0 +1,20 @@
+@mixin font($name, $style, $weight) {
+  $suffix: 'Regular';
+
+  @if $style == bold {
+    $suffix: 'Bold';
+  }
+
+  @font-face {
+    font-family: $name;
+    src:
+      url('../assets/fonts/#{$name}-#{$suffix}.woff') format('woff'),
+      url('../assets/fonts/#{$name}-#{$suffix}.ttf') format('truetype'),
+      url('../assets/fonts/#{$name}-#{$suffix}.svg') format('svg');
+    font-style: $style;
+    font-weight: $weight;
+  }
+}
+
+@include font('Montserrat', normal, 400);
+@include font('Montserrat', bold, 700);

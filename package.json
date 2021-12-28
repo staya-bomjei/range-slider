@@ -1,0 +1,19 @@
+{
+  "name": "range-slider",
+  "version": "1.0.0",
+  "description": "MetaLamp 4nd task",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/staya-bomjei/range-slider.git"
+  },
+  "keywords": [],
+  "author": "Denis Beschastnykh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/staya-bomjei/range-slider/issues"
+  },
+  "homepage": "https://github.com/staya-bomjei/range-slider#readme"
+}

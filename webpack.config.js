@@ -55,6 +55,9 @@ module.exports = (env) => {
       path: PATHS.DIST,
       clean: true,
     },
+    resolve: {
+      extensions: ['.ts', '.js'],
+    },
     module: {
       rules: [
         {

@@ -1,4 +1,3 @@
-import AutoBind from '../helpers/AutoBind';
 import Model from '../Model/Model';
 import View from '../View/View';
 import { Options } from '../Options/types';
@@ -10,7 +9,7 @@ export default class Presenter {
 
   constructor(el: HTMLElement) {
     this.model = new Model();
-    this.view = new View(el);
+    this.view = new View(el, this.model.getOptions());
 
     this.attachEventHandlers();
   }
@@ -20,19 +19,19 @@ export default class Presenter {
   }
 
   private attachEventHandlers(): void {
-    this.model.onChange(this.handleModelChange);
-    this.view.onChange(this.handleViewChange);
+    this.model.onChange((options) => this.handleModelChange(options));
+    this.view.onChange((options) => this.handleViewChange(options));
   }
 
-  @AutoBind
-  private handleModelChange(data: Options): void {
-    // Обновить this.view
-    console.log(data);
+  private handleModelChange(options: Options): void {
+    console.log('Model is changed:');
+    console.log(options);
+    this.view.setOptions(options);
   }
 
-  @AutoBind
-  private handleViewChange(data: Options): void {
-    // Обновить this.model
-    console.log(data);
+  private handleViewChange(options: Options): void {
+    console.log('View is changed:');
+    console.log(options);
+    this.model.setOptions(options);
   }
 }

@@ -9,6 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
   Array.from(elements).forEach((el) => {
     const rangeSlider = new RangeSlider(el as HTMLElement);
 
-    rangeSlider.setOption('min', 120);
+    console.log(rangeSlider);
   });
 });

@@ -1,3 +1,4 @@
+import { calcDifference, hasAnyKey, valueToPercent } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
 import { Options, OptionsCallback } from '../Options/types';
 import Progress from './subviews/Progress';
@@ -5,18 +6,14 @@ import Scale from './subviews/Scale';
 import Thumb from './subviews/Thumb';
 import Tooltip from './subviews/Tooltip';
 import Track from './subviews/Track';
+import { thumbDependencies, ThumbOptions } from './subviews/types';
 import IView from './interface';
-import {
-  RANGE_SLIDER,
-  TRACK,
-  PROGRESS,
-  SCALE,
-  THUMB,
-  TOOLTIP,
-} from './const';
+import { RANGE_SLIDER } from './const';
 
 export default class View implements IView {
   private changeObserver: EventObserver<OptionsCallback, Options>;
+
+  private options: Options = {} as Options;
 
   readonly el: HTMLElement;
 
@@ -34,35 +31,44 @@ export default class View implements IView {
 
   private tooltip2: Tooltip;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: Options) {
     this.changeObserver = new EventObserver();
     this.el = el;
     this.render();
 
-    const [trackEl] = this.el.getElementsByClassName(TRACK)!;
-    const [progressEl] = this.el.getElementsByClassName(PROGRESS)!;
-    const [thumb1El, thumb2El] = this.el.getElementsByClassName(THUMB)!;
-    const [tooltip1El, tooltip2El] = this.el.getElementsByClassName(TOOLTIP)!;
-    const [scaleEl] = this.el.getElementsByClassName(SCALE)!;
+    const [trackEl] = this.el.children;
 
     this.track = new Track(trackEl as HTMLElement);
-    this.progress = new Progress(progressEl as HTMLElement);
-    this.thumb1 = new Thumb(thumb1El as HTMLElement, trackEl as HTMLElement);
-    this.thumb2 = new Thumb(thumb2El as HTMLElement, trackEl as HTMLElement);
-    this.tooltip1 = new Tooltip(tooltip1El as HTMLElement);
-    this.tooltip2 = new Tooltip(tooltip2El as HTMLElement);
-    this.scale = new Scale(scaleEl as HTMLElement);
+    this.progress = this.track.getProgress();
+    this.thumb1 = this.track.getThumb(0);
+    this.thumb2 = this.track.getThumb(1);
+    this.tooltip1 = this.thumb1.getTooltip();
+    this.tooltip2 = this.thumb2.getTooltip();
+    this.scale = this.track.getScale();
 
-    console.log(this.track);
     console.log(this.progress);
-    console.log(this.thumb1);
-    console.log(this.thumb2);
     console.log(this.tooltip1);
     console.log(this.tooltip2);
     console.log(this.scale);
 
-    this.thumb1.setPosition(50);
-    this.thumb2.setPosition(100);
+    this.setOptions(options);
+  }
+
+  public getOptions(): Options {
+    return { ...this.options };
+  }
+
+  public setOptions(options: Options) {
+    this.options = { ...this.options, ...options };
+
+    if (hasAnyKey(thumbDependencies, options)) {
+      const thumbOptions1 = this.calcThumbOptions(true);
+      const newThumbOptions1 = calcDifference(this.thumb1.getOptions(), thumbOptions1);
+      this.thumb1.setOptions(newThumbOptions1);
+      const thumbOptions2 = this.calcThumbOptions(false);
+      const newThumbOptions2 = calcDifference(this.thumb2.getOptions(), thumbOptions2);
+      this.thumb2.setOptions(newThumbOptions2);
+    }
   }
 
   public onChange(subscriber: OptionsCallback): void {
@@ -72,16 +78,46 @@ export default class View implements IView {
   public render(): void {
     this.el.className = `${RANGE_SLIDER}`;
     this.el.innerHTML = `
-      <div class="${TRACK}">
-        <div class="${PROGRESS}"></div>
-        <div class="${THUMB}">
-          <div class="${TOOLTIP}"></div>
-        </div>
-        <div class="${THUMB}">
-          <div class="${TOOLTIP}"></div>
-        </div>
-      </div>
-      <div class="${SCALE}"></div>
+      <div></div>
     `;
+  }
+
+  // private updateView(): void {
+  //   const thumbOptions1 = this.calcThumbOptions(true);
+  //   this.thumb1.setOptions(thumbOptions1);
+
+  //   const thumbOptions2 = this.calcThumbOptions(false);
+  //   this.thumb2.setOptions(thumbOptions2);
+  // }
+
+  private calcThumbOptions(isFirst: boolean): ThumbOptions {
+    const {
+      min,
+      max,
+      step,
+      valueFrom,
+      valueTo,
+      isRange,
+      showTooltip,
+      showTooltipAfterDrag,
+    } = this.options;
+
+    const valuesRange = max - min;
+    const percentStep = valueToPercent(step, valuesRange);
+
+    let value = (isFirst) ? valueFrom : valueTo;
+    value = valueToPercent(value - min, valuesRange);
+
+    const visible = isFirst || isRange;
+
+    const thumbOptions: ThumbOptions = {
+      percentStep,
+      visible,
+      value,
+    };
+    if (showTooltip) thumbOptions.showTooltip = showTooltip;
+    if (showTooltipAfterDrag) thumbOptions.showTooltipAfterDrag = showTooltipAfterDrag;
+
+    return thumbOptions;
   }
 }

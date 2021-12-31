@@ -1,5 +1,5 @@
 import IView from '../interface';
-import { TOOLTIP } from '../const';
+import { TOOLTIP, TOOLTIP_HIDDEN } from '../const';
 
 export default class Tooltip implements IView {
   readonly el: HTMLElement;
@@ -9,7 +9,16 @@ export default class Tooltip implements IView {
     this.render();
   }
 
+  public setVisibility(visible: boolean): void {
+    if (visible) {
+      this.el.classList.remove(TOOLTIP_HIDDEN);
+    } else {
+      this.el.classList.add(TOOLTIP_HIDDEN);
+    }
+  }
+
   public render(): void {
-    this.el.classList.add(TOOLTIP, `js-${TOOLTIP}`);
+    this.el.classList.add(TOOLTIP);
+    this.el.innerHTML = '';
   }
 }

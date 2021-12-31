@@ -1,18 +1,20 @@
 type Orientation = 'horizontal' | 'vertical';
 
 type Options = {
-  min?: number,
-  max?: number,
-  strings?: Array<string>,
-  step?: number,
-  isRange?: boolean,
+  min: number,
+  max: number,
+  strings: Array<string>,
+  step: number,
+  isRange: boolean,
   orientation: Orientation,
   scaleParts: number,
   showScale: boolean,
   showTooltip: boolean,
-  showTooltipAfterDrag?: boolean,
+  showTooltipAfterDrag: boolean,
   showProgress: boolean,
-  allowThumbsSwap?: boolean,
+  allowThumbsSwap: boolean,
+  valueFrom: number,
+  valueTo: number,
 };
 
 type OptionValues = number | Array<string> | boolean | Orientation;

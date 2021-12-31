@@ -19,15 +19,27 @@
     top: 50%;
     transform: translateY(-50%);
     background: #615c72;
+
+    &_hidden {
+      display: none;
+    }
   }
 
   &__scale {
-    display: flex;
-    justify-content: space-between;
+    position: absolute;
+    width: 100%;
+
+    &_hidden {
+      display: none;
+    }
   }
 
   &__scale-item {
+    position: absolute;
+    top: 14px;
     cursor: pointer;
+    user-select: none;
+    transform: translateX(-50%);
   }
 
   &__thumb {
@@ -38,6 +50,15 @@
     transform: translate(-50%, -50%);
     background: #615c72;
     cursor: grab;
+
+    &_hidden {
+      display: none;
+    }
+
+    &_dragged {
+      width: 9px;
+      height: 20px;
+    }
   }
 
   &__tooltip {
@@ -49,5 +70,9 @@
     transform: translate(-50%, -100%);
     background: #615c72;
     cursor: initial;
+
+    &_hidden {
+      display: none;
+    }
   }
 }

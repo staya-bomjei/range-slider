@@ -1,5 +1,5 @@
 import IView from '../interface';
-import { PROGRESS } from '../const';
+import { PROGRESS, PROGRESS_HIDDEN } from '../const';
 
 export default class Progress implements IView {
   readonly el: HTMLElement;
@@ -9,7 +9,15 @@ export default class Progress implements IView {
     this.render();
   }
 
+  public setVisibility(visible: boolean): void {
+    if (visible) {
+      this.el.classList.remove(PROGRESS_HIDDEN);
+    } else {
+      this.el.classList.add(PROGRESS_HIDDEN);
+    }
+  }
+
   public render(): void {
-    this.el.classList.add(PROGRESS, `js-${PROGRESS}`);
+    this.el.classList.add(PROGRESS);
   }
 }

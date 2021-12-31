@@ -1,4 +1,4 @@
-import { IView } from '../types';
+import IView from '../interface';
 import { SCALE } from '../const';
 
 export default class Scale implements IView {

@@ -1,4 +1,4 @@
-import { IView } from '../types';
+import IView from '../interface';
 
 export default class Thumb implements IView {
   readonly el: HTMLElement;

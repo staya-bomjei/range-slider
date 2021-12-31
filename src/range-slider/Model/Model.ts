@@ -1,15 +1,15 @@
 import EventObserver from '../helpers/EventObserver';
-import { ModelCallback, ModelOptions } from './types';
-import defaultOptions from './default-options';
+import { Options, OptionsCallback } from '../Options/types';
+import defaultOptions from '../Options/default';
 
 export default class Model {
-  private changeObserver: EventObserver<ModelCallback, ModelOptions>;
+  private changeObserver: EventObserver<OptionsCallback, Options>;
 
-  private options: ModelOptions;
+  private options: Options;
 
-  constructor(options?: ModelOptions) {
+  constructor(options?: Options) {
     this.changeObserver = new EventObserver();
-    this.options = {} as ModelOptions;
+    this.options = {} as Options;
 
     if (options) {
       this.setOptions(options, false);
@@ -18,11 +18,11 @@ export default class Model {
     }
   }
 
-  public getOptions(): ModelOptions {
+  public getOptions(): Options {
     return { ...this.options };
   }
 
-  public setOptions(options: ModelOptions, withBroadcast: boolean = true): void {
+  public setOptions(options: Options, withBroadcast: boolean = true): void {
     this.options = { ...options };
 
     if (withBroadcast) {
@@ -30,7 +30,7 @@ export default class Model {
     }
   }
 
-  public onChange(subscriber: ModelCallback): void {
+  public onChange(subscriber: OptionsCallback): void {
     this.changeObserver.subscribe(subscriber);
   }
 }

@@ -1,8 +1,7 @@
 import AutoBind from '../helpers/AutoBind';
 import Model from '../Model/Model';
-import { ModelOptions } from '../Model/types';
-import { ViewOptions } from '../View/types';
 import View from '../View/View';
+import { Options } from '../Options/types';
 
 export default class Presenter {
   private model: Model;
@@ -26,13 +25,13 @@ export default class Presenter {
   }
 
   @AutoBind
-  private handleModelChange(data: ModelOptions): void {
+  private handleModelChange(data: Options): void {
     // Обновить this.view
     console.log(data);
   }
 
   @AutoBind
-  private handleViewChange(data: ViewOptions): void {
+  private handleViewChange(data: Options): void {
     // Обновить this.model
     console.log(data);
   }

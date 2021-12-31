@@ -1,4 +1,4 @@
-import { IView } from '../types';
+import IView from '../interface';
 import { PROGRESS } from '../const';
 
 export default class Progress implements IView {

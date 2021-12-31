@@ -1,4 +1,4 @@
-import { ModelOptions } from './types';
+import { Options } from './types';
 
 export default {
   min: 0,
@@ -9,4 +9,4 @@ export default {
   showScale: true,
   showTooltip: true,
   showProgress: true,
-} as ModelOptions;
+} as Options;

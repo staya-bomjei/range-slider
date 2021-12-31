@@ -1,10 +1,11 @@
 import EventObserver from '../helpers/EventObserver';
+import { Options, OptionsCallback } from '../Options/types';
 import Progress from './subviews/Progress';
 import Scale from './subviews/Scale';
 import Thumb from './subviews/Thumb';
 import Tooltip from './subviews/Tooltip';
 import Track from './subviews/Track';
-import { ViewCallBack, ViewOptions, IView } from './types';
+import IView from './interface';
 import {
   RANGE_SLIDER,
   TRACK,
@@ -15,7 +16,7 @@ import {
 } from './const';
 
 export default class View implements IView {
-  private changeObserver: EventObserver<ViewCallBack, ViewOptions>;
+  private changeObserver: EventObserver<OptionsCallback, Options>;
 
   readonly el: HTMLElement;
 
@@ -64,7 +65,7 @@ export default class View implements IView {
     this.thumb2.setPosition(100);
   }
 
-  public onChange(subscriber: ViewCallBack): void {
+  public onChange(subscriber: OptionsCallback): void {
     this.changeObserver.subscribe(subscriber);
   }
 

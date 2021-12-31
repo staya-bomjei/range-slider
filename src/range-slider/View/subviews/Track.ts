@@ -1,4 +1,4 @@
-import { IView } from '../types';
+import IView from '../interface';
 import { TRACK } from '../const';
 
 export default class Track implements IView {

@@ -1,4 +1,4 @@
-import { IView } from '../types';
+import IView from '../interface';
 import { TOOLTIP } from '../const';
 
 export default class Tooltip implements IView {

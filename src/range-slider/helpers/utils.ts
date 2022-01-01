@@ -16,7 +16,9 @@ function calcDifference<T extends Object>(first: T, second: Partial<T>): T {
   const keys = Object.keys(second) as Array<keyof T>;
 
   keys.forEach((key) => {
-    if (first[key] !== second[key] && second[key] !== undefined) {
+    const isDifferentOption = first[key] !== second[key] && second[key] !== undefined;
+
+    if (isDifferentOption) {
       result[key] = second[key];
     }
   });

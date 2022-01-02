@@ -1,4 +1,4 @@
-import IView from '../interface';
+import { IView } from '../types';
 import { TRACK } from '../const';
 import Scale from './Scale';
 import Thumb from './Thumb';
@@ -7,51 +7,31 @@ import Progress from './Progress';
 export default class Track implements IView {
   readonly el: HTMLElement;
 
-  private scale: Scale;
+  progress = {} as Progress;
 
-  private thumb1: Thumb;
+  scale = {} as Scale;
 
-  private thumb2: Thumb;
+  leftThumb = {} as Thumb;
 
-  private progress: Progress;
+  rightThumb = {} as Thumb;
 
   constructor(el: HTMLElement) {
     this.el = el;
     this.render();
+  }
 
-    const [scaleEl, thumb1El, thumb2El, progressEl] = this.el.children;
+  render(): void {
+    this.el.classList.add(TRACK);
+    this.el.innerHTML = '<div></div>'.repeat(4);
+    this.renderSubViews();
+  }
+
+  private renderSubViews(): void {
+    const [scaleEl, leftThumbEl, rightThumbEl, progressEl] = this.el.children;
 
     this.scale = new Scale(scaleEl as HTMLElement);
-    this.thumb1 = new Thumb(thumb1El as HTMLElement, this.el);
-    this.thumb2 = new Thumb(thumb2El as HTMLElement, this.el);
+    this.leftThumb = new Thumb(leftThumbEl as HTMLElement);
+    this.rightThumb = new Thumb(rightThumbEl as HTMLElement);
     this.progress = new Progress(progressEl as HTMLElement);
-  }
-
-  public getScale(): Scale {
-    return this.scale;
-  }
-
-  public getThumb(number: number): Thumb {
-    if (number === 0) {
-      return this.thumb1;
-    }
-    if (number === 1) {
-      return this.thumb2;
-    }
-    throw new Error(`Track doesn't have thumb №${number}, only 0 | 1 allowed`);
-  }
-
-  getProgress(): Progress {
-    return this.progress;
-  }
-
-  public render(): void {
-    this.el.classList.add(TRACK);
-    this.el.innerHTML = `
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
-    `;
   }
 }

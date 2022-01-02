@@ -1,6 +1,5 @@
 import Model from './Model/Model';
-import { Options, OptionValues } from './Options/types';
-// import defaultOptions from './Options/default';
+import { ModelOptions } from './Model/types';
 import Presenter from './Presenter/Presenter';
 
 export default class RangeSlider {
@@ -11,20 +10,13 @@ export default class RangeSlider {
   constructor(el: HTMLElement) {
     this.presenter = new Presenter(el);
     this.model = this.presenter.getModel();
-
-    // this.model.setOptions({
-    //   ...defaultOptions,
-    //   valueFrom: 123,
-    // });
   }
 
-  public setOption(option: keyof Options, value: OptionValues): void {
-    const oldOptions = { ...this.model.getOptions() };
-    const newOptions = {
-      ...oldOptions,
-      [option]: value,
-    };
+  setOptions(options: ModelOptions): void {
+    this.model.setOptions(options);
+  }
 
-    this.model.setOptions(newOptions);
+  getOptions(): ModelOptions {
+    return this.model.getOptions();
   }
 }

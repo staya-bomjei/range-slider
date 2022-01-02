@@ -1,72 +1,75 @@
-import { calcNearestStepValue } from '../../helpers/utils';
-import { THUMB, THUMB_HIDDEN, THUMB_DRAGGED } from '../const';
-import IView from '../interface';
+import EventObserver from '../../helpers/EventObserver';
+import { callFunctionsForNewOptions } from '../../helpers/utils';
+import { THUMB, THUMB_HIDDEN } from '../const';
+import {
+  IView,
+  EventCallback,
+  ThumbOptions,
+  ViewEvent,
+} from '../types';
 import Tooltip from './Tooltip';
-import { ThumbOptions } from './types';
 
-export default class Thumb implements IView {
+export default class Thumb extends EventObserver<EventCallback, ViewEvent> implements IView {
+  tooltip = {} as Tooltip;
+
   readonly el: HTMLElement;
 
-  readonly trackEl: HTMLElement;
+  private options = {} as ThumbOptions;
 
-  private tooltip: Tooltip;
+  constructor(el: HTMLElement) {
+    super();
 
-  private options: ThumbOptions;
-
-  constructor(el: HTMLElement, trackEl: HTMLElement) {
-    this.options = {} as ThumbOptions;
     this.el = el;
-    this.trackEl = trackEl;
     this.render();
-
-    const [tooltipEl] = this.el.children;
-    this.tooltip = new Tooltip(tooltipEl as HTMLElement);
-
     this.attachEventHandlers();
   }
 
-  public getOptions(): ThumbOptions {
+  getOptions(): ThumbOptions {
     return { ...this.options };
   }
 
-  public setOptions(options: ThumbOptions) {
-    const {
-      percentStep,
-      visible,
-      value,
-      showTooltip,
-      showTooltipAfterDrag,
-    } = options;
-
-    if (percentStep !== undefined) {
-      this.options.percentStep = percentStep;
-    }
-    if (visible !== undefined) {
-      this.setVisibility(visible);
-    }
-    if (value !== undefined) {
-      this.setPosition(value);
-    }
-    if (showTooltip !== undefined) {
-      this.setTooltipVisibility(showTooltip);
-    }
-    if (showTooltipAfterDrag !== undefined) {
-      this.setTooltipVisibility(false);
-      this.options.showTooltipAfterDrag = showTooltipAfterDrag;
-    }
+  setOptions(options: Partial<ThumbOptions>): void {
+    const originalOptions = this.options;
+    this.options = { ...originalOptions, ...options };
+    callFunctionsForNewOptions(originalOptions, options, [
+      {
+        dependencies: ['position'],
+        callback: () => this.updatePosition(),
+      },
+      {
+        dependencies: ['visible'],
+        callback: () => this.updateVisibility(),
+      },
+    ]);
   }
 
-  public getTooltip(): Tooltip {
-    return this.tooltip;
-  }
-
-  public render(): void {
+  render(): void {
     this.el.classList.add(THUMB);
-    this.el.innerHTML = '<div><div>';
+    this.renderTooltip();
   }
 
-  private setVisibility(visible: boolean): void {
-    this.options.visible = visible;
+  private renderTooltip(): void {
+    this.el.innerHTML = '<div><div>';
+    const [tooltipEl] = this.el.children;
+
+    this.tooltip = new Tooltip(tooltipEl as HTMLElement);
+  }
+
+  private attachEventHandlers(): void {
+    this.el.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+    this.el.ondragstart = null;
+  }
+
+  private handleMouseDown(event: MouseEvent): void {
+    this.broadcast({
+      view: this,
+      type: 'mousedown',
+      event,
+    });
+  }
+
+  private updateVisibility(): void {
+    const { visible } = this.options;
 
     if (visible) {
       this.el.classList.remove(THUMB_HIDDEN);
@@ -75,51 +78,9 @@ export default class Thumb implements IView {
     }
   }
 
-  private setTooltipVisibility(visible: boolean): void {
-    this.options.showTooltip = visible;
-    this.tooltip.setVisibility(visible);
-  }
+  private updatePosition(): void {
+    const { position } = this.options;
 
-  private setPosition(position: number) {
-    this.options.value = position;
     this.el.style.left = `${position}%`;
-  }
-
-  private attachEventHandlers(): void {
-    this.el.addEventListener('mousedown', (e) => this.handleThumbMouseDown(e));
-    this.el.addEventListener('ondragstart', () => false);
-  }
-
-  private handleThumbMouseDown(event: MouseEvent): void {
-    this.el.classList.add(THUMB_DRAGGED);
-    this.moveTo(event.pageX);
-    const { showTooltipAfterDrag } = this.options;
-    if (showTooltipAfterDrag) this.setTooltipVisibility(true);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      this.moveTo(e.pageX);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', () => {
-      this.el.classList.remove(THUMB_DRAGGED);
-      if (showTooltipAfterDrag) this.setTooltipVisibility(true);
-      document.removeEventListener('mousemove', handleMouseMove);
-      this.el.onmouseup = null;
-    });
-  }
-
-  private moveTo(pageX: number) {
-    const { percentStep } = this.options;
-    const parentWidth = this.trackEl.offsetWidth;
-    const { left: parentLeft } = this.trackEl.getBoundingClientRect();
-
-    let position = pageX - parentLeft;
-    position = Math.min(position, parentWidth);
-    position = Math.max(0, position);
-    position = (position / parentWidth) * 100;
-    position = calcNearestStepValue(position, percentStep);
-
-    this.setPosition(position);
   }
 }

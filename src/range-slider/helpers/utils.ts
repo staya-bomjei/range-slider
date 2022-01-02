@@ -11,7 +11,7 @@ function valueToPercent(value: number, maxValue: number) {
   return (value / maxValue) * 100;
 }
 
-function calcDifference<T extends Object>(first: T, second: Partial<T>): T {
+function calcDifference<T extends Object>(first: T, second: Partial<T>): Partial<T> {
   const result: Partial<T> = {};
   const keys = Object.keys(second) as Array<keyof T>;
 
@@ -26,13 +26,40 @@ function calcDifference<T extends Object>(first: T, second: Partial<T>): T {
   return result as T;
 }
 
+function isDifference<T extends Object>(first: T, second: T): boolean {
+  const keys = Object.keys(first) as Array<keyof T>;
+
+  return keys.some((key) => first[key] !== second[key]);
+}
+
 function hasAnyKey<T extends Object>(keys: Array<keyof T>, object: T): boolean {
   return keys.some((key) => key in object);
+}
+
+function callFunctionsForNewOptions<O extends Object>(
+  originalOptions: O,
+  options: Partial<O>,
+  // Это объявление типа, поэтому переменная не используется
+  // eslint-disable-next-line no-unused-vars
+  properties: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
+): void {
+  const newOptions = calcDifference(originalOptions, options);
+  const keys = Object.keys(newOptions) as Array<keyof O>;
+
+  properties.forEach(({ dependencies, callback }) => {
+    const needToCall = dependencies.some((dependence) => (
+      keys.some((key) => key === dependence)
+    ));
+
+    if (needToCall) callback();
+  });
 }
 
 export {
   calcNearestStepValue,
   valueToPercent,
   calcDifference,
+  isDifference,
   hasAnyKey,
+  callFunctionsForNewOptions,
 };

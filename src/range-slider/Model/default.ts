@@ -1,4 +1,4 @@
-import { Options } from './types';
+import { ModelOptions } from './types';
 
 export default {
   min: 0,
@@ -13,4 +13,4 @@ export default {
   showTooltip: true,
   showTooltipAfterDrag: false,
   showProgress: true,
-} as Options;
+} as ModelOptions;

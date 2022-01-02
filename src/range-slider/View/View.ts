@@ -1,123 +1,113 @@
-import { calcDifference, hasAnyKey, valueToPercent } from '../helpers/utils';
+import { callFunctionsForNewOptions } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
-import { Options, OptionsCallback } from '../Options/types';
-import Progress from './subviews/Progress';
-import Scale from './subviews/Scale';
-import Thumb from './subviews/Thumb';
-import Tooltip from './subviews/Tooltip';
 import Track from './subviews/Track';
-import { thumbDependencies, ThumbOptions } from './subviews/types';
-import IView from './interface';
 import { RANGE_SLIDER } from './const';
+import {
+  IView,
+  ViewOptions,
+  SubViews,
+  EventCallback,
+  ViewEvent,
+} from './types';
 
-export default class View implements IView {
-  private changeObserver: EventObserver<OptionsCallback, Options>;
-
-  private options: Options = {} as Options;
-
+export default class View extends EventObserver<EventCallback, ViewEvent> implements IView {
   readonly el: HTMLElement;
 
-  private track: Track;
+  private options: ViewOptions = {} as ViewOptions;
 
-  private progress: Progress;
+  private subViews = {} as SubViews;
 
-  private scale: Scale;
+  constructor(el: HTMLElement) {
+    super();
 
-  private thumb1: Thumb;
-
-  private thumb2: Thumb;
-
-  private tooltip1: Tooltip;
-
-  private tooltip2: Tooltip;
-
-  constructor(el: HTMLElement, options: Options) {
-    this.changeObserver = new EventObserver();
     this.el = el;
     this.render();
-
-    const [trackEl] = this.el.children;
-
-    this.track = new Track(trackEl as HTMLElement);
-    this.progress = this.track.getProgress();
-    this.thumb1 = this.track.getThumb(0);
-    this.thumb2 = this.track.getThumb(1);
-    this.tooltip1 = this.thumb1.getTooltip();
-    this.tooltip2 = this.thumb2.getTooltip();
-    this.scale = this.track.getScale();
-
-    console.log(this.progress);
-    console.log(this.tooltip1);
-    console.log(this.tooltip2);
-    console.log(this.scale);
-
-    this.setOptions(options);
+    this.attachEventHandlers();
   }
 
-  public getOptions(): Options {
+  getOptions(): ViewOptions {
     return { ...this.options };
   }
 
-  public setOptions(options: Options) {
-    this.options = { ...this.options, ...options };
-
-    if (hasAnyKey(thumbDependencies, options)) {
-      const thumbOptions1 = this.calcThumbOptions(true);
-      const newThumbOptions1 = calcDifference(this.thumb1.getOptions(), thumbOptions1);
-      this.thumb1.setOptions(newThumbOptions1);
-      const thumbOptions2 = this.calcThumbOptions(false);
-      const newThumbOptions2 = calcDifference(this.thumb2.getOptions(), thumbOptions2);
-      this.thumb2.setOptions(newThumbOptions2);
-    }
-  }
-
-  public onChange(subscriber: OptionsCallback): void {
-    this.changeObserver.subscribe(subscriber);
-  }
-
-  public render(): void {
-    this.el.className = `${RANGE_SLIDER}`;
-    this.el.innerHTML = `
-      <div></div>
-    `;
-  }
-
-  // private updateView(): void {
-  //   const thumbOptions1 = this.calcThumbOptions(true);
-  //   this.thumb1.setOptions(thumbOptions1);
-
-  //   const thumbOptions2 = this.calcThumbOptions(false);
-  //   this.thumb2.setOptions(thumbOptions2);
-  // }
-
-  private calcThumbOptions(isFirst: boolean): ThumbOptions {
+  setOptions(options: Partial<ViewOptions>) {
     const {
-      min,
-      max,
-      step,
-      valueFrom,
-      valueTo,
-      isRange,
-      showTooltip,
-      showTooltipAfterDrag,
-    } = this.options;
+      progress,
+      scale,
+      leftThumb,
+      rightThumb,
+      leftTooltip,
+      rightTooltip,
+    } = options;
+    console.log('View.setOptions');
 
-    const valuesRange = max - min;
-    const percentStep = valueToPercent(step, valuesRange);
+    // т.к. эта функция проверяет, существуют ли свойства из options, я далее использую '!'
+    callFunctionsForNewOptions(this.options, options, [
+      {
+        dependencies: ['progress'],
+        callback: () => this.subViews.progress.setOptions(progress!),
+      },
+      {
+        dependencies: ['scale'],
+        callback: () => this.subViews.scale.setOptions(scale!),
+      },
+      {
+        dependencies: ['leftThumb'],
+        callback: () => this.subViews.leftThumb.setOptions(leftThumb!),
+      },
+      {
+        dependencies: ['rightThumb'],
+        callback: () => this.subViews.rightThumb.setOptions(rightThumb!),
+      },
+      {
+        dependencies: ['leftTooltip'],
+        callback: () => this.subViews.leftTooltip.setOptions(leftTooltip!),
+      },
+      {
+        dependencies: ['rightTooltip'],
+        callback: () => this.subViews.rightTooltip.setOptions(rightTooltip!),
+      },
+    ]);
+    this.options = { ...this.options, ...options };
+  }
 
-    let value = (isFirst) ? valueFrom : valueTo;
-    value = valueToPercent(value - min, valuesRange);
+  getTrackWidth() {
+    return this.subViews.track.el.offsetWidth;
+  }
 
-    const visible = isFirst || isRange;
+  render(): void {
+    this.el.className = `${RANGE_SLIDER}`;
+    this.el.innerHTML = '<div></div>';
+    this.renderSubViews();
+  }
 
-    const thumbOptions: ThumbOptions = {
-      percentStep,
-      visible,
-      value,
+  private renderSubViews() {
+    const [trackEl] = this.el.children;
+    const track = new Track(trackEl as HTMLElement);
+    const {
+      progress,
+      scale,
+      leftThumb,
+      rightThumb,
+    } = track;
+    this.subViews = {
+      track,
+      progress,
+      scale,
+      leftThumb,
+      rightThumb,
+      leftTooltip: leftThumb.tooltip,
+      rightTooltip: rightThumb.tooltip,
     };
-    if (showTooltip) thumbOptions.showTooltip = showTooltip;
-    if (showTooltipAfterDrag) thumbOptions.showTooltipAfterDrag = showTooltipAfterDrag;
+  }
 
-    return thumbOptions;
+  private attachEventHandlers() {
+    const { leftThumb, rightThumb } = this.subViews;
+
+    leftThumb.subscribe((event) => this.handleThumbEvents(event));
+    rightThumb.subscribe((event) => this.handleThumbEvents(event));
+  }
+
+  private handleThumbEvents(event: ViewEvent) {
+    this.broadcast(event);
   }
 }

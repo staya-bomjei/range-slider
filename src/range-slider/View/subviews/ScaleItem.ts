@@ -1,24 +1,44 @@
-import IView from '../interface';
+import { IView, ScaleItemOptions } from '../types';
 import { SCALE_ITEM } from '../const';
 
 export default class ScaleItem implements IView {
   readonly el: HTMLElement;
+
+  private options = {} as ScaleItemOptions;
 
   constructor(el: HTMLElement) {
     this.el = el;
     this.render();
   }
 
-  public setPosition(position: number) {
+  getOptions(): ScaleItemOptions {
+    return { ...this.options };
+  }
+
+  setOptions(options: Partial<ScaleItemOptions>): void {
+    this.options = { ...this.options, ...options };
+    this.updateView();
+  }
+
+  render(): void {
+    this.el.classList.add(SCALE_ITEM);
+    this.el.innerHTML = '';
+  }
+
+  private updateView(): void {
+    this.updatePosition();
+    this.updateText();
+  }
+
+  private updatePosition(): void {
+    const { position } = this.options;
+
     this.el.style.left = `${position}%`;
   }
 
-  public setText(text: string): void {
-    this.el.innerHTML = text;
-  }
+  private updateText(): void {
+    const { text } = this.options;
 
-  public render(): void {
-    this.el.classList.add(SCALE_ITEM);
-    this.el.innerHTML = '';
+    this.el.innerHTML = text;
   }
 }

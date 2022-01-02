@@ -1,68 +1,58 @@
-import { calcNearestStepValue } from '../../helpers/utils';
-import defaultOptions from '../../Options/default';
-import IView from '../interface';
+import { calcNearestStepValue, callFunctionsForNewOptions, valueToPercent } from '../../helpers/utils';
+import { IView, ScaleOptions } from '../types';
 import { SCALE, SCALE_HIDDEN } from '../const';
-import { ScaleOptions } from './types';
 import ScaleItem from './ScaleItem';
 
 export default class Scale implements IView {
+  items = [] as Array<ScaleItem>;
+
   readonly el: HTMLElement;
 
-  private options: ScaleOptions;
-
-  private items: Array<ScaleItem>;
+  private options = {} as ScaleOptions;
 
   constructor(el: HTMLElement) {
-    this.items = [];
     this.el = el;
     this.render();
-
-    this.options = {} as ScaleOptions;
-    this.setOptions(defaultOptions as ScaleOptions);
   }
 
-  public setOptions(options: ScaleOptions) {
-    const { strings } = options;
-
-    if (strings !== undefined) {
-      this.options = {
-        ...this.options,
-        ...options,
-        min: 0,
-        max: strings.length - 1,
-        step: 1,
-        strings,
-      };
-    } else {
-      this.options = { ...this.options, ...options };
-      delete this.options.strings;
-    }
-
-    this.updateView();
+  getOptions(): ScaleOptions {
+    return { ...this.options };
   }
 
-  public render(isPrerender: boolean = true): void {
-    if (isPrerender) {
-      this.el.classList.add(SCALE);
-    } else {
-      const partHTML = '<div></div>';
-      const { scaleParts } = this.options;
-      this.el.innerHTML = partHTML.repeat(scaleParts + 1);
+  setOptions(options: Partial<ScaleOptions>): void {
+    const originalOptions = this.options;
+    this.options = { ...originalOptions, ...options };
 
-      this.items = [];
-      Array.from(this.el.children).forEach((el) => {
-        this.items.push(new ScaleItem(el as HTMLElement));
-      });
-    }
+    callFunctionsForNewOptions(originalOptions, options, [
+      {
+        dependencies: ['min', 'max', 'step', 'strings', 'partsCounter'],
+        callback: () => this.updateItems(),
+      },
+      {
+        dependencies: ['visible'],
+        callback: () => this.updateVisibility(),
+      },
+    ]);
   }
 
-  private updateView(): void {
-    const { showScale } = this.options;
-    this.setVisibility(showScale);
-    this.updateItems();
+  render(): void {
+    this.el.classList.add(SCALE);
+    this.renderItems();
   }
 
-  private setVisibility(visible: boolean): void {
+  private renderItems(): void {
+    const { partsCounter } = this.options;
+    this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
+
+    this.items = [];
+    Array.from(this.el.children).forEach((el) => {
+      this.items.push(new ScaleItem(el as HTMLElement));
+    });
+  }
+
+  private updateVisibility(): void {
+    const { visible } = this.options;
+
     if (visible) {
       this.el.classList.remove(SCALE_HIDDEN);
     } else {
@@ -71,7 +61,7 @@ export default class Scale implements IView {
   }
 
   private updateItems(): void {
-    this.render(false);
+    this.renderItems();
 
     const correctValues = this.calcCorrectValues();
     const correctPositions = this.calcCorrectPositions(correctValues);
@@ -81,26 +71,28 @@ export default class Scale implements IView {
     // т.к. их длинна всегда равна this.options.scaleParts + 1
 
     this.items.forEach((item, index) => {
-      item.setPosition(correctPositions[index]!);
-      item.setText(correctTexts[index]!);
+      item.setOptions({
+        position: correctPositions[index]!,
+        text: correctTexts[index]!,
+      });
     });
   }
 
   private calcCorrectValues(): Array<number> {
-    const correctValues: Array<number> = [];
     const {
       min,
       max,
       step,
-      scaleParts,
+      partsCounter,
     } = this.options;
+    const valuePerPart = (max - min) / partsCounter;
+    const correctValues = [...Array(partsCounter)];
 
-    const valuePerPart = (max - min) / scaleParts;
-    for (let i = 0; i < scaleParts; i += 1) {
-      const value = valuePerPart * i;
+    correctValues.forEach((_, index) => {
+      const value = valuePerPart * index;
       const nearestCorrectValue = calcNearestStepValue(value, step);
-      correctValues.push(nearestCorrectValue + min);
-    }
+      correctValues[index] = nearestCorrectValue + min;
+    });
     correctValues.push(max);
 
     return correctValues;
@@ -109,11 +101,12 @@ export default class Scale implements IView {
   private calcCorrectPositions(correctValues: Array<number>): Array<number> {
     const { min, max } = this.options;
     return correctValues
-      .map((value) => ((value - min) / (max - min)) * 100);
+      .map((value) => valueToPercent(value - min, max - min));
   }
 
   private calcCorrectTexts(correctValues: Array<number>): Array<string> {
     const { strings } = this.options;
+
     return correctValues.map((value) => {
       if (strings !== undefined) {
         return strings[value]!;

@@ -1,31 +1,28 @@
 type Orientation = 'horizontal' | 'vertical';
 
-type Options = {
+type ModelOptions = {
   min: number,
   max: number,
-  strings: Array<string>,
   step: number,
+  strings: Array<string>,
+  valueFrom: number,
+  valueTo: number,
   isRange: boolean,
   orientation: Orientation,
-  scaleParts: number,
   showScale: boolean,
+  scaleParts: number,
   showTooltip: boolean,
   showTooltipAfterDrag: boolean,
   showProgress: boolean,
   allowThumbsSwap: boolean,
-  valueFrom: number,
-  valueTo: number,
 };
-
-type OptionValues = number | Array<string> | boolean | Orientation;
 
 // Это объявление типа, поэтому переменная не используется
 // eslint-disable-next-line no-unused-vars
-type OptionsCallback = (data: Options) => void;
+type ModelCallback = (data: ModelOptions) => void;
 
 export {
   Orientation,
-  Options,
-  OptionValues,
-  OptionsCallback,
+  ModelOptions,
+  ModelCallback,
 };

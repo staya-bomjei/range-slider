@@ -1,9 +1,15 @@
+import EventObserver from '../../helpers/EventObserver';
 import { calcNearestStepValue, callFunctionsForNewOptions, valueToPercent } from '../../helpers/utils';
-import { IView, ScaleOptions } from '../types';
+import {
+  EventCallback,
+  IView,
+  ScaleOptions,
+  ViewEvent,
+} from '../types';
 import { SCALE, SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
-export default class Scale implements IView {
+export default class Scale extends EventObserver<EventCallback, ViewEvent> implements IView {
   items = [] as Array<ScaleItem>;
 
   readonly el: HTMLElement;
@@ -11,12 +17,14 @@ export default class Scale implements IView {
   private options = {} as ScaleOptions;
 
   constructor(el: HTMLElement) {
+    super();
+
     this.el = el;
     this.render();
   }
 
   getOptions(): ScaleOptions {
-    return { ...this.options };
+    return this.options;
   }
 
   setOptions(options: Partial<ScaleOptions>): void {
@@ -50,6 +58,16 @@ export default class Scale implements IView {
     });
   }
 
+  private attachEventHandlers(): void {
+    this.items.forEach((item) => {
+      item.subscribe((event) => this.handleScaleItemMouseDown(event));
+    });
+  }
+
+  private handleScaleItemMouseDown(event: ViewEvent): void {
+    this.broadcast(event);
+  }
+
   private updateVisibility(): void {
     const { visible } = this.options;
 
@@ -62,6 +80,7 @@ export default class Scale implements IView {
 
   private updateItems(): void {
     this.renderItems();
+    this.attachEventHandlers();
 
     const correctValues = this.calcCorrectValues();
     const correctPositions = this.calcCorrectPositions(correctValues);

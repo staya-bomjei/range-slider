@@ -13,7 +13,7 @@ export default class Tooltip implements IView {
   }
 
   getOptions(): TooltipOptions {
-    return { ...this.options };
+    return this.options;
   }
 
   setOptions(options: Partial<TooltipOptions>): void {

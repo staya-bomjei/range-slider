@@ -24,11 +24,11 @@ export default class Model extends EventObserver<ModelCallback, ModelOptions> {
     this.setOptionsWithoutBroadcast(options);
   }
 
-  setOptions(options: ModelOptions): void {
+  setOptions(options: Partial<ModelOptions>): void {
     const newOptions = calcDifference(this.options, options);
     this.validateOptions(newOptions);
     this.setOptionsWithoutBroadcast(newOptions);
-    this.broadcast(options);
+    this.broadcast(this.options);
   }
 
   private setOptionsWithoutBroadcast(options: Partial<ModelOptions>) {

@@ -25,7 +25,7 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
   }
 
   getOptions(): ThumbOptions {
-    return { ...this.options };
+    return this.options;
   }
 
   setOptions(options: Partial<ThumbOptions>): void {
@@ -61,11 +61,7 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
   }
 
   private handleMouseDown(event: MouseEvent): void {
-    this.broadcast({
-      view: this,
-      type: 'mousedown',
-      event,
-    });
+    this.broadcast({ view: this, event });
   }
 
   private updateVisibility(): void {

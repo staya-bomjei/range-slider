@@ -11,11 +11,11 @@ import {
 } from './types';
 
 export default class View extends EventObserver<EventCallback, ViewEvent> implements IView {
+  subViews = {} as SubViews;
+
   readonly el: HTMLElement;
 
   private options: ViewOptions = {} as ViewOptions;
-
-  private subViews = {} as SubViews;
 
   constructor(el: HTMLElement) {
     super();
@@ -38,7 +38,6 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
       leftTooltip,
       rightTooltip,
     } = options;
-    console.log('View.setOptions');
 
     // т.к. эта функция проверяет, существуют ли свойства из options, я далее использую '!'
     callFunctionsForNewOptions(this.options, options, [
@@ -101,13 +100,10 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
   }
 
   private attachEventHandlers() {
-    const { leftThumb, rightThumb } = this.subViews;
+    const { scale, leftThumb, rightThumb } = this.subViews;
 
-    leftThumb.subscribe((event) => this.handleThumbEvents(event));
-    rightThumb.subscribe((event) => this.handleThumbEvents(event));
-  }
-
-  private handleThumbEvents(event: ViewEvent) {
-    this.broadcast(event);
+    scale.subscribe((event) => this.broadcast(event));
+    leftThumb.subscribe((event) => this.broadcast(event));
+    rightThumb.subscribe((event) => this.broadcast(event));
   }
 }

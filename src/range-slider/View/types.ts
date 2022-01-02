@@ -1,5 +1,6 @@
 import Progress from './subviews/Progress';
 import Scale from './subviews/Scale';
+import ScaleItem from './subviews/ScaleItem';
 import Thumb from './subviews/Thumb';
 import Tooltip from './subviews/Tooltip';
 import Track from './subviews/Track';
@@ -35,8 +36,7 @@ type TooltipOptions = {
 };
 
 type ViewEvent = {
-  view: Thumb,
-  type: keyof HTMLElementEventMap,
+  view: Thumb | ScaleItem | Track,
   event: MouseEvent,
 }
 

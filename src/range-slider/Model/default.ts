@@ -4,7 +4,7 @@ export default {
   min: 0,
   max: 100,
   step: 10,
-  valueFrom: 11,
+  valueFrom: 10,
   valueTo: 100,
   orientation: 'horizontal',
   scaleParts: 5,

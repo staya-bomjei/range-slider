@@ -44,11 +44,12 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
   }
 
   private attachEventHandlers(): void {
-    this.el.addEventListener('mousedown', (e) => this.handleMouseDown(e));
+    this.el.addEventListener('mousedown', (event) => this.handleMouseDown(event));
     this.el.ondragstart = null;
   }
 
   private handleMouseDown(event: MouseEvent): void {
+    event.stopPropagation();
     this.broadcast({ view: this, event });
   }
 

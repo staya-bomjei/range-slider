@@ -92,12 +92,10 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
         <div class="${TRACK}">
           <div class="${PROGRESS}"></div>
           <div class="${THUMB}">
-            <div class="${TOOLTIP}">
-            </div>
+            <div class="${TOOLTIP}"></div>
           </div>
           <div class="${THUMB}">
-            <div class="${TOOLTIP}">
-            </div>
+            <div class="${TOOLTIP}"></div>
           </div>
         </div>
         <div class="${SCALE}"></div>

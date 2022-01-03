@@ -6,7 +6,7 @@ import {
   ScaleOptions,
   ViewEvent,
 } from '../types';
-import { SCALE, SCALE_HIDDEN } from '../const';
+import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
 export default class Scale extends EventObserver<EventCallback, ViewEvent> implements IView {
@@ -20,7 +20,6 @@ export default class Scale extends EventObserver<EventCallback, ViewEvent> imple
     super();
 
     this.el = el;
-    this.render();
   }
 
   getOptions(): ScaleOptions {
@@ -43,11 +42,6 @@ export default class Scale extends EventObserver<EventCallback, ViewEvent> imple
     ]);
   }
 
-  render(): void {
-    this.el.classList.add(SCALE);
-    this.renderItems();
-  }
-
   private renderItems(): void {
     const { partsCounter } = this.options;
     this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
@@ -60,12 +54,8 @@ export default class Scale extends EventObserver<EventCallback, ViewEvent> imple
 
   private attachEventHandlers(): void {
     this.items.forEach((item) => {
-      item.subscribe((event) => this.handleScaleItemMouseDown(event));
+      item.subscribe((event) => this.broadcast(event));
     });
-  }
-
-  private handleScaleItemMouseDown(event: ViewEvent): void {
-    this.broadcast(event);
   }
 
   private updateVisibility(): void {

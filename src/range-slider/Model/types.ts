@@ -12,9 +12,7 @@ type ModelOptions = {
   showScale: boolean,
   scaleParts: number,
   showTooltip: boolean,
-  showTooltipAfterDrag: boolean,
   showProgress: boolean,
-  allowThumbsSwap: boolean,
 };
 
 // Это объявление типа, поэтому переменная не используется

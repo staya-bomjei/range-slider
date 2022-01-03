@@ -1,6 +1,6 @@
 import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { IView, ProgressOptions } from '../types';
-import { PROGRESS, PROGRESS_HIDDEN } from '../const';
+import { PROGRESS_HIDDEN } from '../const';
 
 export default class Progress implements IView {
   readonly el: HTMLElement;
@@ -9,7 +9,6 @@ export default class Progress implements IView {
 
   constructor(el: HTMLElement) {
     this.el = el;
-    this.render();
   }
 
   getOptions(): ProgressOptions {
@@ -29,10 +28,6 @@ export default class Progress implements IView {
         callback: () => this.updateVisibility(),
       },
     ]);
-  }
-
-  render(): void {
-    this.el.classList.add(PROGRESS);
   }
 
   private updateVisibility(): void {

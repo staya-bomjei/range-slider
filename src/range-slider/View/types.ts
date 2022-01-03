@@ -28,6 +28,7 @@ type ScaleItemOptions = {
 type ThumbOptions = {
   position: number,
   visible: boolean,
+  isHigher: boolean,
 };
 
 type TooltipOptions = {
@@ -69,7 +70,6 @@ type SubViews = {
 
 interface IView {
   readonly el: HTMLElement;
-  render(): void;
 }
 
 export {

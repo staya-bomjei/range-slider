@@ -1,6 +1,6 @@
 import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { IView, TooltipOptions } from '../types';
-import { TOOLTIP, TOOLTIP_HIDDEN } from '../const';
+import { TOOLTIP_HIDDEN } from '../const';
 
 export default class Tooltip implements IView {
   readonly el: HTMLElement;
@@ -9,7 +9,6 @@ export default class Tooltip implements IView {
 
   constructor(el: HTMLElement) {
     this.el = el;
-    this.render();
   }
 
   getOptions(): TooltipOptions {
@@ -29,11 +28,6 @@ export default class Tooltip implements IView {
         callback: () => this.updateVisibility(),
       },
     ]);
-  }
-
-  render(): void {
-    this.el.classList.add(TOOLTIP);
-    this.el.innerHTML = '';
   }
 
   private updateVisibility(): void {

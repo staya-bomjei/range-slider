@@ -1,17 +1,14 @@
 import EventObserver from '../../helpers/EventObserver';
 import { callFunctionsForNewOptions } from '../../helpers/utils';
-import { THUMB, THUMB_HIDDEN } from '../const';
+import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
 import {
   IView,
   EventCallback,
   ThumbOptions,
   ViewEvent,
 } from '../types';
-import Tooltip from './Tooltip';
 
 export default class Thumb extends EventObserver<EventCallback, ViewEvent> implements IView {
-  tooltip = {} as Tooltip;
-
   readonly el: HTMLElement;
 
   private options = {} as ThumbOptions;
@@ -20,7 +17,6 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
     super();
 
     this.el = el;
-    this.render();
     this.attachEventHandlers();
   }
 
@@ -40,19 +36,11 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
         dependencies: ['visible'],
         callback: () => this.updateVisibility(),
       },
+      {
+        dependencies: ['isHigher'],
+        callback: () => this.updateZIndex(),
+      },
     ]);
-  }
-
-  render(): void {
-    this.el.classList.add(THUMB);
-    this.renderTooltip();
-  }
-
-  private renderTooltip(): void {
-    this.el.innerHTML = '<div><div>';
-    const [tooltipEl] = this.el.children;
-
-    this.tooltip = new Tooltip(tooltipEl as HTMLElement);
   }
 
   private attachEventHandlers(): void {
@@ -78,5 +66,15 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
     const { position } = this.options;
 
     this.el.style.left = `${position}%`;
+  }
+
+  private updateZIndex(): void {
+    const { isHigher } = this.options;
+
+    if (isHigher) {
+      this.el.classList.add(THUMB_HIGHER);
+    } else {
+      this.el.classList.remove(THUMB_HIGHER);
+    }
   }
 }

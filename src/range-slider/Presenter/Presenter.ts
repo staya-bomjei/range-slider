@@ -1,7 +1,8 @@
 import {
   valueToPercent,
-  isDifference,
   calcNearestStepValue,
+  callFunctionsForNewOptions,
+  rectsIntersect,
 } from '../helpers/utils';
 import Model from '../Model/Model';
 import { ModelOptions } from '../Model/types';
@@ -10,6 +11,7 @@ import { THUMB_DRAGGED } from '../View/const';
 import {
   ViewOptions,
   ViewEvent,
+  TooltipOptions,
 } from '../View/types';
 import Thumb from '../View/subviews/Thumb';
 import ScaleItem from '../View/subviews/ScaleItem';
@@ -20,12 +22,14 @@ export default class Presenter {
 
   private view: View;
 
+  private thumbDragged: 'left' | 'right' | false;
+
   constructor(el: HTMLElement) {
     this.model = new Model();
     this.view = new View(el);
-    const oldViewOptions = this.view.getOptions();
+    this.thumbDragged = false;
     const modelOptions = this.model.getOptions();
-    const viewOptions = Presenter.convertToViewOptions(oldViewOptions, modelOptions);
+    const viewOptions = this.convertToViewOptions(modelOptions);
     this.view.setOptions(viewOptions);
 
     this.attachEventHandlers();
@@ -40,10 +44,8 @@ export default class Presenter {
     this.view.subscribe((options) => this.handleViewChange(options));
   }
 
-  private handleModelChange(options: ModelOptions): void {
-    console.log('Model is change!');
-    const oldViewOptions = this.view.getOptions();
-    const newViewOptions = Presenter.convertToViewOptions(oldViewOptions, options);
+  private handleModelChange(newModelOptions: Partial<ModelOptions>): void {
+    const newViewOptions = this.convertToViewOptions(newModelOptions);
     this.view.setOptions(newViewOptions);
   }
 
@@ -53,7 +55,9 @@ export default class Presenter {
     } else if (view instanceof ScaleItem) {
       this.handleScaleItemMouseDown(view);
     } else if (view instanceof Track) {
-      this.handleTrackMouseDown(view, event);
+      this.handleTrackMouseDown(event);
+    } else {
+      throw new Error(`Unknown view event: ${view} ${event}`);
     }
   }
 
@@ -69,19 +73,61 @@ export default class Presenter {
 
   private handleScaleItemMouseDown(scaleItem: ScaleItem) {
     const { position } = scaleItem.getOptions();
+    const { isRange } = this.model.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
     const leftPosition = leftThumb.getOptions().position;
     const rightPosition = rightThumb.getOptions().position;
     const leftRange = Math.abs(position - leftPosition);
     const rightRange = Math.abs(position - rightPosition);
-    const isLeftThumbCloser = leftRange < rightRange;
+    const isLeftThumbCloser = !isRange
+      || leftRange < rightRange
+      || position < leftPosition;
 
     const modelProperty = (isLeftThumbCloser) ? 'valueFrom' : 'valueTo';
     this.model.setOptions({ [modelProperty]: this.percentToValue(position) });
   }
 
-  private handleTrackMouseDown(track: Track, event: MouseEvent) {
-    console.log(track, event, this);
+  private handleTrackMouseDown(event: MouseEvent) {
+    const { isRange } = this.model.getOptions();
+    const { leftThumb, rightThumb } = this.view.subViews;
+    const { el: leftThumbEl } = leftThumb;
+    const { el: rightThumbEl } = rightThumb;
+    const { x: leftThumbX } = leftThumbEl.getBoundingClientRect();
+    const { x: rightThumbX } = rightThumbEl.getBoundingClientRect();
+    const { pageX } = event;
+
+    const leftRange = Math.abs(pageX - leftThumbX);
+    const rightRange = Math.abs(pageX - rightThumbX);
+    const isLeftThumbCloser = !isRange
+      || leftRange < rightRange
+      || (leftRange === rightRange && leftThumbX > pageX);
+    const thumb = (isLeftThumbCloser) ? leftThumb : rightThumb;
+    const leftPosition = leftThumb.getOptions().position;
+    const rightPosition = rightThumb.getOptions().position;
+    const constraint = (isLeftThumbCloser) ? rightPosition : leftPosition;
+
+    this.handleThumbMouseDown(thumb, isLeftThumbCloser, constraint, event);
+  }
+
+  private handleTooltipsOverlap(): void {
+    const { isRange, valueFrom, valueTo } = this.model.getOptions();
+    const needToHandle = isRange
+      && this.isTooltipsOverlap()
+      && valueFrom !== valueTo;
+
+    if (!needToHandle) return;
+
+    const { leftTooltip, rightTooltip } = this.view.subViews;
+    const originalLeftText = leftTooltip.getOptions().text;
+    const originalRightText = rightTooltip.getOptions().text;
+
+    const valuesRange = `${originalLeftText} - ${originalRightText}`;
+    const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
+    const rightTooltipText = (this.thumbDragged !== 'right') ? '' : valuesRange;
+    this.view.setOptions({
+      leftTooltip: { text: leftTooltipText } as TooltipOptions,
+      rightTooltip: { text: rightTooltipText } as TooltipOptions,
+    });
   }
 
   private handleThumbMouseDown(
@@ -90,15 +136,12 @@ export default class Presenter {
     constraint: number,
     event: MouseEvent,
   ): void {
-    const { showTooltipAfterDrag } = this.model.getOptions();
     const { el } = thumb;
     const { pageX } = event;
 
+    this.thumbDragged = (isLeftThumb) ? 'left' : 'right';
     el.classList.add(THUMB_DRAGGED);
     this.moveThumbTo(thumb, pageX, isLeftThumb, constraint);
-    if (showTooltipAfterDrag) {
-      thumb.tooltip.setOptions({ visible: true });
-    }
 
     const handleMouseMove = (e: MouseEvent) => {
       this.moveThumbTo(thumb, e.pageX, isLeftThumb, constraint);
@@ -106,10 +149,8 @@ export default class Presenter {
 
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', () => {
+      this.thumbDragged = false;
       el.classList.remove(THUMB_DRAGGED);
-      if (showTooltipAfterDrag) {
-        thumb.tooltip.setOptions({ visible: false });
-      }
       document.removeEventListener('mousemove', handleMouseMove);
       document.onmouseup = null;
     });
@@ -121,16 +162,19 @@ export default class Presenter {
     isLeftThumb: boolean,
     constraint: number,
   ) {
+    const { isRange } = this.model.getOptions();
     const { position: oldPosition } = thumb.getOptions();
     const newPosition = this.calcNearestPosition(pageX);
 
     const passesConstraint = (isLeftThumb)
       ? newPosition <= constraint : newPosition >= constraint;
-    const needToUpdate = passesConstraint && newPosition !== oldPosition;
+    const needToUpdate = (!isRange || passesConstraint) && newPosition !== oldPosition;
 
     if (needToUpdate) {
+      // console.log(newPosition, oldPosition);
       const modelProperty = (isLeftThumb) ? 'valueFrom' : 'valueTo';
       this.model.setOptions({ [modelProperty]: this.percentToValue(newPosition) });
+      this.handleTooltipsOverlap();
     }
   }
 
@@ -151,13 +195,28 @@ export default class Presenter {
   }
 
   private percentToValue(percent: number) {
-    const { min, max } = this.model.getOptions();
+    const { min, max, step } = this.model.getOptions();
     const valueMax = max - min;
+    const value = (percent * valueMax) / 100;
 
-    return (percent * valueMax) / 100;
+    return calcNearestStepValue(value, step);
   }
 
-  static convertToViewOptions(viewOptions: ViewOptions, modelOptions: ModelOptions): ViewOptions {
+  private isTooltipsOverlap(): boolean {
+    const {
+      leftTooltip: {
+        el: leftTooltipEl,
+      },
+      rightTooltip: {
+        el: rightTooltipEl,
+      },
+    } = this.view.subViews;
+    const leftTooltipRect = leftTooltipEl.getBoundingClientRect();
+    const rightTooltipRect = rightTooltipEl.getBoundingClientRect();
+    return rectsIntersect(leftTooltipRect, rightTooltipRect);
+  }
+
+  private convertToViewOptions(newModelOptions: Partial<ModelOptions>): ViewOptions {
     const {
       min,
       max,
@@ -171,57 +230,79 @@ export default class Presenter {
       scaleParts,
       showTooltip,
       showProgress,
-    } = modelOptions;
-    const percentFrom = valueToPercent(valueFrom - min, max);
-    const percentTo = valueToPercent(valueTo - min, max);
+    } = this.model.getOptions();
+    const viewOptions = {} as ViewOptions;
 
-    const computedViewOptions = {
-      progress: {
-        from: percentFrom,
-        to: percentTo,
-        visible: showProgress,
-      },
-      scale: {
-        min,
-        max,
-        step,
-        strings,
-        partsCounter: scaleParts,
-        visible: showScale,
-      },
-      leftThumb: {
-        position: percentFrom,
-        visible: true,
-      },
-      rightThumb: {
-        position: percentTo,
-        visible: isRange,
-      },
-      leftTooltip: {
-        text: String(valueFrom),
-        visible: showTooltip,
-      },
-      rightTooltip: {
-        text: String(valueTo),
-        visible: showTooltip,
-      },
-    } as ViewOptions;
+    const percentStep = valueToPercent(step, max - min);
+    const percentFrom = calcNearestStepValue(valueToPercent(valueFrom - min, max), percentStep);
+    const percentTo = calcNearestStepValue(valueToPercent(valueTo - min, max), percentStep);
+    const needToSetZIndexes = valueFrom === valueTo;
+    const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
+    const isRightThumbHigher = needToSetZIndexes && valueTo === min;
 
-    const keys = Object.keys(computedViewOptions) as Array<keyof ViewOptions>;
-    return keys.reduce((options, key) => {
-      const originalViewHasOption = key in viewOptions;
-      const isOptionSimple = typeof viewOptions[key] !== 'object';
-      const needToUpdate = !originalViewHasOption
-        || (isOptionSimple && viewOptions[key] !== computedViewOptions[key])
-        || isDifference(viewOptions[key], computedViewOptions[key]);
+    // Модель уже изменила своё состояние и в эту функцию были переданы
+    // лишь те её параметры, которые были изменены, поэтому далее должны
+    // быть вычислены новые опции ViewOptions, которые зависят от новых
+    // опций модели.
+    callFunctionsForNewOptions({} as ModelOptions, newModelOptions, [
+      {
+        dependencies: ['valueFrom', 'valueTo', 'showProgress'],
+        callback: () => {
+          viewOptions.progress = {
+            from: (isRange) ? percentFrom : 0,
+            to: (isRange) ? percentTo : percentFrom,
+            visible: showProgress,
+          };
+        },
+      },
+      {
+        dependencies: ['min', 'max', 'step', 'strings', 'scaleParts', 'showScale'],
+        callback: () => {
+          viewOptions.scale = {
+            min,
+            max,
+            step,
+            strings,
+            partsCounter: scaleParts,
+            visible: showScale,
+          };
+        },
+      },
+      {
+        dependencies: ['valueFrom', 'min', 'max'],
+        callback: () => {
+          viewOptions.leftThumb = {
+            position: percentFrom,
+            visible: true,
+            isHigher: isLeftThumbHigher,
+          };
+        },
+      },
+      {
+        dependencies: ['valueTo', 'min', 'max', 'isRange'],
+        callback: () => {
+          viewOptions.rightThumb = {
+            position: percentTo,
+            visible: isRange,
+            isHigher: isRightThumbHigher,
+          };
+        },
+      },
+      {
+        dependencies: ['valueFrom', 'valueTo', 'min', 'max', 'showTooltip'],
+        callback: () => {
+          viewOptions.leftTooltip = {
+            text: (strings === undefined) ? String(valueFrom) : strings[valueFrom]!,
+            visible: showTooltip,
+          };
+          viewOptions.rightTooltip = {
+            text: (strings === undefined) ? String(valueTo) : strings[valueTo]!,
+            visible: isRange && showTooltip,
+          };
+        },
+      },
+    ]);
 
-      if (needToUpdate) {
-        return {
-          ...options,
-          [key]: computedViewOptions[key],
-        };
-      }
-      return options;
-    }, viewOptions);
+    return viewOptions;
   }
 }

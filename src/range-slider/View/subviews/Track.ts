@@ -1,37 +1,17 @@
-import { IView } from '../types';
-import { TRACK } from '../const';
-import Scale from './Scale';
-import Thumb from './Thumb';
-import Progress from './Progress';
+import EventObserver from '../../helpers/EventObserver';
+import { EventCallback, IView, ViewEvent } from '../types';
 
-export default class Track implements IView {
+export default class Track extends EventObserver<EventCallback, ViewEvent> implements IView {
   readonly el: HTMLElement;
 
-  progress = {} as Progress;
-
-  scale = {} as Scale;
-
-  leftThumb = {} as Thumb;
-
-  rightThumb = {} as Thumb;
-
   constructor(el: HTMLElement) {
+    super();
+
     this.el = el;
-    this.render();
+    this.attachEventHandlers();
   }
 
-  render(): void {
-    this.el.classList.add(TRACK);
-    this.el.innerHTML = '<div></div>'.repeat(4);
-    this.renderSubViews();
-  }
-
-  private renderSubViews(): void {
-    const [scaleEl, leftThumbEl, rightThumbEl, progressEl] = this.el.children;
-
-    this.scale = new Scale(scaleEl as HTMLElement);
-    this.leftThumb = new Thumb(leftThumbEl as HTMLElement);
-    this.rightThumb = new Thumb(rightThumbEl as HTMLElement);
-    this.progress = new Progress(progressEl as HTMLElement);
+  private attachEventHandlers() {
+    this.el.addEventListener('mousedown', (event) => this.broadcast({ view: this, event }));
   }
 }

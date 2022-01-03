@@ -55,6 +55,12 @@ function callFunctionsForNewOptions<O extends Object>(
   });
 }
 
+function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
+  return rect1.left + rect1.width > rect2.left
+  && rect1.right - rect1.width < rect2.right
+  && !(rect1.height === 0 && rect2.height === 0);
+}
+
 export {
   calcNearestStepValue,
   valueToPercent,
@@ -62,4 +68,5 @@ export {
   isDifference,
   hasAnyKey,
   callFunctionsForNewOptions,
+  rectsIntersect,
 };

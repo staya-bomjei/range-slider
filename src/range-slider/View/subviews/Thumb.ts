@@ -1,14 +1,9 @@
 import EventObserver from '../../helpers/EventObserver';
 import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
-import {
-  IView,
-  EventCallback,
-  ThumbOptions,
-  ViewEvent,
-} from '../types';
+import { IView, ThumbOptions, ViewEvent } from '../types';
 
-export default class Thumb extends EventObserver<EventCallback, ViewEvent> implements IView {
+export default class Thumb extends EventObserver<ViewEvent> implements IView {
   readonly el: HTMLElement;
 
   private options = {} as ThumbOptions;
@@ -44,13 +39,11 @@ export default class Thumb extends EventObserver<EventCallback, ViewEvent> imple
   }
 
   private attachEventHandlers(): void {
-    this.el.addEventListener('mousedown', (event) => this.handleMouseDown(event));
+    this.el.addEventListener('mousedown', (event) => {
+      event.stopPropagation();
+      this.broadcast({ view: this, event });
+    });
     this.el.ondragstart = null;
-  }
-
-  private handleMouseDown(event: MouseEvent): void {
-    event.stopPropagation();
-    this.broadcast({ view: this, event });
   }
 
   private updateVisibility(): void {

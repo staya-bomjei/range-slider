@@ -1,13 +1,8 @@
 import EventObserver from '../../helpers/EventObserver';
-import {
-  EventCallback,
-  IView,
-  ScaleItemOptions,
-  ViewEvent,
-} from '../types';
+import { IView, ScaleItemOptions, ViewEvent } from '../types';
 import { SCALE_ITEM } from '../const';
 
-export default class ScaleItem extends EventObserver<EventCallback, ViewEvent> implements IView {
+export default class ScaleItem extends EventObserver<ViewEvent> implements IView {
   readonly el: HTMLElement;
 
   private options = {} as ScaleItemOptions;
@@ -35,7 +30,9 @@ export default class ScaleItem extends EventObserver<EventCallback, ViewEvent> i
   }
 
   private attachEventHandlers(): void {
-    this.el.addEventListener('mousedown', (event) => this.broadcast({ view: this, event }));
+    this.el.addEventListener('mousedown', (event) => {
+      this.broadcast({ view: this, event });
+    });
   }
 
   private updateView(): void {

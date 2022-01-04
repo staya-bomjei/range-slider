@@ -1,7 +1,7 @@
 import EventObserver from '../../helpers/EventObserver';
-import { EventCallback, IView, ViewEvent } from '../types';
+import { IView, ViewEvent } from '../types';
 
-export default class Track extends EventObserver<EventCallback, ViewEvent> implements IView {
+export default class Track extends EventObserver<ViewEvent> implements IView {
   readonly el: HTMLElement;
 
   constructor(el: HTMLElement) {
@@ -12,6 +12,8 @@ export default class Track extends EventObserver<EventCallback, ViewEvent> imple
   }
 
   private attachEventHandlers() {
-    this.el.addEventListener('mousedown', (event) => this.broadcast({ view: this, event }));
+    this.el.addEventListener('mousedown', (event) => {
+      this.broadcast({ view: this, event });
+    });
   }
 }

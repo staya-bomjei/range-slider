@@ -15,12 +15,7 @@ type ModelOptions = {
   showProgress: boolean,
 };
 
-// Это объявление типа, поэтому переменная не используется
-// eslint-disable-next-line no-unused-vars
-type ModelCallback = (data: ModelOptions) => void;
-
 export {
   Orientation,
   ModelOptions,
-  ModelCallback,
 };

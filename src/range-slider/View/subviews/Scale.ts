@@ -1,15 +1,10 @@
 import EventObserver from '../../helpers/EventObserver';
 import { calcNearestStepValue, callFunctionsForNewOptions, valueToPercent } from '../../helpers/utils';
-import {
-  EventCallback,
-  IView,
-  ScaleOptions,
-  ViewEvent,
-} from '../types';
+import { IView, ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
-export default class Scale extends EventObserver<EventCallback, ViewEvent> implements IView {
+export default class Scale extends EventObserver<ViewEvent> implements IView {
   items = [] as Array<ScaleItem>;
 
   readonly el: HTMLElement;
@@ -76,9 +71,9 @@ export default class Scale extends EventObserver<EventCallback, ViewEvent> imple
     const correctPositions = this.calcCorrectPositions(correctValues);
     const correctTexts = this.calcCorrectTexts(correctValues);
 
-    // correctValues, correctPositions, correctTexts, this.items всегда имеют одинаковую длину,
-    // т.к. их длинна всегда равна this.options.scaleParts + 1
-
+    // использую '!' далее, потому что correctValues, correctPositions, correctTexts,
+    // this.items всегда имеют одинаковую длину, т.к. их длинна всегда равна
+    // this.options.scaleParts + 1
     this.items.forEach((item, index) => {
       item.setOptions({
         position: correctPositions[index]!,
@@ -117,9 +112,7 @@ export default class Scale extends EventObserver<EventCallback, ViewEvent> imple
     const { strings } = this.options;
 
     return correctValues.map((value) => {
-      if (strings !== undefined) {
-        return strings[value]!;
-      }
+      if (strings !== undefined) return strings[value]!;
       return String(value);
     });
   }

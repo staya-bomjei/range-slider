@@ -1,6 +1,10 @@
 import { callFunctionsForNewOptions } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
 import Track from './subviews/Track';
+import Scale from './subviews/Scale';
+import Progress from './subviews/Progress';
+import Thumb from './subviews/Thumb';
+import Tooltip from './subviews/Tooltip';
 import {
   PROGRESS,
   RANGE_SLIDER,
@@ -15,15 +19,10 @@ import {
   IView,
   ViewOptions,
   SubViews,
-  EventCallback,
   ViewEvent,
 } from './types';
-import Scale from './subviews/Scale';
-import Progress from './subviews/Progress';
-import Thumb from './subviews/Thumb';
-import Tooltip from './subviews/Tooltip';
 
-export default class View extends EventObserver<EventCallback, ViewEvent> implements IView {
+export default class View extends EventObserver<ViewEvent> implements IView {
   subViews = {} as SubViews;
 
   readonly el: HTMLElement;
@@ -39,7 +38,7 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
   }
 
   getOptions(): ViewOptions {
-    return { ...this.options };
+    return this.options;
   }
 
   setOptions(options: Partial<ViewOptions>) {

@@ -1,9 +1,9 @@
-import EventObserver from '../helpers/EventObserver';
-import { ModelOptions, ModelCallback } from './types';
-import defaultOptions from './default';
 import { calcDifference } from '../helpers/utils';
+import EventObserver from '../helpers/EventObserver';
+import { ModelOptions } from './types';
+import defaultOptions from './default';
 
-export default class Model extends EventObserver<ModelCallback, Partial<ModelOptions>> {
+export default class Model extends EventObserver<Partial<ModelOptions>> {
   private options = {} as ModelOptions;
 
   constructor(options?: ModelOptions) {

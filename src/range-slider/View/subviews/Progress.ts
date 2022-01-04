@@ -12,7 +12,7 @@ export default class Progress implements IView {
   }
 
   getOptions(): ProgressOptions {
-    return { ...this.options };
+    return this.options;
   }
 
   setOptions(options: Partial<ProgressOptions>): void {

@@ -41,10 +41,6 @@ type ViewEvent = {
   event: MouseEvent,
 }
 
-// Это объявление типа, поэтому переменная не используется
-// eslint-disable-next-line no-unused-vars
-type EventCallback = (data: ViewEvent) => void;
-
 type ViewOptions = {
   isVertical: boolean,
   progress: ProgressOptions,
@@ -54,10 +50,6 @@ type ViewOptions = {
   leftTooltip: TooltipOptions,
   rightTooltip: TooltipOptions,
 };
-
-// Это объявление типа, поэтому переменная не используется
-// eslint-disable-next-line no-unused-vars
-type ViewCallback = (data: ViewOptions) => void;
 
 type SubViews = {
   track: Track,
@@ -80,9 +72,7 @@ export {
   ThumbOptions,
   TooltipOptions,
   ViewEvent,
-  EventCallback,
   ViewOptions,
-  ViewCallback,
   SubViews,
   IView,
 };

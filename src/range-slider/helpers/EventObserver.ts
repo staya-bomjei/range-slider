@@ -1,19 +1,23 @@
-export default class EventObserver<C extends Function, D extends Object> {
-  private observers: Array<C>;
+export default class EventObserver<D extends Object> {
+  // Это объявление класса, поэтому переменная не используется
+  // eslint-disable-next-line no-unused-vars
+  private observers: Array<(data: D) => void>;
 
   constructor() {
     this.observers = [];
   }
 
-  public subscribe(callback: C) {
+  // eslint-disable-next-line no-unused-vars
+  public subscribe(callback: (data: D) => void): void {
     this.observers.push(callback);
   }
 
-  public unsubscribe(callback: C) {
+  // eslint-disable-next-line no-unused-vars
+  public unsubscribe(callback: (data: D) => void): void {
     this.observers = this.observers.filter((subscriber) => subscriber !== callback);
   }
 
-  public broadcast(data: D) {
+  public broadcast(data: D): void {
     this.observers.forEach((subscriber) => subscriber(data));
   }
 }

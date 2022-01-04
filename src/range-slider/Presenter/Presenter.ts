@@ -9,14 +9,10 @@ import Model from '../Model/Model';
 import { ModelOptions } from '../Model/types';
 import View from '../View/View';
 import { THUMB_DRAGGED } from '../View/const';
-import {
-  ViewOptions,
-  ViewEvent,
-  TooltipOptions,
-} from '../View/types';
+import { ViewOptions, ViewEvent, TooltipOptions } from '../View/types';
 import Thumb from '../View/subviews/Thumb';
-import ScaleItem from '../View/subviews/ScaleItem';
 import Track from '../View/subviews/Track';
+import ScaleItem from '../View/subviews/ScaleItem';
 
 export default class Presenter {
   private model: Model;

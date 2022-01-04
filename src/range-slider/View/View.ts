@@ -4,6 +4,7 @@ import Track from './subviews/Track';
 import {
   PROGRESS,
   RANGE_SLIDER,
+  RANGE_SLIDER_VERTICAL,
   SCALE,
   THUMB,
   TOOLTIP,
@@ -43,6 +44,7 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
 
   setOptions(options: Partial<ViewOptions>) {
     const {
+      isVertical,
       progress,
       scale,
       leftThumb,
@@ -53,6 +55,10 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
 
     // т.к. эта функция проверяет, существуют ли свойства из options, я далее использую '!'
     callFunctionsForNewOptions(this.options, options, [
+      {
+        dependencies: ['isVertical'],
+        callback: () => this.updateOrientation(isVertical!),
+      },
       {
         dependencies: ['progress'],
         callback: () => this.subViews.progress.setOptions(progress!),
@@ -79,10 +85,6 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
       },
     ]);
     this.options = { ...this.options, ...options };
-  }
-
-  getTrackWidth() {
-    return this.subViews.track.el.offsetWidth;
   }
 
   render(): void {
@@ -140,5 +142,13 @@ export default class View extends EventObserver<EventCallback, ViewEvent> implem
     scale.subscribe((event) => this.broadcast(event));
     leftThumb.subscribe((event) => this.broadcast(event));
     rightThumb.subscribe((event) => this.broadcast(event));
+  }
+
+  private updateOrientation(isVertical: boolean): void {
+    if (isVertical) {
+      this.el.classList.add(RANGE_SLIDER_VERTICAL);
+    } else {
+      this.el.classList.remove(RANGE_SLIDER_VERTICAL);
+    }
   }
 }

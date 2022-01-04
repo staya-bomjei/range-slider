@@ -51,7 +51,7 @@ export default class Presenter {
 
   private handleViewChange({ view, event }: ViewEvent): void {
     if (view instanceof Thumb) {
-      this.handleThumbChange(view, event);
+      this.handleThumbMouseDown(view, event);
     } else if (view instanceof ScaleItem) {
       this.handleScaleItemMouseDown(view);
     } else if (view instanceof Track) {
@@ -59,16 +59,6 @@ export default class Presenter {
     } else {
       throw new Error(`Unknown view event: ${view} ${event}`);
     }
-  }
-
-  private handleThumbChange(thumb: Thumb, event: MouseEvent): void {
-    const { leftThumb, rightThumb } = this.view.subViews;
-    const isLeftThumb = thumb === leftThumb;
-    const leftPosition = leftThumb.getOptions().position;
-    const rightPosition = rightThumb.getOptions().position;
-    const constraint = (isLeftThumb) ? rightPosition : leftPosition;
-
-    this.handleThumbMouseDown(thumb, isLeftThumb, constraint, event);
   }
 
   private handleScaleItemMouseDown(scaleItem: ScaleItem) {
@@ -87,26 +77,26 @@ export default class Presenter {
     this.model.setOptions({ [modelProperty]: this.percentToValue(position) });
   }
 
-  private handleTrackMouseDown(event: MouseEvent) {
+  public handleTrackMouseDown(event: MouseEvent) {
     const { isRange } = this.model.getOptions();
+    const { isVertical } = this.view.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
     const { el: leftThumbEl } = leftThumb;
     const { el: rightThumbEl } = rightThumb;
-    const { x: leftThumbX } = leftThumbEl.getBoundingClientRect();
-    const { x: rightThumbX } = rightThumbEl.getBoundingClientRect();
-    const { pageX } = event;
+    const leftThumbRect = leftThumbEl.getBoundingClientRect();
+    const rightThumbRect = rightThumbEl.getBoundingClientRect();
+    const leftThumbCoord = (isVertical) ? leftThumbRect.y : leftThumbRect.x;
+    const rightThumbCoord = (isVertical) ? rightThumbRect.y : rightThumbRect.x;
+    const pageCoord = (isVertical) ? event.pageY : event.pageX;
 
-    const leftRange = Math.abs(pageX - leftThumbX);
-    const rightRange = Math.abs(pageX - rightThumbX);
+    const leftRange = Math.abs(pageCoord - leftThumbCoord);
+    const rightRange = Math.abs(pageCoord - rightThumbCoord);
     const isLeftThumbCloser = !isRange
       || leftRange < rightRange
-      || (leftRange === rightRange && leftThumbX > pageX);
+      || (leftRange === rightRange && leftThumbCoord > pageCoord);
     const thumb = (isLeftThumbCloser) ? leftThumb : rightThumb;
-    const leftPosition = leftThumb.getOptions().position;
-    const rightPosition = rightThumb.getOptions().position;
-    const constraint = (isLeftThumbCloser) ? rightPosition : leftPosition;
 
-    this.handleThumbMouseDown(thumb, isLeftThumbCloser, constraint, event);
+    this.handleThumbMouseDown(thumb, event);
   }
 
   private handleTooltipsOverlap(): void {
@@ -130,21 +120,17 @@ export default class Presenter {
     });
   }
 
-  private handleThumbMouseDown(
-    thumb: Thumb,
-    isLeftThumb: boolean,
-    constraint: number,
-    event: MouseEvent,
-  ): void {
+  private handleThumbMouseDown(thumb: Thumb, event: MouseEvent): void {
+    const { leftThumb } = this.view.subViews;
+    const isLeftThumb = thumb === leftThumb;
     const { el } = thumb;
-    const { pageX } = event;
 
     this.thumbDragged = (isLeftThumb) ? 'left' : 'right';
     el.classList.add(THUMB_DRAGGED);
-    this.moveThumbTo(thumb, pageX, isLeftThumb, constraint);
+    this.moveThumbTo(thumb, event);
 
     const handleMouseMove = (e: MouseEvent) => {
-      this.moveThumbTo(thumb, e.pageX, isLeftThumb, constraint);
+      this.moveThumbTo(thumb, e);
     };
 
     document.addEventListener('mousemove', handleMouseMove);
@@ -156,42 +142,44 @@ export default class Presenter {
     });
   }
 
-  private moveThumbTo(
-    thumb: Thumb,
-    pageX: number,
-    isLeftThumb: boolean,
-    constraint: number,
-  ) {
+  private moveThumbTo(thumb: Thumb, event: MouseEvent): void {
     const { isRange } = this.model.getOptions();
-    const { position: oldPosition } = thumb.getOptions();
-    const newPosition = this.calcNearestPosition(pageX);
+    const { leftThumb, rightThumb } = this.view.subViews;
+    const isLeftThumb = thumb === leftThumb;
+    const { position: leftThumbPosition } = leftThumb.getOptions();
+    const { position: rightThumbPosition } = rightThumb.getOptions();
+    const oldPosition = (isLeftThumb) ? leftThumbPosition : rightThumbPosition;
+    const constraint = (isLeftThumb) ? rightThumbPosition : leftThumbPosition;
+    const newPosition = this.calcNearestPosition(event);
 
     const passesConstraint = (isLeftThumb)
       ? newPosition <= constraint : newPosition >= constraint;
     const needToUpdate = (!isRange || passesConstraint) && newPosition !== oldPosition;
 
     if (needToUpdate) {
-      // console.log(newPosition, oldPosition);
       const modelProperty = (isLeftThumb) ? 'valueFrom' : 'valueTo';
       this.model.setOptions({ [modelProperty]: this.percentToValue(newPosition) });
       this.handleTooltipsOverlap();
     }
   }
 
-  private calcNearestPosition(pageX: number): number {
+  private calcNearestPosition(event: MouseEvent): number {
     const { min, max, step } = this.model.getOptions();
+    const { isVertical } = this.view.getOptions();
     const { track } = this.view.subViews;
-    const valueMax = max - min;
-    const { left: trackLeft, width: trackWidth } = track.el.getBoundingClientRect();
+    const trackRect = track.el.getBoundingClientRect();
+    const pageCoord = (isVertical) ? event.pageY : event.pageX;
+    const trackOffset = (isVertical) ? trackRect.top : trackRect.left;
+    const trackLength = (isVertical) ? trackRect.height : trackRect.width;
 
-    const percentStep = valueToPercent(step, valueMax);
-    let newPosition = pageX - trackLeft;
-    newPosition = Math.min(newPosition, trackWidth);
-    newPosition = Math.max(0, newPosition);
-    newPosition = valueToPercent(newPosition, trackWidth);
-    newPosition = calcNearestStepValue(newPosition, percentStep);
+    const percentStep = valueToPercent(step, max - min);
+    let nearestPosition = pageCoord - trackOffset;
+    nearestPosition = Math.min(nearestPosition, trackLength);
+    nearestPosition = Math.max(0, nearestPosition);
+    nearestPosition = valueToPercent(nearestPosition, trackLength);
+    nearestPosition = calcNearestStepValue(nearestPosition, percentStep);
 
-    return newPosition;
+    return nearestPosition;
   }
 
   private percentToValue(percent: number) {
@@ -225,7 +213,7 @@ export default class Presenter {
       valueFrom,
       valueTo,
       isRange,
-      // orientation,
+      orientation,
       showScale,
       scaleParts,
       showTooltip,
@@ -245,6 +233,12 @@ export default class Presenter {
     // быть вычислены новые опции ViewOptions, которые зависят от новых
     // опций модели.
     callFunctionsForNewOptions({} as ModelOptions, newModelOptions, [
+      {
+        dependencies: ['orientation'],
+        callback: () => {
+          viewOptions.isVertical = orientation === 'vertical';
+        },
+      },
       {
         dependencies: ['valueFrom', 'valueTo', 'showProgress'],
         callback: () => {

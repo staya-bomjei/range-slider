@@ -46,6 +46,7 @@ type ViewEvent = {
 type EventCallback = (data: ViewEvent) => void;
 
 type ViewOptions = {
+  isVertical: boolean,
   progress: ProgressOptions,
   scale: ScaleOptions,
   leftThumb: ThumbOptions,

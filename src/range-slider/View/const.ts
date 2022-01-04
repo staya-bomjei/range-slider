@@ -7,6 +7,7 @@ const SCALE_ITEM = `${RANGE_SLIDER}__scale-item`;
 const THUMB = `${RANGE_SLIDER}__thumb`;
 const TOOLTIP = `${RANGE_SLIDER}__tooltip`;
 
+const RANGE_SLIDER_VERTICAL = `${RANGE_SLIDER}_vertical`;
 const PROGRESS_HIDDEN = `${PROGRESS}_hidden`;
 const SCALE_HIDDEN = `${SCALE}_hidden`;
 const THUMB_HIDDEN = `${THUMB}_hidden`;
@@ -23,6 +24,7 @@ export {
   SCALE_ITEM,
   THUMB,
   TOOLTIP,
+  RANGE_SLIDER_VERTICAL,
   PROGRESS_HIDDEN,
   SCALE_HIDDEN,
   THUMB_HIDDEN,

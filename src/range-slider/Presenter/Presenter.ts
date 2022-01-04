@@ -3,6 +3,7 @@ import {
   calcNearestStepValue,
   callFunctionsForNewOptions,
   rectsIntersect,
+  isFirstCloser,
 } from '../helpers/utils';
 import Model from '../Model/Model';
 import { ModelOptions } from '../Model/types';
@@ -67,10 +68,8 @@ export default class Presenter {
     const { leftThumb, rightThumb } = this.view.subViews;
     const leftPosition = leftThumb.getOptions().position;
     const rightPosition = rightThumb.getOptions().position;
-    const leftRange = Math.abs(position - leftPosition);
-    const rightRange = Math.abs(position - rightPosition);
     const isLeftThumbCloser = !isRange
-      || leftRange < rightRange
+      || isFirstCloser(position, leftPosition, rightPosition)
       || position < leftPosition;
 
     const modelProperty = (isLeftThumbCloser) ? 'valueFrom' : 'valueTo';
@@ -89,11 +88,9 @@ export default class Presenter {
     const rightThumbCoord = (isVertical) ? rightThumbRect.y : rightThumbRect.x;
     const pageCoord = (isVertical) ? event.pageY : event.pageX;
 
-    const leftRange = Math.abs(pageCoord - leftThumbCoord);
-    const rightRange = Math.abs(pageCoord - rightThumbCoord);
     const isLeftThumbCloser = !isRange
-      || leftRange < rightRange
-      || (leftRange === rightRange && leftThumbCoord > pageCoord);
+      || isFirstCloser(pageCoord, leftThumbCoord, rightThumbCoord)
+      || leftThumbCoord > pageCoord;
     const thumb = (isLeftThumbCloser) ? leftThumb : rightThumb;
 
     this.handleThumbMouseDown(thumb, event);
@@ -150,10 +147,15 @@ export default class Presenter {
     const { position: rightThumbPosition } = rightThumb.getOptions();
     const oldPosition = (isLeftThumb) ? leftThumbPosition : rightThumbPosition;
     const constraint = (isLeftThumb) ? rightThumbPosition : leftThumbPosition;
-    const newPosition = this.calcNearestPosition(event);
+    let newPosition = this.calcNearestPosition(event);
 
-    const passesConstraint = (isLeftThumb)
-      ? newPosition <= constraint : newPosition >= constraint;
+    const needToSetConstraint = ((isLeftThumb && newPosition > constraint)
+      || (!isLeftThumb && newPosition < constraint))
+      && oldPosition !== constraint;
+    if (needToSetConstraint) newPosition = constraint;
+
+    const passesConstraint = needToSetConstraint
+      || (isLeftThumb) ? newPosition <= constraint : newPosition >= constraint;
     const needToUpdate = (!isRange || passesConstraint) && newPosition !== oldPosition;
 
     if (needToUpdate) {

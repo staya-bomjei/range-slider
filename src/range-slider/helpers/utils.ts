@@ -26,16 +26,6 @@ function calcDifference<T extends Object>(first: T, second: Partial<T>): Partial
   return result as T;
 }
 
-function isDifference<T extends Object>(first: T, second: T): boolean {
-  const keys = Object.keys(first) as Array<keyof T>;
-
-  return keys.some((key) => first[key] !== second[key]);
-}
-
-function hasAnyKey<T extends Object>(keys: Array<keyof T>, object: T): boolean {
-  return keys.some((key) => key in object);
-}
-
 function callFunctionsForNewOptions<O extends Object>(
   originalOptions: O,
   options: Partial<O>,
@@ -64,12 +54,17 @@ function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   && rect1.bottom - rect1.height < rect2.bottom;
 }
 
+function isFirstCloser(position: number, first: number, second: number) {
+  const firstRange = Math.abs(position - first);
+  const secondRange = Math.abs(position - second);
+  return firstRange < secondRange;
+}
+
 export {
   calcNearestStepValue,
   valueToPercent,
   calcDifference,
-  isDifference,
-  hasAnyKey,
   callFunctionsForNewOptions,
   rectsIntersect,
+  isFirstCloser,
 };

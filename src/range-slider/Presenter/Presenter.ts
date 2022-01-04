@@ -26,6 +26,11 @@ export default class Presenter {
     this.view = new View(el);
     this.thumbDragged = false;
     const modelOptions = this.model.getOptions();
+    //  Такой вызов необходим, т.к. View при инициализации рендерит свои subViews
+    //  через innerHTML, что означает, что функция проверки пересечения подсказок
+    //  получит DOMRect подсказок до рендеринга в браузере, поэтому далее я делаю
+    //  вызов метода асинхронным, чтобы он вызвался сразу же, как только будет
+    //  произведён рендеринг браузером   
     setTimeout(() => this.handleModelChange(modelOptions), 0);
 
     this.attachEventHandlers();

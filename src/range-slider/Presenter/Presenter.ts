@@ -30,8 +30,7 @@ export default class Presenter {
     this.view = new View(el);
     this.thumbDragged = false;
     const modelOptions = this.model.getOptions();
-    const viewOptions = this.convertToViewOptions(modelOptions);
-    this.view.setOptions(viewOptions);
+    setTimeout(() => this.handleModelChange(modelOptions), 0);
 
     this.attachEventHandlers();
   }
@@ -48,6 +47,7 @@ export default class Presenter {
   private handleModelChange(newModelOptions: Partial<ModelOptions>): void {
     const newViewOptions = this.convertToViewOptions(newModelOptions);
     this.view.setOptions(newViewOptions);
+    this.handleTooltipsOverlap();
   }
 
   private handleViewChange({ view, event }: ViewEvent): void {
@@ -104,9 +104,8 @@ export default class Presenter {
 
     if (!needToHandle) return;
 
-    const { leftTooltip, rightTooltip } = this.view.subViews;
-    const originalLeftText = leftTooltip.getOptions().text;
-    const originalRightText = rightTooltip.getOptions().text;
+    const originalLeftText = this.calcTooltipText(true);
+    const originalRightText = this.calcTooltipText(false);
 
     const valuesRange = `${originalLeftText} - ${originalRightText}`;
     const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
@@ -161,8 +160,14 @@ export default class Presenter {
     if (needToUpdate) {
       const modelProperty = (isLeftThumb) ? 'valueFrom' : 'valueTo';
       this.model.setOptions({ [modelProperty]: this.percentToValue(newPosition) });
-      this.handleTooltipsOverlap();
     }
+  }
+
+  private calcTooltipText(isLeft: boolean): string {
+    const { valueFrom, valueTo, strings } = this.model.getOptions();
+    const value = (isLeft) ? valueFrom : valueTo;
+    const text = (strings === undefined) ? String(value) : strings[value]!;
+    return text;
   }
 
   private calcNearestPosition(event: MouseEvent): number {
@@ -288,11 +293,11 @@ export default class Presenter {
         dependencies: ['valueFrom', 'valueTo', 'min', 'max', 'showTooltip'],
         callback: () => {
           viewOptions.leftTooltip = {
-            text: (strings === undefined) ? String(valueFrom) : strings[valueFrom]!,
+            text: this.calcTooltipText(true),
             visible: showTooltip,
           };
           viewOptions.rightTooltip = {
-            text: (strings === undefined) ? String(valueTo) : strings[valueTo]!,
+            text: this.calcTooltipText(false),
             visible: isRange && showTooltip,
           };
         },

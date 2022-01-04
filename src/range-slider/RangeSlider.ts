@@ -10,6 +10,13 @@ export default class RangeSlider {
   constructor(el: HTMLElement) {
     this.presenter = new Presenter(el);
     this.model = this.presenter.getModel();
+
+    setTimeout(() => {
+      this.model.setOptions({ orientation: 'horizontal' });
+    }, 1000);
+    setTimeout(() => {
+      this.model.setOptions({ orientation: 'vertical' });
+    }, 2000);
   }
 
   setOptions(options: ModelOptions): void {

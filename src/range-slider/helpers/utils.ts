@@ -1,4 +1,8 @@
 function calcNearestStepValue(value: number, step: number) {
+  if (step < 0) {
+    throw new Error('Step can\'t be less than zero');
+  }
+
   const minCorrectValue = Math.trunc(value / step) * step;
   const minDifference = value - minCorrectValue;
   const maxCorrectValue = (Math.trunc(value / step) + 1) * step;

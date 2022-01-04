@@ -112,6 +112,7 @@ export default class Scale extends EventObserver<ViewEvent> implements IView {
     const { strings } = this.options;
 
     return correctValues.map((value) => {
+      // использую '!' далее, потому что options считаются всегда валидными
       if (strings !== undefined) return strings[value]!;
       return String(value);
     });

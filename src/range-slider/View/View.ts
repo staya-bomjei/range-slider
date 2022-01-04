@@ -86,7 +86,7 @@ export default class View extends EventObserver<ViewEvent> implements IView {
     this.options = { ...this.options, ...options };
   }
 
-  render(): void {
+  private render(): void {
     this.el.className = `${RANGE_SLIDER}`;
     this.el.innerHTML = `
       <div class="${WRAPPER}">
@@ -106,6 +106,8 @@ export default class View extends EventObserver<ViewEvent> implements IView {
   }
 
   private setSubViews() {
+    // далее использую '!', т.к. наличие именно такой структуры элементов
+    // гарантируется выполнением метода render()
     const [wrapperEl] = this.el.children;
     const [trackEl, scaleEl] = wrapperEl!.children;
     const [progressEl, leftThumbEl, rightThumbEl] = trackEl!.children;

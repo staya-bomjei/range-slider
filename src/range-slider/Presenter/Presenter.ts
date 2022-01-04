@@ -162,6 +162,7 @@ export default class Presenter {
   private calcTooltipText(isLeft: boolean): string {
     const { valueFrom, valueTo, strings } = this.model.getOptions();
     const value = (isLeft) ? valueFrom : valueTo;
+    // использую далее '!', т.к. значения модели считаются всегда корректными
     const text = (strings === undefined) ? String(value) : strings[value]!;
     return text;
   }

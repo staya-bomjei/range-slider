@@ -1,5 +1,5 @@
 export default class EventObserver<D extends Object> {
-  // Это объявление класса, поэтому переменная не используется
+  // Это объявление типа, поэтому переменная не используется
   // eslint-disable-next-line no-unused-vars
   private observers: Array<(data: D) => void>;
 

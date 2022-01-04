@@ -1,4 +1,4 @@
-export default class IncorrectValueError<T extends Object> extends Error {
+export default class IncorrectValueError<T extends Record<string, unknown>> extends Error {
   value: keyof T;
 
   constructor(value: keyof T, message: string) {

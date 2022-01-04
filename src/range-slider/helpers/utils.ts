@@ -15,7 +15,10 @@ function valueToPercent(value: number, maxValue: number) {
   return (value / maxValue) * 100;
 }
 
-function calcDifference<T extends Object>(first: T, second: Partial<T>): Partial<T> {
+function calcDifference<T extends Record<string, unknown>>(
+  first: T,
+  second: Partial<T>,
+): Partial<T> {
   const result: Partial<T> = {};
   const keys = Object.keys(second) as Array<keyof T>;
 
@@ -30,11 +33,9 @@ function calcDifference<T extends Object>(first: T, second: Partial<T>): Partial
   return result as T;
 }
 
-function callFunctionsForNewOptions<O extends Object>(
+function callFunctionsForNewOptions<O extends Record<string, unknown>>(
   originalOptions: O,
   options: Partial<O>,
-  // Это объявление типа, поэтому переменная не используется
-  // eslint-disable-next-line no-unused-vars
   properties: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
 ): void {
   const newOptions = calcDifference(originalOptions, options);

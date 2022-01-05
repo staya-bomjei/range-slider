@@ -65,6 +65,24 @@ function isFirstCloser(position: number, first: number, second: number) {
   return firstRange < secondRange;
 }
 
+type Type = 'number' | 'boolean' | 'string[]' | 'orientation';
+function checkType(value: unknown, type: Type): boolean {
+  switch (type) {
+    case 'number':
+    case 'boolean':
+      return value !== undefined && typeof value === type;
+    case 'string[]':
+      return value !== undefined
+        && Array.isArray(value)
+        && value.every((item) => typeof item === 'string');
+    case 'orientation':
+      return value !== undefined
+        && (value === 'vertical' || value === 'horizontal');
+    default:
+      throw new Error(`Unknown type '${type}'`);
+  }
+}
+
 export {
   calcNearestStepValue,
   valueToPercent,
@@ -72,4 +90,5 @@ export {
   callFunctionsForNewOptions,
   rectsIntersect,
   isFirstCloser,
+  checkType,
 };

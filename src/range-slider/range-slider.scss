@@ -1,3 +1,5 @@
+@use 'sass:math';
+
 .range-slider {
   position: relative;
   display: flex;
@@ -32,7 +34,7 @@
     height: $track-height;
     width: 100%;
     border: $border-width solid rgba($dark, 25%);
-    border-radius: $track-height / 2;
+    border-radius: math.div($track-height, 2);
     cursor: pointer;
     z-index: $z-index + 1;
   }
@@ -40,7 +42,7 @@
   &__progress {
     position: absolute;
     height: calc(100% + $border-width * 2);
-    border-radius: $track-height / 2;
+    border-radius: math.div($track-height, 2);
     top: 50%;
     transform: translateY(-50%);
     background: $secondary-gradient;
@@ -120,10 +122,6 @@
 
   &_vertical {
     transform: rotate(90deg);
-
-    #{$class}__scale {
-      // transform: rotateX(180deg);
-    }
 
     #{$class}__scale-item {
       transform-origin: left center;

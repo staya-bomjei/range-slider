@@ -24,7 +24,7 @@ export default class ScaleItem extends EventObserver<ViewEvent> {
     this.updateView();
   }
 
-  render(): void {
+  private render(): void {
     this.el.classList.add(SCALE_ITEM);
     this.el.innerHTML = '';
   }

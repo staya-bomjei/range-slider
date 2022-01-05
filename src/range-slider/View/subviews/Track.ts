@@ -1,7 +1,7 @@
 import EventObserver from '../../helpers/EventObserver';
-import { IView, ViewEvent } from '../types';
+import { ViewEvent } from '../types';
 
-export default class Track extends EventObserver<ViewEvent> implements IView {
+export default class Track extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
   constructor(el: HTMLElement) {

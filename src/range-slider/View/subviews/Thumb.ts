@@ -1,9 +1,9 @@
 import EventObserver from '../../helpers/EventObserver';
 import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
-import { IView, ThumbOptions, ViewEvent } from '../types';
+import { ThumbOptions, ViewEvent } from '../types';
 
-export default class Thumb extends EventObserver<ViewEvent> implements IView {
+export default class Thumb extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
   private options = {} as ThumbOptions;

@@ -1,8 +1,8 @@
 import { callFunctionsForNewOptions } from '../../helpers/utils';
-import { IView, ProgressOptions } from '../types';
+import { ProgressOptions } from '../types';
 import { PROGRESS_HIDDEN } from '../const';
 
-export default class Progress implements IView {
+export default class Progress {
   readonly el: HTMLElement;
 
   private options = {} as ProgressOptions;

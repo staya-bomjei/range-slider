@@ -61,10 +61,6 @@ type SubViews = {
   rightTooltip: Tooltip,
 };
 
-interface IView {
-  readonly el: HTMLElement;
-}
-
 export {
   ProgressOptions,
   ScaleOptions,
@@ -74,5 +70,4 @@ export {
   ViewEvent,
   ViewOptions,
   SubViews,
-  IView,
 };

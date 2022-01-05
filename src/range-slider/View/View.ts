@@ -5,6 +5,7 @@ import Scale from './subviews/Scale';
 import Progress from './subviews/Progress';
 import Thumb from './subviews/Thumb';
 import Tooltip from './subviews/Tooltip';
+import { ViewOptions, SubViews, ViewEvent } from './types';
 import {
   PROGRESS,
   RANGE_SLIDER,
@@ -15,14 +16,8 @@ import {
   TRACK,
   WRAPPER,
 } from './const';
-import {
-  IView,
-  ViewOptions,
-  SubViews,
-  ViewEvent,
-} from './types';
 
-export default class View extends EventObserver<ViewEvent> implements IView {
+export default class View extends EventObserver<ViewEvent> {
   subViews = {} as SubViews;
 
   readonly el: HTMLElement;

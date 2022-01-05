@@ -1,8 +1,8 @@
 import { callFunctionsForNewOptions } from '../../helpers/utils';
-import { IView, TooltipOptions } from '../types';
+import { TooltipOptions } from '../types';
 import { TOOLTIP_HIDDEN } from '../const';
 
-export default class Tooltip implements IView {
+export default class Tooltip {
   readonly el: HTMLElement;
 
   private options = {} as TooltipOptions;

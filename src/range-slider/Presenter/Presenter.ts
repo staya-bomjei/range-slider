@@ -15,9 +15,9 @@ import Track from '../View/subviews/Track';
 import ScaleItem from '../View/subviews/ScaleItem';
 
 export default class Presenter {
-  private model: Model;
+  model: Model;
 
-  private view: View;
+  view: View;
 
   private thumbDragged: 'left' | 'right' | false;
 
@@ -30,14 +30,10 @@ export default class Presenter {
     //  через innerHTML, что означает, что функция проверки пересечения подсказок
     //  получит DOMRect подсказок до рендеринга в браузере, поэтому далее я делаю
     //  вызов метода асинхронным, чтобы он вызвался сразу же, как только будет
-    //  произведён рендеринг браузером   
+    //  произведён рендеринг браузером
     setTimeout(() => this.handleModelChange(modelOptions), 0);
 
     this.attachEventHandlers();
-  }
-
-  getModel(): Model {
-    return this.model;
   }
 
   private attachEventHandlers(): void {

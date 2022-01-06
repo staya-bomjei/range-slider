@@ -2,10 +2,14 @@ import Track from './Track';
 
 describe('Track class:', () => {
   document.body.innerHTML = '<div><div>';
-  const [el] = document.body.children;
+  const el = document.body.children[0] as HTMLElement;
+  const track = new Track(el);
 
-  test('Can create', () => {
-    const track = new Track(el as HTMLElement);
-    expect(track).toBeInstanceOf(Track);
+  test('It handles mousedown event', () => {
+    jest.spyOn(track, 'broadcast');
+
+    el.dispatchEvent(new MouseEvent('mousedown'));
+
+    expect(track.broadcast).toBeCalled();
   });
 });

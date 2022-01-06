@@ -17,6 +17,7 @@ describe('EventObserver class', () => {
       expect(subscriber).toHaveBeenCalledWith(data);
     });
   });
+
   test('It can unsubscribe', () => {
     const observer = new EventObserver<{ data: number }>();
     const firstSubscriber = jest.fn();

@@ -89,31 +89,37 @@ describe('rectsIntersect function:', () => {
     const second = { ...baseRect, left: 99, right: 199 };
     expect(rectsIntersect(first, second)).toEqual(true);
   });
+
   test('should return false', () => {
     const first = { ...baseRect };
     const second = { ...baseRect, left: 100, right: 200 };
     expect(rectsIntersect(first, second)).toEqual(false);
   });
+
   test('should return true', () => {
     const first = { ...baseRect };
     const second = { ...baseRect, top: 99, bottom: 199 };
     expect(rectsIntersect(first, second)).toEqual(true);
   });
+
   test('should return false', () => {
     const first = { ...baseRect };
     const second = { ...baseRect, top: 100, bottom: 200 };
     expect(rectsIntersect(first, second)).toEqual(false);
   });
+
   test('should return false', () => {
     const first = { ...baseRect };
     const second = { height: 0 } as DOMRect;
     expect(rectsIntersect(first, second)).toEqual(false);
   });
+
   test('should return false', () => {
     const second = { ...baseRect };
     const first = { height: 0 } as DOMRect;
     expect(rectsIntersect(first, second)).toEqual(false);
   });
+
   test('should return false', () => {
     const second = { height: 0 } as DOMRect;
     const first = { height: 0 } as DOMRect;
@@ -142,11 +148,13 @@ describe('calcDifference function:', () => {
     const second = {} as TestObject;
     expect(calcDifference(first, second)).toMatchObject({});
   });
+
   test('should return all second properties', () => {
     const first = { prop3: {} } as TestObject;
     const second = { prop1: 1002, prop2: '1003' } as TestObject;
     expect(calcDifference(first, second)).toMatchObject(second);
   });
+
   test('should return new properties', () => {
     const first = { prop1: 1002, prop2: '1002' } as TestObject;
     const second = { prop1: 1002, prop2: '1003', prop3: {} } as TestObject;

@@ -6,7 +6,7 @@ type ModelOptions = {
   step: number,
   strings: Array<string>,
   valueFrom: number,
-  valueTo: number,
+  valueTo?: number,
   isRange: boolean,
   orientation: Orientation,
   showScale: boolean,

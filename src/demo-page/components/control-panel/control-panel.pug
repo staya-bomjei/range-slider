@@ -1,0 +1,39 @@
+include ../toggle/toggle
+include ../input/input
+
+//-
+  options.sliderOptions - опции слайдера, которые будут использованы при инициализации
+mixin control-panel(options = {})
+  -
+    const { sliderOptions = {} } = options;
+    const inputs = [
+      'min',
+      'max',
+      'step',
+      'from',
+      'to',
+      'parts',
+    ];
+    const toggles = [
+      'vertical',
+      'range',
+      'scale',
+      'bar',
+      'tip',
+    ];
+    const createClasses = (property) => {
+      return [`control-panel__${property}`, `js-control-panel__${property}`];
+    };
+
+  .control-panel.js-control-panel(
+    data-slider-options = sliderOptions
+  )
+    .control-panel__slider-wrapper
+      .control-panel__slider.js-control-panel__slider
+    form.control-panel__options
+      each text in inputs
+        div(class = createClasses(text))
+          +input({ text })
+      each text in toggles
+        div(class = createClasses(text))
+          +toggle({ text })

@@ -1,0 +1,73 @@
+@import '../../styles/variables';
+
+.toggle {
+  display: flex;
+  justify-content: space-between;
+  user-select: none;
+  cursor: pointer;
+
+  $class: &;
+  $dark25: rgba($dark, 25%);
+  $dark75: rgba($dark, 75%);
+  $marker-width: 2.5rem;
+  $marker-height: 1.25rem;
+  $center-size: 0.75rem;
+
+  &__input {
+    opacity: 0;
+    height: 0;
+    width: 0;
+    display: none;
+
+    &:checked {
+      ~ #{$class}__mark {
+        &::after {
+          left: initial;
+          right: 0;
+        }
+      }
+    }
+
+    &:disabled {
+      ~ #{$class}__mark {
+        #{$class}__disable-grid {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &__mark {
+    position: relative;
+    flex-shrink: 0;
+    height: $marker-height;
+    width: $marker-width;
+    border: $border-width solid rgba($dark, 50%);
+    margin-left: 1rem;
+    z-index: 10;
+
+    &::after {
+      content: '';
+      position: absolute;
+      display: block;
+      width: 50%;
+      height: 100%;
+      background: rgba($dark, 50%);
+    }
+  }
+
+  &__text {
+    @extend %default-text;
+
+    line-height: 1.5rem;
+    margin-left: 0.625rem;
+  }
+
+  &__disable-grid {
+    position: absolute;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, $dark25, $dark25 4px, $dark75 4px, $dark75 8px);
+  }
+}

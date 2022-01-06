@@ -38,5 +38,4 @@ import './range-slider.scss';
     $.error(`Unknown method '${method}'`);
     return null;
   };
-// eslint-disable-next-line no-undef
 })(jQuery);

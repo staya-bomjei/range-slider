@@ -1,0 +1,15 @@
+$dark: #1f2041;
+$purple: #bb9cff;
+$green: #6fcf97;
+$background: #fff;
+$primary-gradient: linear-gradient(180deg, #bc9cff 0%, #8ba4f9 100%);
+$secondary-gradient: linear-gradient(180deg, #6fcf97 0%, #66d2ea 100%);
+$border-width: 0.0625rem;
+
+%default-text {
+  font-family: Montserrat, Arial, sans-serif;
+  font-weight: normal;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  color: rgba($dark, 75%);
+}

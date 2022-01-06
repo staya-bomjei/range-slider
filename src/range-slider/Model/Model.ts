@@ -20,6 +20,8 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
 
   setOptions(options: Partial<ModelOptions>): void {
     Model.checkTypes(options);
+    Model.checkRange(options);
+    if (options.isRange === false) delete this.options.valueTo;
     Model.checkStrings(options);
     const newOptions = calcDifference(this.options, options);
     const hasNoNewOptions = Object.keys(newOptions).length === 0;
@@ -51,10 +53,25 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
   static checkTypes(options: Partial<ModelOptions>): void {
     const keys = Object.keys(options) as Array<keyof ModelOptions>;
     keys.forEach((key) => {
-      if (!checkType(options[key], optionsTypes[key])) {
+      // далее использую !, т.к. выражение всегда вернёт значение
+      if (!checkType(options[key], optionsTypes[key]!)) {
         Model.throwError(key, `${key} must be ${optionsTypes[key]}`);
       }
     });
+  }
+
+  static checkRange(options: Partial<ModelOptions>): void {
+    const { valueTo, isRange } = options;
+
+    const hasNoValueTo = isRange && valueTo === undefined;
+    if (hasNoValueTo) {
+      Model.throwError('isRange', 'valueTo is expected instead of isRange: true');
+    }
+
+    const uselessValueTo = !isRange && valueTo !== undefined;
+    if (uselessValueTo) {
+      Model.throwError('isRange', `valueTo(${valueTo}) not allowed when isRange: false`);
+    }
   }
 
   static checkStrings(options: Partial<ModelOptions>): void {
@@ -82,7 +99,6 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
       step,
       valueFrom,
       valueTo,
-      isRange,
       scaleParts,
     } = options;
 
@@ -96,27 +112,26 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
     if (valueFromNotInRange) {
       Model.throwError('valueFrom', `valueFrom(${valueFrom}) must be between ${min} and ${max}`);
     }
-    const isIncorrectValueFrom = valueFrom !== calcNearestStepValue(valueFrom, step);
+    const isIncorrectValueFrom = valueFrom !== max
+      && valueFrom !== calcNearestStepValue(valueFrom, step, min);
     if (isIncorrectValueFrom) {
       Model.throwError('valueFrom', `valueFrom(${valueFrom}) must be a multiple of ${step}`);
     }
-    const uselessValueTo = !isRange && valueTo !== undefined;
-    if (uselessValueTo) {
-      Model.throwError('valueTo', `valueTo(${valueTo}) not allowed when isRange: false`);
-    }
-    const valueToNotInRange = valueTo > max || valueTo < min;
+    const valueToNotInRange = valueTo !== undefined && (valueTo > max || valueTo < min);
     if (valueToNotInRange) {
       Model.throwError('valueTo', `valueTo(${valueTo}) must be between ${min} and ${max}`);
     }
-    const isIncorrectValueTo = isRange && valueTo !== calcNearestStepValue(valueTo, step);
+    const isIncorrectValueTo = valueTo !== undefined
+      && valueTo !== calcNearestStepValue(valueTo, step, min)
+      && valueTo !== max;
     if (isIncorrectValueTo) {
       Model.throwError('valueTo', `valueTo(${valueTo}) must be a multiple of ${step}`);
     }
-    const isValueFromBiggerValueTo = isRange && valueFrom > valueTo;
+    const isValueFromBiggerValueTo = valueTo !== undefined && valueFrom > valueTo;
     if (isValueFromBiggerValueTo) {
       Model.throwError('valueFrom', `valueFrom(${valueFrom}) must be less than ${valueTo}`);
     }
-    let maxScaleParts = max - min / step;
+    let maxScaleParts = (max - min) / step;
     maxScaleParts = Math.trunc(maxScaleParts) + Math.ceil(maxScaleParts % 1);
     const scalePartsNotInRange = scaleParts < 1 || scaleParts > maxScaleParts;
     if (scalePartsNotInRange) {

@@ -153,17 +153,17 @@ export default class Presenter {
     const passesConstraint = needToSetConstraint
       || (isLeftThumb) ? newPosition <= constraint : newPosition >= constraint;
     const needToUpdate = (!isRange || passesConstraint) && newPosition !== oldPosition;
-
     if (needToUpdate) {
       const modelProperty = (isLeftThumb) ? 'valueFrom' : 'valueTo';
-      this.model.setOptions({ [modelProperty]: this.percentToValue(newPosition) });
+      const newValue = this.percentToValue(newPosition);
+      this.model.setOptions({ [modelProperty]: newValue });
     }
   }
 
   private calcTooltipText(isLeft: boolean): string {
     const { valueFrom, valueTo, strings } = this.model.getOptions();
-    const value = (isLeft) ? valueFrom : valueTo;
     // использую далее '!', т.к. значения модели считаются всегда корректными
+    const value = (isLeft) ? valueFrom : valueTo!;
     const text = (strings === undefined) ? String(value) : strings[value]!;
     return text;
   }
@@ -178,21 +178,23 @@ export default class Presenter {
     const trackLength = (isVertical) ? trackRect.height : trackRect.width;
 
     const percentStep = valueToPercent(step, max - min);
+    if (percentStep >= 100) return 100;
     let nearestPosition = pageCoord - trackOffset;
     nearestPosition = Math.min(nearestPosition, trackLength);
     nearestPosition = Math.max(0, nearestPosition);
     nearestPosition = valueToPercent(nearestPosition, trackLength);
-    nearestPosition = calcNearestStepValue(nearestPosition, percentStep);
+    const mayNearest = calcNearestStepValue(nearestPosition, percentStep, 0);
+    const isMaxNearest = isFirstCloser(nearestPosition, 100, mayNearest);
 
-    return nearestPosition;
+    return (isMaxNearest) ? 100 : mayNearest;
   }
 
   private percentToValue(percent: number) {
     const { min, max, step } = this.model.getOptions();
     const valueMax = max - min;
-    const value = (percent * valueMax) / 100;
+    const value = (percent * valueMax) / 100 + min;
 
-    return calcNearestStepValue(value, step);
+    return (value >= max) ? max : calcNearestStepValue(value, step, min);
   }
 
   private isTooltipsOverlap(): boolean {
@@ -226,9 +228,11 @@ export default class Presenter {
     } = this.model.getOptions();
     const viewOptions = {} as ViewOptions;
 
-    const percentStep = valueToPercent(step, max - min);
-    const percentFrom = calcNearestStepValue(valueToPercent(valueFrom - min, max), percentStep);
-    const percentTo = calcNearestStepValue(valueToPercent(valueTo - min, max), percentStep);
+    // const percentStep = valueToPercent(step, max - min);
+    const range = max - min;
+    const percentFrom = valueToPercent(valueFrom - min, range);
+    // использую далее '!', т.к. значения модели считаются всегда корректными
+    const percentTo = valueToPercent(valueTo! - min, range);
     const needToSetZIndexes = valueFrom === valueTo;
     const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
     const isRightThumbHigher = needToSetZIndexes && valueTo === min;
@@ -245,7 +249,7 @@ export default class Presenter {
         },
       },
       {
-        dependencies: ['valueFrom', 'valueTo', 'showProgress'],
+        dependencies: ['valueFrom', 'valueTo', 'isRange', 'min', 'max', 'showProgress'],
         callback: () => {
           viewOptions.progress = {
             from: (isRange) ? percentFrom : 0,

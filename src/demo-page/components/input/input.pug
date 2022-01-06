@@ -1,0 +1,12 @@
+//-
+  options.text - текст
+mixin input(options = {})
+  - const { text = '' } = options;
+
+  label.input
+    .input__text= text
+    input.input__input(
+      type="number"
+      name=text
+    )
+    .input__disable-grid

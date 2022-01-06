@@ -93,9 +93,9 @@ export default class Scale extends EventObserver<ViewEvent> {
     const correctValues = [...Array(partsCounter)];
 
     correctValues.forEach((_, index) => {
-      const value = valuePerPart * index;
-      const nearestCorrectValue = calcNearestStepValue(value, step);
-      correctValues[index] = nearestCorrectValue + min;
+      const value = valuePerPart * index + min;
+      const nearestCorrectValue = calcNearestStepValue(value, step, min);
+      correctValues[index] = nearestCorrectValue;
     });
     correctValues.push(max);
 

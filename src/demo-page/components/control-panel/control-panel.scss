@@ -1,0 +1,14 @@
+.control-panel {
+  display: flex;
+
+  &__slider-wrapper {
+    width: 20rem;
+    height: 20rem;
+    margin-right: 2rem;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+  }
+}

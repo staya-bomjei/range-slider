@@ -1,0 +1,52 @@
+@import '../../styles/variables';
+
+.input {
+  position: relative;
+  display: flex;
+  max-width: 9rem;
+
+  $class: &;
+  $dark25: rgba($dark, 25%);
+  $dark75: rgba($dark, 75%);
+
+  border: $border-width solid rgba($dark, 50%);
+  background: rgba($dark, 50%);
+  background-clip: content-box;
+
+  &__text {
+    @extend %default-text;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: $background;
+    min-width: 4rem;
+  }
+
+  &__input {
+    @extend %default-text;
+
+    width: 100%;
+    outline: none;
+    border: none;
+
+    &::selection {
+      color: $background;
+      background: rgba($dark, 50%);
+    }
+
+    &:disabled {
+      ~ #{$class}__disable-grid {
+        display: block;
+      }
+    }
+  }
+
+  &__disable-grid {
+    position: absolute;
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(45deg, $dark25, $dark25 4px, $dark75 4px, $dark75 8px);
+  }
+}

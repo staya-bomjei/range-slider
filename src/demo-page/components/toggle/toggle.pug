@@ -1,0 +1,11 @@
+//-
+  options.checked - если true, то кнопка изначально будет в состоянии checked
+  options.text - текст кнопки
+mixin toggle(options = {})
+  - const { checked = false, text = '' } = options;
+
+  label.toggle
+    input.toggle__input(type = "checkbox" checked = checked)
+    .toggle__text= text
+    .toggle__mark
+      .toggle__disable-grid

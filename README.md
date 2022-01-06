@@ -96,16 +96,101 @@ Presenter - связующее Model и View звено. Он обрабатыв
 Чтобы использовать этот плагин нужны два файла `range-slider.js` и `range-slider.css`, взять их можно из ветки gh-pages, они лежат в директории `js/plugins/range-slider/`. Или можно клонировать этот репозиторий и, установив все зависимости и самостоятельно собрав проект, можно взять нужные файлы в директории `dist/js/plugins/range-slider/`.
 
 Теперь, прежде чем начать пользоваться плагином вам нужно подключить JQuery любым удобным способом, а затем файлы плагина.
-> TODO: Вот тут надо пример html кода с подключенными JQuery и плагином
+
+### Пример:
+Допустим, что вы решили подключить JQuery с помощью CDN, получили файлы плагина и создали такую структуру файлов:
+```
+|-src
+| |-range-slider.js
+| |-range-slider.css
+| |-index.html
+| |-scripts.js
+```
+В index.html вы подключаете JQuery, файлы плагина, собственные скрипты:
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Range Slider</title>
+  <link rel="stylesheet" href="range-slider.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script defer src="range-slider.js"></script>
+  <script defer src="scripts.js"></script>
+</head>
+<body>
+  <div class="js-slider"></div>
+</body>
+</html>
+```
 
 ## Использование плагина
-> TODO: здесь уже должен быть пример JS кода
+### Инициализация
+Чтобы проинициализировать плагин для всех элементов можно поступить так:
+```javascript
+$('.js-slider').rangeSlider();
 
-> Инициализация слайдера
+// Или так
+$('.js-slider').rangeSlider('init', {});
+```
+В двух этих случаях слайдер проинициализируется параметрами по-умолчанию, чтобы использовать собственные параметры, вы должны передать в инициализатор объект с параметрами:
 
-> Изменение состояния слайдера
+```javascript
+const myOptions = {
+  min: -50,
+  max: 50,
+  step: 2,
+  valueFrom: -50,
+  isRange: false,
+  orientation: 'vertical',
+  scaleParts: 4,
+};
 
-> Реагирование на изменение слайдера
+$('.js-slider').rangeSlider(myOptions);
+
+// Или так
+$('.js-slider').rangeSlider('init', myOptions);
+```
+
+### Получение текущего состояния слайдера
+Если вы проинициализировали ваш слайдер и хотите узнать, какое у него сейчас состояние, то можете использовать метод `get`:
+
+```javascript
+$slider = $('.js-slider').rangeSlider(myOptions);
+
+const sliderOptions = $slider.rangeSlider('get');
+```
+
+Метод `get` возвращает опции последнего слайдера в JQuery объекте, поэтому если вы проинициализировали несколько слайдеров с помощью одного селектора, то вы можете разделить их в разные JQuery объекты и пользоваться методами плагина для конкретного экземпляра.
+
+### Программное изменение состояния слайдера
+Иногда вам может потребоваться изменить состояние слайдера программно, для этого можно использовать метод `set`:
+
+```javascript
+const newOptions {
+  isRange: true,
+  valueTo: 50,
+};
+
+$slider.rangeSlider('set', newOptions);
+```
+
+Метод `set`, устанавливает новые опции для модели, перезаписывая старые. Будьте внимательны, если вы передадите некорректные опции, или опции, которые в сумме с перекрываемыми оригинальными опциями являются некорректными, то будет выброшено исключение.
+
+### Реагирование на изменение состояния слайдера
+Если вам нужно выполнить какое-либо действие при изменении слайдера, то вы можете использовать метод `onchange`:
+
+```javascript
+const callback(data) {
+  console.log('DON\'t TOUCH ME THERE!');
+  console.log('THERE:', data);
+};
+
+$slider.rangeSlider('onchange', callback);
+```
+
+Примечательно то, что слайдер уведомляет `callback` не только об изменении слайдера пользователем, но и о программном изменении. А так же `callback` может принимать один параметр - объект состоящий из опций, которые были изменены в слайдере.
 
 ## Node Version
 **v16.13.1**

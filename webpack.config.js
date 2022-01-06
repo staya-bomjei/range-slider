@@ -40,8 +40,8 @@ module.exports = (env) => {
   const baseConfig = {
     mode: (isDev) ? 'development' : 'production',
     entry: {
-      [NAMES.PLUGIN]: path.resolve(PATHS.PLUGIN, 'index.ts'),
-      [NAMES.PAGE]: path.resolve(PATHS.PAGE, 'index.ts'),
+      [NAMES.PLUGIN]: path.resolve(PATHS.PLUGIN, 'index.js'),
+      [NAMES.PAGE]: path.resolve(PATHS.PAGE, 'index.js'),
     },
     output: {
       filename: (pathData) => {

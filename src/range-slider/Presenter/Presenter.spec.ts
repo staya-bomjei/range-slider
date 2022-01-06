@@ -1,4 +1,3 @@
-import { defaultOptions } from '../Model/const';
 import Model from '../Model/Model';
 import ScaleItem from '../View/subviews/ScaleItem';
 import View from '../View/View';

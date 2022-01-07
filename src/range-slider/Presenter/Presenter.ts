@@ -13,6 +13,7 @@ import { ViewOptions, ViewEvent, TooltipOptions } from '../View/types';
 import Thumb from '../View/subviews/Thumb';
 import Track from '../View/subviews/Track';
 import ScaleItem from '../View/subviews/ScaleItem';
+import { MAX_POSITION, MIN_POSITION } from './const';
 
 class Presenter {
   model: Model;
@@ -103,7 +104,6 @@ class Presenter {
 
     const originalLeftText = this.calcTooltipText(true);
     const originalRightText = this.calcTooltipText(false);
-
     const valuesRange = `${originalLeftText} — ${originalRightText}`;
     const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
     const rightTooltipText = (this.thumbDragged !== 'right') ? '' : valuesRange;
@@ -181,17 +181,16 @@ class Presenter {
 
     const percentStep = valueToPercent(step, max - min);
     let nearestPosition = valueToPercent(pageCoord - trackOffset, trackLength);
-    nearestPosition = Math.max(nearestPosition, 0);
-    const mayNearest = calcNearestStepValue(nearestPosition, percentStep, 0);
-    const isMaxNearest = isFirstCloser(nearestPosition, 100, mayNearest);
+    nearestPosition = Math.max(nearestPosition, MIN_POSITION);
+    const mayNearest = calcNearestStepValue(nearestPosition, percentStep, MIN_POSITION);
+    const isMaxNearest = isFirstCloser(nearestPosition, MAX_POSITION, mayNearest);
 
-    return (isMaxNearest) ? 100 : mayNearest;
+    return (isMaxNearest) ? MAX_POSITION : mayNearest;
   }
 
   private percentToValue(percent: number) {
     const { min, max, step } = this.model.getOptions();
-    const valueMax = max - min;
-    const value = (percent * valueMax) / 100 + min;
+    const value = (percent * (max - min)) / MAX_POSITION + min;
 
     return (value >= max) ? max : calcNearestStepValue(value, step, min);
   }
@@ -211,6 +210,10 @@ class Presenter {
   }
 
   private convertToViewOptions(newModelOptions: Partial<ModelOptions>): ViewOptions {
+    // Модель уже изменила своё состояние и в эту функцию были переданы
+    // лишь те её параметры, которые были изменены, поэтому далее должны
+    // быть вычислены новые опции ViewOptions, которые зависят от новых
+    // опций модели, при этом недостающие опции будут взяты из оригинала.
     const {
       min,
       max,
@@ -227,19 +230,14 @@ class Presenter {
     } = this.model.getOptions();
     const viewOptions = {} as ViewOptions;
 
-    // const percentStep = valueToPercent(step, max - min);
-    const range = max - min;
-    const percentFrom = valueToPercent(valueFrom - min, range);
+    const minMaxRange = max - min;
+    const percentFrom = valueToPercent(valueFrom - min, minMaxRange);
     // использую далее '!', т.к. значения модели считаются всегда корректными
-    const percentTo = valueToPercent(valueTo! - min, range);
+    const percentTo = valueToPercent(valueTo! - min, minMaxRange);
     const needToSetZIndexes = valueFrom === valueTo;
     const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
     const isRightThumbHigher = needToSetZIndexes && valueTo === min;
 
-    // Модель уже изменила своё состояние и в эту функцию были переданы
-    // лишь те её параметры, которые были изменены, поэтому далее должны
-    // быть вычислены новые опции ViewOptions, которые зависят от новых
-    // опций модели.
     callFunctionsForNewOptions({} as ModelOptions, newModelOptions, [
       {
         dependencies: ['orientation'],
@@ -251,7 +249,7 @@ class Presenter {
         dependencies: ['valueFrom', 'valueTo', 'isRange', 'min', 'max', 'showProgress'],
         callback: () => {
           viewOptions.progress = {
-            from: (isRange) ? percentFrom : 0,
+            from: (isRange) ? percentFrom : MIN_POSITION,
             to: (isRange) ? percentTo : percentFrom,
             visible: showProgress,
           };

@@ -1,4 +1,4 @@
-import { calcDifference, calcNearestStepValue, checkType } from '../helpers/utils';
+import { calcNewOptions, calcNearestStepValue, checkType } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
 import { ModelOptions } from './types';
 import { defaultOptions, optionsTypes } from './const';
@@ -23,7 +23,7 @@ class Model extends EventObserver<Partial<ModelOptions>> {
     this.checkRange(options);
     if (options.isRange === false) delete this.options.valueTo;
     Model.checkStrings(options);
-    const newOptions = calcDifference(this.options, options);
+    const newOptions = calcNewOptions(this.options, options);
     const hasNoNewOptions = Object.keys(newOptions).length === 0;
 
     if (hasNoNewOptions) return;

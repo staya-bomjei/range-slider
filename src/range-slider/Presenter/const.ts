@@ -1,0 +1,7 @@
+const MAX_POSITION = 100;
+const MIN_POSITION = 0;
+
+export {
+  MAX_POSITION,
+  MIN_POSITION,
+};

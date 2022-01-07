@@ -7,7 +7,7 @@ function calcNearestStepValue(
   step: number,
   base: number,
   fixedNumbers = 12,
-) {
+): number {
   if (step < 0) {
     throw new Error('Step can\'t be less than zero');
   }
@@ -29,33 +29,33 @@ function valueToPercent(value: number, maxValue: number): number {
   return (value / maxValue) * 100;
 }
 
-function calcDifference<T extends Record<string, unknown>>(
-  first: T,
-  second: Partial<T>,
+function calcNewOptions<T extends Record<string, unknown>>(
+  original: T,
+  other: Partial<T>,
 ): Partial<T> {
-  const result: Partial<T> = {};
-  const keys = Object.keys(second) as Array<keyof T>;
+  const newOptions: Partial<T> = {};
+  const keys = Object.keys(other) as Array<keyof T>;
 
   keys.forEach((key) => {
-    const isDifferentOption = first[key] !== second[key] && second[key] !== undefined;
+    const isNewOption = original[key] !== other[key] && other[key] !== undefined;
 
-    if (isDifferentOption) {
-      result[key] = second[key];
+    if (isNewOption) {
+      newOptions[key] = other[key];
     }
   });
 
-  return result as T;
+  return newOptions as T;
 }
 
 function callFunctionsForNewOptions<O extends Record<string, unknown>>(
-  originalOptions: O,
-  options: Partial<O>,
-  properties: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
+  original: O,
+  other: Partial<O>,
+  callbacks: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
 ): void {
-  const newOptions = calcDifference(originalOptions, options);
+  const newOptions = calcNewOptions(original, other);
   const keys = Object.keys(newOptions) as Array<keyof O>;
 
-  properties.forEach(({ dependencies, callback }) => {
+  callbacks.forEach(({ dependencies, callback }) => {
     const needToCall = dependencies.some((dependence) => (
       keys.some((key) => key === dependence)
     ));
@@ -100,7 +100,7 @@ function checkType(value: unknown, type: Type): boolean {
 export {
   calcNearestStepValue,
   valueToPercent,
-  calcDifference,
+  calcNewOptions,
   callFunctionsForNewOptions,
   rectsIntersect,
   isFirstCloser,

@@ -1,7 +1,7 @@
 import {
   calcNearestStepValue,
   valueToPercent,
-  calcDifference,
+  calcNewOptions,
   callFunctionsForNewOptions,
   isFirstCloser,
   checkType,
@@ -136,7 +136,7 @@ describe('valueToPercent function:', () => {
   });
 });
 
-describe('calcDifference function:', () => {
+describe('calcNewOptions function:', () => {
   type TestObject = {
     prop1: number,
     prop2: string,
@@ -146,19 +146,19 @@ describe('calcDifference function:', () => {
   test('should return empty object', () => {
     const first = { prop1: 10 } as TestObject;
     const second = {} as TestObject;
-    expect(calcDifference(first, second)).toMatchObject({});
+    expect(calcNewOptions(first, second)).toMatchObject({});
   });
 
   test('should return all second properties', () => {
     const first = { prop3: {} } as TestObject;
     const second = { prop1: 1002, prop2: '1003' } as TestObject;
-    expect(calcDifference(first, second)).toMatchObject(second);
+    expect(calcNewOptions(first, second)).toMatchObject(second);
   });
 
   test('should return new properties', () => {
     const first = { prop1: 1002, prop2: '1002' } as TestObject;
     const second = { prop1: 1002, prop2: '1003', prop3: {} } as TestObject;
-    expect(calcDifference(first, second)).toMatchObject({ prop2: '1003', prop3: {} });
+    expect(calcNewOptions(first, second)).toMatchObject({ prop2: '1003', prop3: {} });
   });
 });
 

@@ -180,7 +180,6 @@ export default class Presenter {
     const trackLength = (isVertical) ? trackRect.height : trackRect.width;
 
     const percentStep = valueToPercent(step, max - min);
-    if (percentStep >= 100) return 100;
     let nearestPosition = valueToPercent(pageCoord - trackOffset, trackLength);
     nearestPosition = Math.max(nearestPosition, 0);
     const mayNearest = calcNearestStepValue(nearestPosition, percentStep, 0);

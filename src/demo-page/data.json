@@ -35,7 +35,14 @@
     },
     "tapper": {
       "names": {
-
+        "sliderOptions": {
+          "min": 0,
+          "max": 1,
+          "step": 40,
+          "valueFrom": 0,
+          "scaleParts": 1,
+          "orientation": "vertical"
+        }
       },
       "any": {
         

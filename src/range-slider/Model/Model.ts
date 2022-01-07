@@ -19,8 +19,6 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
   }
 
   setOptions(options: Partial<ModelOptions>): void {
-    // console.log('Original', this.options);
-    // console.log('Trying to set model: ', options);
     Model.checkTypes(options);
     this.checkRange(options);
     if (options.isRange === false) delete this.options.valueTo;

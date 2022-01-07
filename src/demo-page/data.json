@@ -14,11 +14,11 @@
     },
     "range": {
       "sliderOptions": {
-        "min": 0,
+        "min": -2,
         "max": 1,
         "step": 0.001,
         "isRange": true,
-        "valueFrom": 0.5,
+        "valueFrom": -0.5,
         "valueTo": 0.505,
         "scaleParts": 10
       }

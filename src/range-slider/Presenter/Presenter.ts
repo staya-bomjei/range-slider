@@ -83,7 +83,7 @@ export default class Presenter {
     const rightThumbRect = rightThumbEl.getBoundingClientRect();
     const leftThumbCoord = (isVertical) ? leftThumbRect.y : leftThumbRect.x;
     const rightThumbCoord = (isVertical) ? rightThumbRect.y : rightThumbRect.x;
-    const pageCoord = (isVertical) ? event.pageY : event.pageX;
+    const pageCoord = (isVertical) ? event.clientY : event.clientX;
 
     const isLeftThumbCloser = !isRange
       || isFirstCloser(pageCoord, leftThumbCoord, rightThumbCoord)
@@ -173,16 +173,14 @@ export default class Presenter {
     const { isVertical } = this.view.getOptions();
     const { track } = this.view.subViews;
     const trackRect = track.el.getBoundingClientRect();
-    const pageCoord = (isVertical) ? event.pageY : event.pageX;
+    const pageCoord = (isVertical) ? event.clientY : event.clientX;
     const trackOffset = (isVertical) ? trackRect.top : trackRect.left;
     const trackLength = (isVertical) ? trackRect.height : trackRect.width;
 
     const percentStep = valueToPercent(step, max - min);
     if (percentStep >= 100) return 100;
-    let nearestPosition = pageCoord - trackOffset;
-    nearestPosition = Math.min(nearestPosition, trackLength);
-    nearestPosition = Math.max(0, nearestPosition);
-    nearestPosition = valueToPercent(nearestPosition, trackLength);
+    let nearestPosition = valueToPercent(pageCoord - trackOffset, trackLength);
+    nearestPosition = Math.max(nearestPosition, 0);
     const mayNearest = calcNearestStepValue(nearestPosition, percentStep, 0);
     const isMaxNearest = isFirstCloser(nearestPosition, 100, mayNearest);
 

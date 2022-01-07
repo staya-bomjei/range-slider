@@ -1,4 +1,13 @@
-function calcNearestStepValue(value: number, step: number, base: number) {
+function toFixed(number: number, fixedNumbers: number): number {
+  return Number(number.toFixed(fixedNumbers));
+}
+
+function calcNearestStepValue(
+  value: number,
+  step: number,
+  base: number,
+  fixedNumbers = 12,
+) {
   if (step < 0) {
     throw new Error('Step can\'t be less than zero');
   }
@@ -6,15 +15,17 @@ function calcNearestStepValue(value: number, step: number, base: number) {
   const basedValue = value - base;
   if (basedValue % step === 0) return value;
 
-  const minCorrectValue = Math.trunc(basedValue / step) * step + base;
+  let minCorrectValue = Math.trunc(basedValue / step) * step + base;
+  minCorrectValue = toFixed(minCorrectValue, fixedNumbers);
   const minDifference = value - minCorrectValue;
-  const maxCorrectValue = (Math.trunc(basedValue / step) + 1) * step + base;
+  let maxCorrectValue = (Math.trunc(basedValue / step) + 1) * step + base;
+  maxCorrectValue = toFixed(maxCorrectValue, fixedNumbers);
   const maxDifference = maxCorrectValue - value;
 
   return (minDifference < maxDifference) ? minCorrectValue : maxCorrectValue;
 }
 
-function valueToPercent(value: number, maxValue: number) {
+function valueToPercent(value: number, maxValue: number): number {
   return (value / maxValue) * 100;
 }
 

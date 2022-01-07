@@ -19,8 +19,10 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
   }
 
   setOptions(options: Partial<ModelOptions>): void {
+    // console.log('Original', this.options);
+    // console.log('Trying to set model: ', options);
     Model.checkTypes(options);
-    Model.checkRange(options);
+    this.checkRange(options);
     if (options.isRange === false) delete this.options.valueTo;
     Model.checkStrings(options);
     const newOptions = calcDifference(this.options, options);
@@ -60,7 +62,7 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
     });
   }
 
-  static checkRange(options: Partial<ModelOptions>): void {
+  private checkRange(options: Partial<ModelOptions>): void {
     const { valueTo, isRange } = options;
 
     const hasNoValueTo = isRange && valueTo === undefined;
@@ -68,7 +70,9 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
       Model.throwError('isRange', 'valueTo is expected instead of isRange: true');
     }
 
-    const uselessValueTo = !isRange && valueTo !== undefined;
+    const { isRange: originalIsRange } = this.options;
+
+    const uselessValueTo = !originalIsRange && !isRange && valueTo !== undefined;
     if (uselessValueTo) {
       Model.throwError('isRange', `valueTo(${valueTo}) not allowed when isRange: false`);
     }

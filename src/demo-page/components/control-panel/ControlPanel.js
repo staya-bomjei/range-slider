@@ -33,7 +33,6 @@ export default class ControlPanel {
 
   init() {
     const sliderOptions = JSON.parse(this.$component.attr(SLIDER_OPTIONS));
-    console.log(sliderOptions);
     this.$slider.rangeSlider(sliderOptions);
 
     this.updateInputs();
@@ -41,6 +40,8 @@ export default class ControlPanel {
   }
 
   attachEventHandlers() {
+    this.$slider.rangeSlider('onchange', () => this.updateInputs());
+
     this.$min.on('change', () => this.handleMinChange());
     this.$max.on('change', () => this.handleMaxChange());
     this.$step.on('change', () => this.handleStepChange());
@@ -58,37 +59,31 @@ export default class ControlPanel {
   handleMinChange() {
     const min = Number(this.$min.val());
     this.setValid({ min });
-    this.updateInputs();
   }
 
   handleMaxChange() {
     const max = Number(this.$max.val());
     this.setValid({ max });
-    this.updateInputs();
   }
 
   handleStepChange() {
     const step = Number(this.$step.val());
     this.setValid({ step });
-    this.updateInputs();
   }
 
   handleFromChange() {
     const valueFrom = Number(this.$from.val());
     this.setValid({ valueFrom });
-    this.updateInputs();
   }
 
   handleToChange() {
     const valueTo = Number(this.$to.val());
     this.setValid({ valueTo });
-    this.updateInputs();
   }
 
   handlePartsChange() {
     const scaleParts = Number(this.$parts.val());
     this.setValid({ scaleParts });
-    this.updateInputs();
   }
 
   handleVerticalChange() {
@@ -100,7 +95,6 @@ export default class ControlPanel {
   handleRangeChange() {
     const { isRange } = this.get();
     this.setValid({ isRange: !isRange });
-    this.updateInputs();
   }
 
   handleScaleChange() {

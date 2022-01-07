@@ -104,7 +104,7 @@ export default class Presenter {
     const originalLeftText = this.calcTooltipText(true);
     const originalRightText = this.calcTooltipText(false);
 
-    const valuesRange = `${originalLeftText} - ${originalRightText}`;
+    const valuesRange = `${originalLeftText} — ${originalRightText}`;
     const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
     const rightTooltipText = (this.thumbDragged !== 'right') ? '' : valuesRange;
     this.view.setOptions({

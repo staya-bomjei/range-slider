@@ -121,6 +121,7 @@ export default class ControlPanel {
   }
 
   setValid(options, rCnt = 0) {
+    const spaces = ' '.repeat(rCnt);
     if (rCnt > 10) {
       throw new Error('Stack Overflow');
     }
@@ -129,9 +130,9 @@ export default class ControlPanel {
     } catch (error) {
       const { value } = error;
       if (value === undefined) throw error;
-      console.log('start validate');
-      console.log(error.message);
-      console.log(options);
+      console.log(spaces, 'start validate');
+      console.log(spaces, error.message);
+      console.log(spaces, options);
 
       const min = (options.min !== undefined) ? options.min : this.get().min;
       const max = (options.max !== undefined) ? options.max : this.get().max;
@@ -152,7 +153,8 @@ export default class ControlPanel {
       if (isWrongValueFrom) {
         this.setValid({ ...options, valueFrom: min }, rCnt + 1);
       }
-      console.log('end validate');
+      this.updateInputs();
+      console.log(spaces, 'end validate');
     }
   }
 

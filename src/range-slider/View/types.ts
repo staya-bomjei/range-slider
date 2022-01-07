@@ -38,7 +38,7 @@ type TooltipOptions = {
 
 type ViewEvent = {
   view: Thumb | ScaleItem | Track,
-  event: PointerEvent,
+  event: MouseEvent,
 }
 
 type ViewOptions = {

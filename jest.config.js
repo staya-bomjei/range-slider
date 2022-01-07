@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: 'jsdom',
   modulePathIgnorePatterns: ['<rootDir>/node_modules/'],
   collectCoverage: true,
   collectCoverageFrom: [

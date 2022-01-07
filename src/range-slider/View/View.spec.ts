@@ -39,7 +39,7 @@ describe('View class:', () => {
     expect(view.getOptions()).toMatchObject({ ...newOptions, isVertical: false });
   });
 
-  test('It handles mousedown events', () => {
+  test('It handles pointerdown events', () => {
     const {
       track: { el: trackEl },
       scale,
@@ -48,11 +48,11 @@ describe('View class:', () => {
     } = view.subViews;
     jest.spyOn(view, 'broadcast');
 
-    trackEl.dispatchEvent(new MouseEvent('mousedown'));
-    leftThumbEl.dispatchEvent(new MouseEvent('mousedown'));
-    rightThumbEl.dispatchEvent(new MouseEvent('mousedown'));
+    trackEl.dispatchEvent(new MouseEvent('pointerdown'));
+    leftThumbEl.dispatchEvent(new MouseEvent('pointerdown'));
+    rightThumbEl.dispatchEvent(new MouseEvent('pointerdown'));
     scale.items.forEach(({ el: scaleItemEl }) => {
-      scaleItemEl.dispatchEvent(new MouseEvent('mousedown'));
+      scaleItemEl.dispatchEvent(new MouseEvent('pointerdown'));
     });
 
     expect(view.broadcast).toBeCalledTimes(3 + scale.items.length);

@@ -12,10 +12,10 @@ describe('ScaleItem class:', () => {
     expect(scaleItem.getOptions()).toMatchObject(newOptions);
   });
 
-  test('It handles mousedown event', () => {
+  test('It handles pointerdown event', () => {
     jest.spyOn(scaleItem, 'broadcast');
 
-    el.dispatchEvent(new MouseEvent('mousedown'));
+    el.dispatchEvent(new MouseEvent('pointerdown'));
 
     expect(scaleItem.broadcast).toBeCalled();
   });

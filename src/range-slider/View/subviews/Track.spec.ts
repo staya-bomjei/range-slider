@@ -5,10 +5,10 @@ describe('Track class:', () => {
   const el = document.body.children[0] as HTMLElement;
   const track = new Track(el);
 
-  test('It handles mousedown event', () => {
+  test('It handles pointerdown event', () => {
     jest.spyOn(track, 'broadcast');
 
-    el.dispatchEvent(new MouseEvent('mousedown'));
+    el.dispatchEvent(new MouseEvent('pointerdown'));
 
     expect(track.broadcast).toBeCalled();
   });

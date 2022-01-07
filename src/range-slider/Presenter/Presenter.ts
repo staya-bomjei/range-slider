@@ -49,11 +49,11 @@ export default class Presenter {
 
   private handleViewChange({ view, event }: ViewEvent): void {
     if (view instanceof Thumb) {
-      this.handleThumbPointerDown(view, event);
+      this.handleThumbPointerDown(view, event as PointerEvent);
     } else if (view instanceof ScaleItem) {
       this.handleScaleItemPointerDown(view);
     } else if (view instanceof Track) {
-      this.handleTrackPointerDown(event);
+      this.handleTrackPointerDown(event as PointerEvent);
     } else {
       throw new Error(`Unknown view event: ${view} ${event}`);
     }

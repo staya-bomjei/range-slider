@@ -29,25 +29,25 @@ describe('Presenter class:', () => {
     expect(leftTooltip.text).toEqual('17');
   });
 
-  test('Handles thumb mousedown', () => {
+  test('Handles thumb pointerdown', () => {
     const { leftThumb } = view.subViews;
 
     expect(() => {
       leftThumb.broadcast({
         view: leftThumb,
-        event: new PointerEvent('mousedown'),
+        event: new MouseEvent('pointerdown'),
       });
     }).toThrow('valueFrom(NaN) must be a multiple of 1');
   });
 
-  test('Handles scale item mousedown', () => {
+  test('Handles scale item pointerdown', () => {
     model.setOptions({ valueFrom: 1, scaleParts: 2 });
     const { scale, leftThumb } = view.subViews;
     const lastScaleItem = scale.items[scale.items.length - 1] as ScaleItem;
 
     lastScaleItem.broadcast({
       view: lastScaleItem,
-      event: new PointerEvent('mousedown'),
+      event: new MouseEvent('pointerdown'),
     });
 
     const leftThumbPosition = leftThumb.getOptions().position;
@@ -55,13 +55,13 @@ describe('Presenter class:', () => {
     expect(leftThumbPosition).toEqual(100);
   });
 
-  test('Handles track mousedown', () => {
+  test('Handles track pointerdown', () => {
     const { track } = view.subViews;
 
     expect(() => {
       track.broadcast({
         view: track,
-        event: new PointerEvent('mousedown'),
+        event: new MouseEvent('pointerdown'),
       });
     }).toThrow('valueFrom(NaN) must be a multiple of 1');
   });

@@ -7,7 +7,7 @@
     "dev": "webpack --env development",
     "prod": "webpack --env production",
     "start": "webpack-dev-server --env development",
-    "test": "jest --env=jsdom",
+    "test": "jest",
     "deploy": "npm run prod && gh-pages -d dist",
     "eslint": "npx eslint \"src/**/*.ts\"",
     "stylelint": "npx stylelint \"src/**/*.scss\""

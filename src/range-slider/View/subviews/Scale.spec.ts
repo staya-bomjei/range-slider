@@ -29,13 +29,13 @@ describe('Scale class:', () => {
     });
   });
 
-  test('It handles mousedown event', () => {
+  test('It handles pointerdown event', () => {
     jest.spyOn(scale, 'broadcast');
 
     const scaleItemsCounter = scale.items.length;
 
     scale.items.forEach(({ el: scaleItemEl }) => {
-      scaleItemEl.dispatchEvent(new MouseEvent('mousedown'));
+      scaleItemEl.dispatchEvent(new MouseEvent('pointerdown'));
     });
 
     expect(scale.broadcast).toBeCalledTimes(scaleItemsCounter);

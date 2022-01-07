@@ -22,10 +22,10 @@ describe('Thumb class:', () => {
     expect(thumb.getOptions()).toMatchObject({ ...newOptions, visible: false, isHigher: true });
   });
 
-  test('It handles mousedown event', () => {
+  test('It handles pointerdown event', () => {
     jest.spyOn(thumb, 'broadcast');
 
-    el.dispatchEvent(new MouseEvent('mousedown'));
+    el.dispatchEvent(new MouseEvent('pointerdown'));
 
     expect(thumb.broadcast).toBeCalled();
   });

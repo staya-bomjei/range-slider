@@ -13,6 +13,8 @@ class Track extends EventObserver<ViewEvent> {
 
   private attachEventHandlers() {
     this.el.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       this.broadcast({ view: this, event });
     });
   }

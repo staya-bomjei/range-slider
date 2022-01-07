@@ -40,6 +40,7 @@ class Thumb extends EventObserver<ViewEvent> {
 
   private attachEventHandlers(): void {
     this.el.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
       event.stopPropagation();
       this.broadcast({ view: this, event });
     });

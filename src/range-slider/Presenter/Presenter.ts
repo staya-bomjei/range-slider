@@ -49,17 +49,17 @@ export default class Presenter {
 
   private handleViewChange({ view, event }: ViewEvent): void {
     if (view instanceof Thumb) {
-      this.handleThumbMouseDown(view, event);
+      this.handleThumbPointerDown(view, event);
     } else if (view instanceof ScaleItem) {
-      this.handleScaleItemMouseDown(view);
+      this.handleScaleItemPointerDown(view);
     } else if (view instanceof Track) {
-      this.handleTrackMouseDown(event);
+      this.handleTrackPointerDown(event);
     } else {
       throw new Error(`Unknown view event: ${view} ${event}`);
     }
   }
 
-  private handleScaleItemMouseDown(scaleItem: ScaleItem) {
+  private handleScaleItemPointerDown(scaleItem: ScaleItem) {
     const { position } = scaleItem.getOptions();
     const { isRange } = this.model.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
@@ -73,7 +73,7 @@ export default class Presenter {
     this.model.setOptions({ [modelProperty]: this.percentToValue(position) });
   }
 
-  public handleTrackMouseDown(event: MouseEvent) {
+  public handleTrackPointerDown(event: PointerEvent) {
     const { isRange } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
@@ -90,7 +90,7 @@ export default class Presenter {
       || leftThumbCoord > pageCoord;
     const thumb = (isLeftThumbCloser) ? leftThumb : rightThumb;
 
-    this.handleThumbMouseDown(thumb, event);
+    this.handleThumbPointerDown(thumb, event);
   }
 
   private handleTooltipsOverlap(): void {
@@ -113,7 +113,7 @@ export default class Presenter {
     });
   }
 
-  private handleThumbMouseDown(thumb: Thumb, event: MouseEvent): void {
+  private handleThumbPointerDown(thumb: Thumb, event: PointerEvent): void {
     const { leftThumb } = this.view.subViews;
     const isLeftThumb = thumb === leftThumb;
     const { el } = thumb;
@@ -122,20 +122,22 @@ export default class Presenter {
     el.classList.add(THUMB_DRAGGED);
     this.moveThumbTo(thumb, event);
 
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       this.moveThumbTo(thumb, e);
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', () => {
+    const handlePointerUp = () => {
       this.thumbDragged = false;
       el.classList.remove(THUMB_DRAGGED);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.onmouseup = null;
-    });
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    document.addEventListener('pointermove', handlePointerMove);
+    document.addEventListener('pointerup', handlePointerUp);
   }
 
-  private moveThumbTo(thumb: Thumb, event: MouseEvent): void {
+  private moveThumbTo(thumb: Thumb, event: PointerEvent): void {
     const { isRange } = this.model.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
     const isLeftThumb = thumb === leftThumb;
@@ -168,7 +170,7 @@ export default class Presenter {
     return text;
   }
 
-  private calcNearestPosition(event: MouseEvent): number {
+  private calcNearestPosition(event: PointerEvent): number {
     const { min, max, step } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
     const { track } = this.view.subViews;

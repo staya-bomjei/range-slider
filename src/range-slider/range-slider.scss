@@ -1,5 +1,11 @@
 @use 'sass:math';
 
+@mixin selection-fix {
+  @media (hover: none) {
+    cursor: auto;
+  }
+}
+
 .range-slider {
   position: relative;
   display: flex;
@@ -30,12 +36,15 @@
   }
 
   &__track {
+    @include selection-fix;
+
     position: relative;
     height: $track-height;
     width: 100%;
     border: $border-width solid rgba($dark, 25%);
     border-radius: math.div($track-height, 2);
     cursor: pointer;
+    touch-action: none;
     z-index: $z-index + 1;
   }
 
@@ -82,6 +91,7 @@
     outline: $border-width * 2 solid $background;
     border-radius: 50%;
     cursor: grab;
+    touch-action: none;
     z-index: $z-index + 3;
 
     &_hidden {

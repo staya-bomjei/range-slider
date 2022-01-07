@@ -12,7 +12,7 @@ export default class Track extends EventObserver<ViewEvent> {
   }
 
   private attachEventHandlers() {
-    this.el.addEventListener('mousedown', (event) => {
+    this.el.addEventListener('pointerdown', (event) => {
       this.broadcast({ view: this, event });
     });
   }

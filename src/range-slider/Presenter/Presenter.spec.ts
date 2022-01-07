@@ -35,7 +35,7 @@ describe('Presenter class:', () => {
     expect(() => {
       leftThumb.broadcast({
         view: leftThumb,
-        event: new MouseEvent('mousedown'),
+        event: new PointerEvent('mousedown'),
       });
     }).toThrow('valueFrom(NaN) must be a multiple of 1');
   });
@@ -47,7 +47,7 @@ describe('Presenter class:', () => {
 
     lastScaleItem.broadcast({
       view: lastScaleItem,
-      event: new MouseEvent('mousedown'),
+      event: new PointerEvent('mousedown'),
     });
 
     const leftThumbPosition = leftThumb.getOptions().position;
@@ -61,7 +61,7 @@ describe('Presenter class:', () => {
     expect(() => {
       track.broadcast({
         view: track,
-        event: new MouseEvent('mousedown'),
+        event: new PointerEvent('mousedown'),
       });
     }).toThrow('valueFrom(NaN) must be a multiple of 1');
   });

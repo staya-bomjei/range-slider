@@ -30,7 +30,7 @@ export default class ScaleItem extends EventObserver<ViewEvent> {
   }
 
   private attachEventHandlers(): void {
-    this.el.addEventListener('mousedown', (event) => {
+    this.el.addEventListener('pointerdown', (event) => {
       this.broadcast({ view: this, event });
     });
   }

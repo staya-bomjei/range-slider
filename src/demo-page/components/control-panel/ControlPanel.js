@@ -41,14 +41,12 @@ export default class ControlPanel {
 
   attachEventHandlers() {
     this.$slider.rangeSlider('onchange', () => this.updateInputs());
-
     this.$min.on('change', () => this.handleMinChange());
     this.$max.on('change', () => this.handleMaxChange());
     this.$step.on('change', () => this.handleStepChange());
     this.$from.on('change', () => this.handleFromChange());
     this.$to.on('change', () => this.handleToChange());
     this.$parts.on('change', () => this.handlePartsChange());
-
     this.$vertical.on('change', () => this.handleVerticalChange());
     this.$range.on('change', () => this.handleRangeChange());
     this.$scale.on('change', () => this.handleScaleChange());
@@ -58,103 +56,108 @@ export default class ControlPanel {
 
   handleMinChange() {
     const min = Number(this.$min.val());
-    this.setValid({ min });
+    this.setValidOptions({ min });
   }
 
   handleMaxChange() {
     const max = Number(this.$max.val());
-    this.setValid({ max });
+    this.setValidOptions({ max });
   }
 
   handleStepChange() {
     const step = Number(this.$step.val());
-    this.setValid({ step });
+    this.setValidOptions({ step });
   }
 
   handleFromChange() {
     const valueFrom = Number(this.$from.val());
-    this.setValid({ valueFrom });
+    this.setValidOptions({ valueFrom });
   }
 
   handleToChange() {
     const valueTo = Number(this.$to.val());
-    this.setValid({ valueTo });
+    this.setValidOptions({ valueTo });
   }
 
   handlePartsChange() {
     const scaleParts = Number(this.$parts.val());
-    this.setValid({ scaleParts });
+    this.setValidOptions({ scaleParts });
   }
 
   handleVerticalChange() {
-    let { orientation } = this.get();
+    let { orientation } = this.getOptions();
     orientation = (orientation === 'horizontal') ? 'vertical' : 'horizontal';
-    this.set({ orientation });
+    this.setOptions({ orientation });
   }
 
   handleRangeChange() {
-    const { isRange } = this.get();
-    this.setValid({ isRange: !isRange });
+    const { isRange } = this.getOptions();
+    this.setValidOptions({ isRange: !isRange });
   }
 
   handleScaleChange() {
-    const { showScale } = this.get();
-    this.set({ showScale: !showScale });
+    const { showScale } = this.getOptions();
+    this.setOptions({ showScale: !showScale });
   }
 
   handleBarChange() {
-    const { showProgress } = this.get();
-    this.set({ showProgress: !showProgress });
+    const { showProgress } = this.getOptions();
+    this.setOptions({ showProgress: !showProgress });
   }
 
   handleTipChange() {
-    const { showTooltip } = this.get();
-    this.set({ showTooltip: !showTooltip });
+    const { showTooltip } = this.getOptions();
+    this.setOptions({ showTooltip: !showTooltip });
   }
 
-  get() {
+  getOptions() {
     return this.$slider.rangeSlider('get');
   }
 
-  set(options) {
+  setOptions(options) {
     this.$slider.rangeSlider('set', options);
   }
 
-  setValid(options, rCnt = 0) {
+  setValidOptions(options, rCnt = 0) {
     const spaces = ' '.repeat(rCnt);
     if (rCnt > 10) {
       throw new Error('Stack Overflow');
     }
     try {
-      this.set(options);
+      console.warn(`${spaces}try to set options`, options);
+      this.setOptions(options);
     } catch (error) {
       const { value } = error;
       if (value === undefined) throw error;
-      console.log(spaces, 'start validate');
-      console.log(spaces, error.message);
-      console.log(spaces, options);
-
-      const min = (options.min !== undefined) ? options.min : this.get().min;
-      const max = (options.max !== undefined) ? options.max : this.get().max;
-
       const isNeedsValueTo = value === 'isRange';
       const isWrongScaleParts = value === 'scaleParts';
       const isWrongValueFrom = value === 'valueFrom';
       const isWrongValueTo = value === 'valueTo';
 
+      const originalOptions = this.getOptions();
+      const min = (options.min !== undefined) ? options.min : originalOptions.min;
+      const max = (options.max !== undefined) ? options.max : originalOptions.max;
+
+      console.warn(`${spaces}start validation`);
+      console.warn(`${spaces}original options: `, originalOptions);
+      console.warn(`${spaces}trying to set options: `, options);
+      console.error(`${spaces}error message: ${error.message}`);
+
       if (isNeedsValueTo || isWrongValueTo) {
-        this.setValid({ ...options, valueTo: max }, rCnt + 1);
+        this.setValidOptions({ ...options, valueTo: max }, rCnt + 1);
       }
 
       if (isWrongScaleParts) {
-        this.setValid({ ...options, scaleParts: 1 }, rCnt + 1);
+        this.setValidOptions({ ...options, scaleParts: 1 }, rCnt + 1);
       }
 
       if (isWrongValueFrom) {
-        this.setValid({ ...options, valueFrom: min }, rCnt + 1);
+        this.setValidOptions({ ...options, valueFrom: min }, rCnt + 1);
       }
+
       this.updateInputs();
-      console.log(spaces, 'end validate');
+
+      console.warn(`${spaces}end validation`);
     }
   }
 

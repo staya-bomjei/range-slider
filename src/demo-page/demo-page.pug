@@ -5,13 +5,6 @@ include ./components/control-panel/control-panel
     title,
     description,
     keywords,
-    tapperNumbers: {
-      beschastnykh: surname,
-      denis: name,
-      'demo page': page,
-      '4nd task': task,
-      metalamp: company,
-    },
     slider,
   } = htmlWebpackPlugin.options.getData();
 
@@ -47,6 +40,3 @@ html
         +control-panel(slider.default)
         +control-panel(slider.range)
         +control-panel(slider.vertical)
-      .demo-page__examples
-        +control-panel(slider.tapper.names)
-      //-   +control-panel(slider.tapper.any)

@@ -4,14 +4,11 @@
   position: relative;
   display: flex;
   max-width: 9rem;
-
-  $class: &;
-  $dark25: rgba($dark, 25%);
-  $dark75: rgba($dark, 75%);
-
   border: $border-width solid rgba($dark, 50%);
   background: rgba($dark, 50%);
   background-clip: content-box;
+
+  $class: &;
 
   &__text {
     @extend %default-text;
@@ -43,6 +40,9 @@
   }
 
   &__disable-grid {
+    $dark25: rgba($dark, 25%);
+    $dark75: rgba($dark, 75%);
+
     position: absolute;
     display: none;
     width: 100%;

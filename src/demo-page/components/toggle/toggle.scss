@@ -7,8 +7,6 @@
   cursor: pointer;
 
   $class: &;
-  $dark25: rgba($dark, 25%);
-  $dark75: rgba($dark, 75%);
   $marker-width: 2.5rem;
   $marker-height: 1.25rem;
   $center-size: 0.75rem;
@@ -64,6 +62,9 @@
   }
 
   &__disable-grid {
+    $dark25: rgba($dark, 25%);
+    $dark75: rgba($dark, 75%);
+
     position: absolute;
     display: none;
     width: 100%;

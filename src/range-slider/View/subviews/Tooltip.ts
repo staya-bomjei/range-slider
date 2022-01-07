@@ -2,7 +2,7 @@ import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { TooltipOptions } from '../types';
 import { TOOLTIP_HIDDEN } from '../const';
 
-export default class Tooltip {
+class Tooltip {
   readonly el: HTMLElement;
 
   private options = {} as TooltipOptions;
@@ -46,3 +46,5 @@ export default class Tooltip {
     this.el.innerHTML = text;
   }
 }
+
+export default Tooltip;

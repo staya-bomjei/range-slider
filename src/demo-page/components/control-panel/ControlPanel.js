@@ -14,7 +14,7 @@ import {
   VERTICAL_INPUT,
 } from './const';
 
-export default class ControlPanel {
+class ControlPanel {
   constructor($component) {
     this.$component = $component;
     this.$slider = $(SLIDER, $component);
@@ -203,3 +203,5 @@ export default class ControlPanel {
     this.$bar.attr('checked', showProgress);
   }
 }
+
+export default ControlPanel;

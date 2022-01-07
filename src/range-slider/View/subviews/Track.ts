@@ -1,7 +1,7 @@
 import EventObserver from '../../helpers/EventObserver';
 import { ViewEvent } from '../types';
 
-export default class Track extends EventObserver<ViewEvent> {
+class Track extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
   constructor(el: HTMLElement) {
@@ -17,3 +17,5 @@ export default class Track extends EventObserver<ViewEvent> {
     });
   }
 }
+
+export default Track;

@@ -14,7 +14,7 @@ import Thumb from '../View/subviews/Thumb';
 import Track from '../View/subviews/Track';
 import ScaleItem from '../View/subviews/ScaleItem';
 
-export default class Presenter {
+class Presenter {
   model: Model;
 
   view: View;
@@ -308,3 +308,5 @@ export default class Presenter {
     return viewOptions;
   }
 }
+
+export default Presenter;

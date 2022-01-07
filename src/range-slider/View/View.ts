@@ -17,7 +17,7 @@ import {
   WRAPPER,
 } from './const';
 
-export default class View extends EventObserver<ViewEvent> {
+class View extends EventObserver<ViewEvent> {
   subViews = {} as SubViews;
 
   readonly el: HTMLElement;
@@ -148,3 +148,5 @@ export default class View extends EventObserver<ViewEvent> {
     }
   }
 }
+
+export default View;

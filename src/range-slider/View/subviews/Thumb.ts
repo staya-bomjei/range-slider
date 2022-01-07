@@ -3,7 +3,7 @@ import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
 import { ThumbOptions, ViewEvent } from '../types';
 
-export default class Thumb extends EventObserver<ViewEvent> {
+class Thumb extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
   private options = {} as ThumbOptions;
@@ -72,3 +72,5 @@ export default class Thumb extends EventObserver<ViewEvent> {
     }
   }
 }
+
+export default Thumb;

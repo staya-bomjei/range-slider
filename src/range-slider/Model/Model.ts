@@ -4,7 +4,7 @@ import { ModelOptions } from './types';
 import { defaultOptions, optionsTypes } from './const';
 import IncorrectValueError from '../helpers/IncorrectValueError';
 
-export default class Model extends EventObserver<Partial<ModelOptions>> {
+class Model extends EventObserver<Partial<ModelOptions>> {
   private options = {} as ModelOptions;
 
   constructor(options?: Partial<ModelOptions>) {
@@ -145,3 +145,5 @@ export default class Model extends EventObserver<Partial<ModelOptions>> {
     throw new IncorrectValueError<ModelOptions>(value, message);
   }
 }
+
+export default Model;

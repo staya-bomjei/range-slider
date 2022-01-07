@@ -2,7 +2,7 @@ import EventObserver from '../../helpers/EventObserver';
 import { ScaleItemOptions, ViewEvent } from '../types';
 import { SCALE_ITEM } from '../const';
 
-export default class ScaleItem extends EventObserver<ViewEvent> {
+class ScaleItem extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
   private options = {} as ScaleItemOptions;
@@ -52,3 +52,5 @@ export default class ScaleItem extends EventObserver<ViewEvent> {
     this.el.innerHTML = text;
   }
 }
+
+export default ScaleItem;

@@ -4,7 +4,7 @@ import { ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
-export default class Scale extends EventObserver<ViewEvent> {
+class Scale extends EventObserver<ViewEvent> {
   items = [] as Array<ScaleItem>;
 
   readonly el: HTMLElement;
@@ -118,3 +118,5 @@ export default class Scale extends EventObserver<ViewEvent> {
     });
   }
 }
+
+export default Scale;

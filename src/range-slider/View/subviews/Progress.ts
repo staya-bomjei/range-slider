@@ -2,7 +2,7 @@ import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { ProgressOptions } from '../types';
 import { PROGRESS_HIDDEN } from '../const';
 
-export default class Progress {
+class Progress {
   readonly el: HTMLElement;
 
   private options = {} as ProgressOptions;
@@ -47,3 +47,5 @@ export default class Progress {
     this.el.style.left = `${from}%`;
   }
 }
+
+export default Progress;

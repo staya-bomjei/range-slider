@@ -1,4 +1,4 @@
-export default class EventObserver<D extends Record<string, unknown>> {
+class EventObserver<D extends Record<string, unknown>> {
   private observers: Array<(data: D) => void>;
 
   constructor() {
@@ -17,3 +17,5 @@ export default class EventObserver<D extends Record<string, unknown>> {
     this.observers.forEach((subscriber) => subscriber(data));
   }
 }
+
+export default EventObserver;

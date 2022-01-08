@@ -21,8 +21,8 @@ class TapperView {
     const tappers = JSON.parse(this.$component.attr(TAPPERS));
     const names = tappers.map((tapper) => tapper.name);
     this.keys = tappers.map((tapper) => tapper.key);
-    this.keysBits = this.keys.map((key) => (
-      TapperView.keyToBinaryArray(BigInt(key))
+    this.keysBits = this.keys.map((_, index) => (
+      this._keyToBinaryArray(index)
     ));
     this.$slider.rangeSlider({ strings: names, showTooltip: false });
 
@@ -32,35 +32,35 @@ class TapperView {
     this.$canvas.attr('height', canvasHeight);
     this.ctx = this.$canvas[0].getContext('2d');
 
-    this.update();
-    this.attachEventHandlers();
+    this._update();
+    this._attachEventHandlers();
   }
 
-  attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', () => this.update());
+  _attachEventHandlers() {
+    this.$slider.rangeSlider('onchange', () => this._update());
   }
 
-  update() {
-    this.updateKey();
-    this.updateCanvas();
+  _update() {
+    this._updateKey();
+    this._updateCanvas();
   }
 
-  updateKey() {
+  _updateKey() {
     const { valueFrom } = this.$slider.rangeSlider('get');
     this.$key.html(this.keys[valueFrom]);
   }
 
-  updateCanvas() {
+  _updateCanvas() {
     const { valueFrom } = this.$slider.rangeSlider('get');
     const bits = this.keysBits[valueFrom];
 
-    this.clearCanvas();
+    this._clearCanvas();
     bits.forEach((bit, index) => {
-      if (bit) this.drawCell(index);
+      if (bit) this._drawCell(index);
     });
   }
 
-  drawCell(index) {
+  _drawCell(index) {
     const posX = CELLS_PER_ROW - Math.trunc(index / CELLS_PER_COLUMN) - 1;
     const posY = index % CELLS_PER_COLUMN;
 
@@ -73,7 +73,7 @@ class TapperView {
     this.ctx.fillRect(x, y, width, height);
   }
 
-  clearCanvas() {
+  _clearCanvas() {
     const width = Number(this.$canvas.attr('width'));
     const height = Number(this.$canvas.attr('height'));
 
@@ -81,7 +81,8 @@ class TapperView {
     this.ctx.fillRect(0, 0, width, height);
   }
 
-  static keyToBinaryArray(key) {
+  _keyToBinaryArray(index) {
+    const key = BigInt(this.keys[index]);
     let bigNumber = key / BigInt(CELLS_PER_COLUMN);
     const binaryArray = [];
 

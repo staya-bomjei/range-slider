@@ -35,97 +35,96 @@ class ControlPanel {
     const sliderOptions = JSON.parse(this.$component.attr(SLIDER_OPTIONS));
     this.$slider.rangeSlider(sliderOptions);
 
-    this.updateInputs();
-    this.attachEventHandlers();
+    this._updateInputs();
+    this._attachEventHandlers();
   }
 
-  attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', () => this.updateInputs());
-    this.$min.on('change', () => this.handleMinChange());
-    this.$max.on('change', () => this.handleMaxChange());
-    this.$step.on('change', () => this.handleStepChange());
-    this.$from.on('change', () => this.handleFromChange());
-    this.$to.on('change', () => this.handleToChange());
-    this.$parts.on('change', () => this.handlePartsChange());
-    this.$vertical.on('change', () => this.handleVerticalChange());
-    this.$range.on('change', () => this.handleRangeChange());
-    this.$scale.on('change', () => this.handleScaleChange());
-    this.$bar.on('change', () => this.handleBarChange());
-    this.$tip.on('change', () => this.handleTipChange());
+  _attachEventHandlers() {
+    this.$slider.rangeSlider('onchange', () => this._updateInputs());
+    this.$min.on('change', () => this._handleMinChange());
+    this.$max.on('change', () => this._handleMaxChange());
+    this.$step.on('change', () => this._handleStepChange());
+    this.$from.on('change', () => this._handleFromChange());
+    this.$to.on('change', () => this._handleToChange());
+    this.$parts.on('change', () => this._handlePartsChange());
+    this.$vertical.on('change', () => this._handleVerticalChange());
+    this.$range.on('change', () => this._handleRangeChange());
+    this.$scale.on('change', () => this._handleScaleChange());
+    this.$bar.on('change', () => this._handleBarChange());
+    this.$tip.on('change', () => this._handleTipChange());
   }
 
-  handleMinChange() {
+  _handleMinChange() {
     const min = Number(this.$min.val());
-    this.setValidOptions({ min });
+    this._setValidOptions({ min });
   }
 
-  handleMaxChange() {
+  _handleMaxChange() {
     const max = Number(this.$max.val());
-    this.setValidOptions({ max });
+    this._setValidOptions({ max });
   }
 
-  handleStepChange() {
+  _handleStepChange() {
     const step = Number(this.$step.val());
-    this.setValidOptions({ step });
+    this._setValidOptions({ step });
   }
 
-  handleFromChange() {
+  _handleFromChange() {
     const valueFrom = Number(this.$from.val());
-    this.setValidOptions({ valueFrom });
+    this._setValidOptions({ valueFrom });
   }
 
-  handleToChange() {
+  _handleToChange() {
     const valueTo = Number(this.$to.val());
-    this.setValidOptions({ valueTo });
+    this._setValidOptions({ valueTo });
   }
 
-  handlePartsChange() {
+  _handlePartsChange() {
     const scaleParts = Number(this.$parts.val());
-    this.setValidOptions({ scaleParts });
+    this._setValidOptions({ scaleParts });
   }
 
-  handleVerticalChange() {
-    let { orientation } = this.getOptions();
+  _handleVerticalChange() {
+    let { orientation } = this._getOptions();
     orientation = (orientation === 'horizontal') ? 'vertical' : 'horizontal';
-    this.setOptions({ orientation });
+    this._setOptions({ orientation });
   }
 
-  handleRangeChange() {
-    const { isRange } = this.getOptions();
-    this.setValidOptions({ isRange: !isRange });
+  _handleRangeChange() {
+    const { isRange } = this._getOptions();
+    this._setValidOptions({ isRange: !isRange });
   }
 
-  handleScaleChange() {
-    const { showScale } = this.getOptions();
-    this.setOptions({ showScale: !showScale });
+  _handleScaleChange() {
+    const { showScale } = this._getOptions();
+    this._setOptions({ showScale: !showScale });
   }
 
-  handleBarChange() {
-    const { showProgress } = this.getOptions();
-    this.setOptions({ showProgress: !showProgress });
+  _handleBarChange() {
+    const { showProgress } = this._getOptions();
+    this._setOptions({ showProgress: !showProgress });
   }
 
-  handleTipChange() {
-    const { showTooltip } = this.getOptions();
-    this.setOptions({ showTooltip: !showTooltip });
+  _handleTipChange() {
+    const { showTooltip } = this._getOptions();
+    this._setOptions({ showTooltip: !showTooltip });
   }
 
-  getOptions() {
+  _getOptions() {
     return this.$slider.rangeSlider('get');
   }
 
-  setOptions(options) {
+  _setOptions(options) {
     this.$slider.rangeSlider('set', options);
   }
 
-  setValidOptions(options, rCnt = 0) {
-    const spaces = ' '.repeat(rCnt);
+  _setValidOptions(options, rCnt = 0) {
     if (rCnt > 10) {
       throw new Error('Stack Overflow');
     }
     try {
-      console.warn(`${spaces}try to set options`, options);
-      this.setOptions(options);
+      console.warn('try to set options', options);
+      this._setOptions(options);
     } catch (error) {
       const { value } = error;
       if (value === undefined) throw error;
@@ -134,34 +133,34 @@ class ControlPanel {
       const isWrongValueFrom = value === 'valueFrom';
       const isWrongValueTo = value === 'valueTo';
 
-      const originalOptions = this.getOptions();
+      const originalOptions = this._getOptions();
       const min = (options.min !== undefined) ? options.min : originalOptions.min;
       const max = (options.max !== undefined) ? options.max : originalOptions.max;
 
-      console.warn(`${spaces}start validation`);
-      console.warn(`${spaces}original options: `, originalOptions);
-      console.warn(`${spaces}trying to set options: `, options);
-      console.error(`${spaces}error message: ${error.message}`);
+      console.warn('start validation');
+      console.warn('original options: ', originalOptions);
+      console.warn('trying to set options: ', options);
+      console.error(`error message: ${error.message}`);
 
       if (isNeedsValueTo || isWrongValueTo) {
-        this.setValidOptions({ ...options, valueTo: max }, rCnt + 1);
+        this._setValidOptions({ ...options, valueTo: max }, rCnt + 1);
       }
 
       if (isWrongScaleParts) {
-        this.setValidOptions({ ...options, scaleParts: 1 }, rCnt + 1);
+        this._setValidOptions({ ...options, scaleParts: 1 }, rCnt + 1);
       }
 
       if (isWrongValueFrom) {
-        this.setValidOptions({ ...options, valueFrom: min }, rCnt + 1);
+        this._setValidOptions({ ...options, valueFrom: min }, rCnt + 1);
       }
 
-      this.updateInputs();
+      this._updateInputs();
 
-      console.warn(`${spaces}end validation`);
+      console.warn('end validation');
     }
   }
 
-  updateInputs() {
+  _updateInputs() {
     const {
       min,
       max,

@@ -24,7 +24,7 @@ class TapperView {
     this.keysBits = this.keys.map((_, index) => (
       this._keyToBinaryArray(index)
     ));
-    this.$slider.rangeSlider({ strings: names, showTooltip: false });
+    this.$slider.rangeSlider({ strings: names, showScale: false });
 
     const canvasWidth = CELLS_PER_ROW * CELL_SIZE + ((CELLS_PER_ROW - 1) * CELL_GAP);
     const canvasHeight = CELLS_PER_COLUMN * CELL_SIZE + ((CELLS_PER_COLUMN - 1) * CELL_GAP);

@@ -28,7 +28,7 @@
 
     &:disabled {
       ~ #{$class}__mark {
-        #{$class}__disable-grid {
+        #{$class}__police-tape {
           display: block;
         }
       }
@@ -61,7 +61,7 @@
     margin-left: 0.625rem;
   }
 
-  &__disable-grid {
+  &__police-tape {
     $dark25: rgba($dark, 25%);
     $dark75: rgba($dark, 75%);
 

@@ -4,6 +4,6 @@ mixin input(options = {})
   - const { text = '' } = options;
 
   label.input
-    .input__text= text
+    span.input__text= text
     input.input__input(type="number" name=text)
-    .input__police-tape
+    span.input__police-tape

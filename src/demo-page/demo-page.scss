@@ -1,4 +1,10 @@
+@import './styles/variables';
+
 .demo-page {
+  &__title {
+    @extend %title;
+  }
+
   &__panels {
     display: flex;
     flex-wrap: wrap;

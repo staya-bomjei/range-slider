@@ -6,6 +6,16 @@ $primary-gradient: linear-gradient(180deg, #bc9cff 0%, #8ba4f9 100%);
 $secondary-gradient: linear-gradient(180deg, #6fcf97 0%, #66d2ea 100%);
 $border-width: 0.0625rem;
 
+%title {
+  font-family: Montserrat, Arial, sans-serif;
+  font-weight: bold;
+  font-size: 1.5rem;
+  line-height: 1.813rem;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  color: $dark;
+}
+
 %default-text {
   font-family: Montserrat, Arial, sans-serif;
   font-weight: normal;

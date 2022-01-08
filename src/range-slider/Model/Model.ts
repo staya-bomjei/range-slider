@@ -28,23 +28,32 @@ class Model extends EventObserver<Partial<ModelOptions>> {
 
     if (hasNoNewOptions) return;
 
-    const checkedNewOptions = Model.validateStrings(newOptions);
+    const checkedNewOptions = this.validateStrings(newOptions);
     const mergedOptions = { ...this.options, ...checkedNewOptions };
     Model.checkOptions(mergedOptions);
     this.options = mergedOptions;
     this.broadcast(checkedNewOptions);
   }
 
-  static validateStrings(options: Partial<ModelOptions>): Partial<ModelOptions> {
-    const { strings } = options;
+  private validateStrings(options: Partial<ModelOptions>): Partial<ModelOptions> {
+    const { strings, isRange } = options;
 
     if (strings !== undefined) {
-      return {
+      const newOptions = {
         min: 0,
         max: strings.length - 1,
         step: 1,
+        valueFrom: 0,
+        scaleParts: strings.length - 1,
         ...options,
       };
+
+      const needToAddValueTo = this.options.isRange || isRange;
+      if (needToAddValueTo) {
+        newOptions.valueTo = strings.length - 1;
+      }
+
+      return newOptions;
     }
 
     return options;

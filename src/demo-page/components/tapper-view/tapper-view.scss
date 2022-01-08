@@ -1,0 +1,25 @@
+@import '../../styles/variables';
+
+.tapper-view {
+  display: grid;
+  grid-gap: 1rem;
+  margin: 2rem;
+
+  &__title {
+    @extend %title;
+
+    font-size: 1rem;
+  }
+
+  &__slider-wrapper {
+    width: 20rem;
+    height: 4rem;
+  }
+
+  &__key {
+    @extend %default-text;
+
+    font-family: monospace;
+    min-height: 8rem;
+  }
+}

@@ -92,7 +92,7 @@ Presenter - связующее Model и View звено. Он обрабатыв
 | **showProgress**: boolean | **true** | Видимость шкалы прогресса, если **true** - то её видно, иначе - не видно |
 > Примечание: на самом деле, слайдер всегда имеет как минимум две валидные позиции для ползунка: `min` и `max`. Такое поведение позволяет не ограничивать `step` сверху.
 ## Установка плагина
-Чтобы использовать этот плагин нужны два файла `range-slider.js` и `range-slider.css`, взять их можно из ветки gh-pages, они лежат в директории `js/plugins/range-slider/`. Или можно клонировать этот репозиторий и, установив все зависимости и самостоятельно собрав проект, можно взять нужные файлы в директории `dist/js/plugins/range-slider/`.
+Чтобы использовать этот плагин нужны два файла `range-slider.js` и `range-slider.css`, взять их можно из ветки gh-pages, они лежат в директории `range-slider/`. Или можно клонировать этот репозиторий и, установив все зависимости и самостоятельно собрав проект, можно взять нужные файлы в директории `dist/range-slider/`.
 
 Теперь, прежде чем начать пользоваться плагином вам нужно подключить JQuery любым удобным способом, а затем файлы плагина.
 
@@ -113,7 +113,6 @@ Presenter - связующее Model и View звено. Он обрабатыв
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Range Slider</title>
-  <link rel="stylesheet" href="range-slider.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script defer src="range-slider.js"></script>
   <script defer src="scripts.js"></script>

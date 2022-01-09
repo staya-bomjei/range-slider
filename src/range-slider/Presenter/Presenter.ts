@@ -9,7 +9,12 @@ import Model from '../Model/Model';
 import { ModelOptions } from '../Model/types';
 import View from '../View/View';
 import { THUMB_DRAGGED } from '../View/const';
-import { ViewOptions, ViewEvent, TooltipOptions } from '../View/types';
+import {
+  ViewOptions,
+  ViewEvent,
+  TooltipOptions,
+  ScaleOptions,
+} from '../View/types';
 import Thumb from '../View/subviews/Thumb';
 import Track from '../View/subviews/Track';
 import ScaleItem from '../View/subviews/ScaleItem';
@@ -50,11 +55,11 @@ class Presenter {
 
   private handleViewChange({ view, event }: ViewEvent): void {
     if (view instanceof Thumb) {
-      this.handleThumbPointerDown(view, event as PointerEvent);
+      this.handleThumbPointerDown(view, event);
     } else if (view instanceof ScaleItem) {
       this.handleScaleItemPointerDown(view);
     } else if (view instanceof Track) {
-      this.handleTrackPointerDown(event as PointerEvent);
+      this.handleTrackPointerDown(event);
     } else {
       throw new Error(`Unknown view event: ${view} ${event}`);
     }
@@ -74,7 +79,7 @@ class Presenter {
     this.model.setOptions({ [modelProperty]: this.percentToValue(position) });
   }
 
-  public handleTrackPointerDown(event: PointerEvent) {
+  public handleTrackPointerDown(event: MouseEvent) {
     const { isRange } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
@@ -113,7 +118,7 @@ class Presenter {
     });
   }
 
-  private handleThumbPointerDown(thumb: Thumb, event: PointerEvent): void {
+  private handleThumbPointerDown(thumb: Thumb, event: MouseEvent): void {
     const { leftThumb } = this.view.subViews;
     const isLeftThumb = thumb === leftThumb;
     const { el } = thumb;
@@ -122,7 +127,7 @@ class Presenter {
     el.classList.add(THUMB_DRAGGED);
     this.moveThumbTo(thumb, event);
 
-    const handlePointerMove = (e: PointerEvent) => {
+    const handlePointerMove = (e: MouseEvent) => {
       this.moveThumbTo(thumb, e);
     };
 
@@ -137,7 +142,7 @@ class Presenter {
     document.addEventListener('pointerup', handlePointerUp);
   }
 
-  private moveThumbTo(thumb: Thumb, event: PointerEvent): void {
+  private moveThumbTo(thumb: Thumb, event: MouseEvent): void {
     const { isRange } = this.model.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
     const isLeftThumb = thumb === leftThumb;
@@ -164,13 +169,35 @@ class Presenter {
 
   private calcTooltipText(isLeft: boolean): string {
     const { valueFrom, valueTo, strings } = this.model.getOptions();
-    // использую далее '!', т.к. значения модели считаются всегда корректными
-    const value = (isLeft) ? valueFrom : valueTo!;
-    const text = (strings === undefined) ? String(value) : strings[value]!;
-    return text;
+
+    const isValueFrom = isLeft && strings === undefined;
+    if (isValueFrom) {
+      return String(valueFrom);
+    }
+
+    const isStringsValueFrom = isLeft && strings !== undefined;
+    if (isStringsValueFrom) {
+      const string = strings[valueFrom];
+      if (string !== undefined) return string;
+
+      throw new Error(`strings(${strings}) must have string item with index ${valueFrom}`);
+    }
+
+    if (valueTo === undefined) {
+      throw new Error('for isLeft: false valueTo should be a number');
+    }
+
+    if (strings === undefined) {
+      return String(valueTo);
+    }
+
+    const string = strings[valueTo];
+    if (string !== undefined) return string;
+
+    throw new Error(`strings(${strings}) must have string item with index ${valueTo}`);
   }
 
-  private calcNearestPosition(event: PointerEvent): number {
+  private calcNearestPosition(event: MouseEvent): number {
     const { min, max, step } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
     const { track } = this.view.subViews;
@@ -209,7 +236,7 @@ class Presenter {
     return rectsIntersect(leftTooltipRect, rightTooltipRect);
   }
 
-  private convertToViewOptions(newModelOptions: Partial<ModelOptions>): ViewOptions {
+  private convertToViewOptions(newModelOptions: Partial<ModelOptions>): Partial<ViewOptions> {
     // Модель уже изменила своё состояние и в эту функцию были переданы
     // лишь те её параметры, которые были изменены, поэтому далее должны
     // быть вычислены новые опции ViewOptions, которые зависят от новых
@@ -228,17 +255,16 @@ class Presenter {
       showTooltip,
       showProgress,
     } = this.model.getOptions();
-    const viewOptions = {} as ViewOptions;
+    const viewOptions: Partial<ViewOptions> = {};
 
     const minMaxRange = max - min;
     const percentFrom = valueToPercent(valueFrom - min, minMaxRange);
-    // использую далее '!', т.к. значения модели считаются всегда корректными
-    const percentTo = valueToPercent(valueTo! - min, minMaxRange);
+    const percentTo = (valueTo) ? valueToPercent(valueTo - min, minMaxRange) : undefined;
     const needToSetZIndexes = valueFrom === valueTo;
     const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
     const isRightThumbHigher = needToSetZIndexes && valueTo === min;
 
-    callFunctionsForNewOptions({} as ModelOptions, newModelOptions, [
+    callFunctionsForNewOptions(null, newModelOptions, [
       {
         dependencies: ['orientation'],
         callback: () => {
@@ -248,24 +274,33 @@ class Presenter {
       {
         dependencies: ['valueFrom', 'valueTo', 'isRange', 'min', 'max', 'showProgress'],
         callback: () => {
-          viewOptions.progress = {
-            from: (isRange) ? percentFrom : MIN_POSITION,
-            to: (isRange) ? percentTo : percentFrom,
-            visible: showProgress,
-          };
+          if (percentTo !== undefined) {
+            viewOptions.progress = {
+              from: percentFrom,
+              to: percentTo,
+              visible: showProgress,
+            };
+          } else {
+            viewOptions.progress = {
+              from: MIN_POSITION,
+              to: percentFrom,
+              visible: showProgress,
+            };
+          }
         },
       },
       {
         dependencies: ['min', 'max', 'step', 'strings', 'scaleParts', 'showScale'],
         callback: () => {
-          viewOptions.scale = {
+          const scale: ScaleOptions = {
             min,
             max,
             step,
-            strings,
             partsCounter: scaleParts,
             visible: showScale,
           };
+          if (strings !== undefined) scale.strings = strings;
+          viewOptions.scale = scale;
         },
       },
       {
@@ -282,7 +317,7 @@ class Presenter {
         dependencies: ['valueTo', 'min', 'max', 'isRange'],
         callback: () => {
           viewOptions.rightThumb = {
-            position: percentTo,
+            position: (percentTo === undefined) ? MAX_POSITION : percentTo,
             visible: isRange,
             isHigher: isRightThumbHigher,
           };
@@ -295,9 +330,10 @@ class Presenter {
             text: this.calcTooltipText(true),
             visible: showTooltip,
           };
+          if (!isRange) return;
           viewOptions.rightTooltip = {
             text: this.calcTooltipText(false),
-            visible: isRange && showTooltip,
+            visible: showTooltip,
           };
         },
       },

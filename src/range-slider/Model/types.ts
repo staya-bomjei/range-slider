@@ -4,7 +4,7 @@ type ModelOptions = {
   min: number,
   max: number,
   step: number,
-  strings: Array<string>,
+  strings?: Array<string>,
   valueFrom: number,
   valueTo?: number,
   isRange: boolean,

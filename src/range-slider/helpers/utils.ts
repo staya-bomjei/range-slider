@@ -48,11 +48,11 @@ function calcNewOptions<T extends Record<string, unknown>>(
 }
 
 function callFunctionsForNewOptions<O extends Record<string, unknown>>(
-  original: O,
+  original: O | null,
   other: Partial<O>,
   callbacks: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
 ): void {
-  const newOptions = calcNewOptions(original, other);
+  const newOptions = (original) ? calcNewOptions(original, other) : other;
   const keys = Object.keys(newOptions) as Array<keyof O>;
 
   callbacks.forEach(({ dependencies, callback }) => {
@@ -79,7 +79,7 @@ function isFirstCloser(position: number, first: number, second: number) {
   return firstRange < secondRange;
 }
 
-type Type = 'number' | 'boolean' | 'string[]' | 'orientation';
+type Type = 'number' | 'boolean' | 'string[]' | 'orientation' | undefined;
 function checkType(value: unknown, type: Type): boolean {
   switch (type) {
     case 'number':

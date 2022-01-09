@@ -1,6 +1,6 @@
 import { ModelOptions } from './types';
 
-const defaultOptions = {
+const defaultOptions: ModelOptions = {
   min: 0,
   max: 100,
   step: 1,
@@ -11,7 +11,7 @@ const defaultOptions = {
   showScale: true,
   showTooltip: true,
   showProgress: true,
-} as ModelOptions;
+};
 
 const optionsTypes: {
   [key in keyof ModelOptions]: 'number' | 'boolean' | 'string[]' | 'orientation'

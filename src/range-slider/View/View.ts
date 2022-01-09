@@ -18,7 +18,7 @@ import {
 } from './const';
 
 class View extends EventObserver<ViewEvent> {
-  subViews = {} as SubViews;
+  subViews: SubViews;
 
   readonly el: HTMLElement;
 
@@ -29,6 +29,7 @@ class View extends EventObserver<ViewEvent> {
 
     this.el = el;
     this.render();
+    this.subViews = this.calcSubViews();
     this.attachEventHandlers();
   }
 
@@ -47,35 +48,55 @@ class View extends EventObserver<ViewEvent> {
       rightTooltip,
     } = options;
 
-    // т.к. эта функция проверяет, существуют ли свойства из options, я далее использую '!'
     callFunctionsForNewOptions(this.options, options, [
       {
         dependencies: ['isVertical'],
-        callback: () => this.updateOrientation(isVertical!),
+        callback: () => {
+          if (isVertical === undefined) return;
+          this.updateOrientation(isVertical);
+        },
       },
       {
         dependencies: ['progress'],
-        callback: () => this.subViews.progress.setOptions(progress!),
+        callback: () => {
+          if (progress === undefined) return;
+          this.subViews.progress.setOptions(progress);
+        },
       },
       {
         dependencies: ['scale'],
-        callback: () => this.subViews.scale.setOptions(scale!),
+        callback: () => {
+          if (scale === undefined) return;
+          this.subViews.scale.setOptions(scale);
+        },
       },
       {
         dependencies: ['leftThumb'],
-        callback: () => this.subViews.leftThumb.setOptions(leftThumb!),
+        callback: () => {
+          if (leftThumb === undefined) return;
+          this.subViews.leftThumb.setOptions(leftThumb);
+        },
       },
       {
         dependencies: ['rightThumb'],
-        callback: () => this.subViews.rightThumb.setOptions(rightThumb!),
+        callback: () => {
+          if (rightThumb === undefined) return;
+          this.subViews.rightThumb.setOptions(rightThumb);
+        },
       },
       {
         dependencies: ['leftTooltip'],
-        callback: () => this.subViews.leftTooltip.setOptions(leftTooltip!),
+        callback: () => {
+          if (leftTooltip === undefined) return;
+          this.subViews.leftTooltip.setOptions(leftTooltip);
+        },
       },
       {
         dependencies: ['rightTooltip'],
-        callback: () => this.subViews.rightTooltip.setOptions(rightTooltip!),
+        callback: () => {
+          if (rightTooltip === undefined) return;
+          this.subViews.rightTooltip.setOptions(rightTooltip);
+        },
       },
     ]);
     this.options = { ...this.options, ...options };
@@ -97,17 +118,30 @@ class View extends EventObserver<ViewEvent> {
         <div class="${SCALE}"></div>
       </div>
     `;
-    this.setSubViews();
   }
 
-  private setSubViews() {
-    // далее использую '!', т.к. наличие именно такой структуры элементов
-    // гарантируется выполнением метода render()
+  private calcSubViews(): SubViews {
     const [wrapperEl] = this.el.children;
-    const [trackEl, scaleEl] = wrapperEl!.children;
-    const [progressEl, leftThumbEl, rightThumbEl] = trackEl!.children;
-    const [leftTooltipEl] = leftThumbEl!.children;
-    const [rightTooltipEl] = rightThumbEl!.children;
+    if (wrapperEl === undefined) throw new Error('render does wrong dom structure');
+
+    const [trackEl, scaleEl] = wrapperEl.children;
+    const hasNoTrackOrScale = scaleEl === undefined || trackEl === undefined;
+    if (hasNoTrackOrScale) throw new Error('render does wrong dom structure');
+
+    const [progressEl, leftThumbEl, rightThumbEl] = trackEl.children;
+    const hasNoThumbsOrProgress = progressEl === undefined
+      || leftThumbEl === undefined
+      || rightThumbEl === undefined;
+    if (hasNoThumbsOrProgress) throw new Error('render does wrong dom structure');
+
+    const [leftTooltipEl] = leftThumbEl.children;
+    const [rightTooltipEl] = rightThumbEl.children;
+    const hasNoTooltips = leftTooltipEl === undefined || rightTooltipEl === undefined;
+    if (hasNoTooltips) throw new Error('render does wrong dom structure');
+
+    // Далее использую type assertions т.к. это единственная возможность привести
+    // Element к HTMLElement, при том гарантируется, что у приведённого объекта будут
+    // все нужные свойства.
     const track = new Track(trackEl as HTMLElement);
     const scale = new Scale(scaleEl as HTMLElement);
     const progress = new Progress(progressEl as HTMLElement);
@@ -115,7 +149,7 @@ class View extends EventObserver<ViewEvent> {
     const rightThumb = new Thumb(rightThumbEl as HTMLElement);
     const leftTooltip = new Tooltip(leftTooltipEl as HTMLElement);
     const rightTooltip = new Tooltip(rightTooltipEl as HTMLElement);
-    this.subViews = {
+    return {
       track,
       progress,
       scale,

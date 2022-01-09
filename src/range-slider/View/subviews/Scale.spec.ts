@@ -40,4 +40,10 @@ describe('Scale class:', () => {
 
     expect(scale.broadcast).toBeCalledTimes(scaleItemsCounter);
   });
+
+  test('should throw error', () => {
+    expect(() => {
+      scale.setOptions({ strings: ['0', '1'], min: 2, max: 4 });
+    }).toThrow('strings(0,1) must have string item with index 2');
+  });
 });

@@ -36,14 +36,14 @@ class Model extends EventObserver<Partial<ModelOptions>> {
   }
 
   private validateStrings(options: Partial<ModelOptions>): Partial<ModelOptions> {
-    const { strings, isRange } = options;
+    const { strings, isRange, valueFrom } = options;
 
     if (strings !== undefined) {
       const newOptions = {
         min: 0,
         max: strings.length - 1,
         step: 1,
-        valueFrom: 0,
+        valueFrom: (valueFrom !== undefined) ? valueFrom : 0,
         scaleParts: strings.length - 1,
         ...options,
       };
@@ -62,8 +62,7 @@ class Model extends EventObserver<Partial<ModelOptions>> {
   static checkTypes(options: Partial<ModelOptions>): void {
     const keys = Object.keys(options) as Array<keyof ModelOptions>;
     keys.forEach((key) => {
-      // далее использую !, т.к. выражение всегда вернёт значение
-      if (!checkType(options[key], optionsTypes[key]!)) {
+      if (!checkType(options[key], optionsTypes[key])) {
         Model.throwError(key, `${key} must be ${optionsTypes[key]}`);
       }
     });

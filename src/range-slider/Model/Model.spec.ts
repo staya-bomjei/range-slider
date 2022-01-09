@@ -54,12 +54,13 @@ describe('Model class:', () => {
   test('should throw error', () => {
     const model = new Model();
     const newOptions = {
+      valueFrom: 51,
       strings: ['one', 'two', 'three', 'four', 'five'],
     };
 
     expect(() => {
       model.setOptions(newOptions);
-    }).toThrow('valueFrom(50) must be between 0 and 4');
+    }).toThrow('valueFrom(51) must be between 0 and 4');
   });
 
   test('should throw error', () => {

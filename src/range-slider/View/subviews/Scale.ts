@@ -1,6 +1,6 @@
 import EventObserver from '../../helpers/EventObserver';
 import { calcNearestStepValue, callFunctionsForNewOptions, valueToPercent } from '../../helpers/utils';
-import { ScaleOptions, ViewEvent } from '../types';
+import { ScaleItemOptions, ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
@@ -71,14 +71,15 @@ class Scale extends EventObserver<ViewEvent> {
     const correctPositions = this.calcCorrectPositions(correctValues);
     const correctTexts = this.calcCorrectTexts(correctValues);
 
-    // использую '!' далее, потому что correctValues, correctPositions, correctTexts,
-    // this.items всегда имеют одинаковую длину, т.к. их длинна всегда равна
-    // this.options.scaleParts + 1
     this.items.forEach((item, index) => {
-      item.setOptions({
-        position: correctPositions[index]!,
-        text: correctTexts[index]!,
-      });
+      const position = correctPositions[index];
+      const text = correctTexts[index];
+      const options: Partial<ScaleItemOptions> = {};
+
+      if (position !== undefined) options.position = position;
+      if (text !== undefined) options.text = text;
+
+      item.setOptions(options);
     });
   }
 
@@ -112,9 +113,13 @@ class Scale extends EventObserver<ViewEvent> {
     const { strings } = this.options;
 
     return correctValues.map((value) => {
-      // использую '!' далее, потому что options считаются всегда валидными
-      if (strings !== undefined) return strings[value]!;
-      return String(value);
+      if (strings === undefined) return String(value);
+
+      const string = strings[value];
+
+      if (string !== undefined) return string;
+
+      throw new Error(`strings(${strings}) must have string item with index ${value}`);
     });
   }
 }

@@ -31,6 +31,11 @@ import './range-slider.scss';
         const { model } = rangeSlider;
         model.subscribe(callback);
       },
+      unsubscribe(callback) {
+        const rangeSlider = $(this).data('rangeSlider');
+        const { model } = rangeSlider;
+        model.unsubscribe(callback);
+      },
     };
 
     if (methods[method]) {

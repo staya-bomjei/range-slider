@@ -1,5 +1,3 @@
-import '../../../range-slider';
-
 import TapperView from './TapperView';
 import { TAPPER_VIEW } from './const';
 

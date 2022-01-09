@@ -47,9 +47,9 @@ module.exports = (env) => {
       filename: (pathData) => {
         switch (pathData.chunk.name) {
           case NAMES.PLUGIN:
-            return `js/${NAMES.PLUGIN}/${name(isDev, 'js')}`;
+            return `${NAMES.PLUGIN}/[name].js`;
           default:
-            return `js/${name(isDev, 'js')}`;
+            return `${NAMES.PAGE}/${name(isDev, 'js')}`;
         }
       },
       path: PATHS.DIST,
@@ -103,9 +103,9 @@ module.exports = (env) => {
         filename: (pathData) => {
           switch (pathData.chunk.name) {
             case NAMES.PLUGIN:
-              return `js/${NAMES.PLUGIN}/${name(isDev, 'css')}`;
+              return `${NAMES.PLUGIN}/[name].css`;
             default:
-              return `css/${name(isDev, 'css')}`;
+              return `${NAMES.PAGE}/${name(isDev, 'css')}`;
           }
         },
       }),

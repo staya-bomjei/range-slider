@@ -259,7 +259,9 @@ class Presenter {
 
     const minMaxRange = max - min;
     const percentFrom = valueToPercent(valueFrom - min, minMaxRange);
-    const percentTo = (valueTo) ? valueToPercent(valueTo - min, minMaxRange) : undefined;
+    const percentTo = (valueTo !== undefined)
+      ? valueToPercent(valueTo - min, minMaxRange)
+      : undefined;
     const needToSetZIndexes = valueFrom === valueTo;
     const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
     const isRightThumbHigher = needToSetZIndexes && valueTo === min;

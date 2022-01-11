@@ -1,4 +1,3 @@
-import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { ProgressOptions } from '../types';
 import { PROGRESS_HIDDEN } from '../const';
 
@@ -10,29 +9,25 @@ class Progress {
   constructor(el: HTMLElement, options: ProgressOptions) {
     this.el = el;
     this.options = { ...options };
-    this.init();
+    this.updateView();
   }
 
   getOptions(): ProgressOptions {
-    return this.options;
+    return { ...this.options };
   }
 
   setOptions(options: Partial<ProgressOptions>): void {
-    const originalOptions = this.options;
-    this.options = { ...originalOptions, ...options };
-    callFunctionsForNewOptions(originalOptions, options, [
-      {
-        dependencies: ['from', 'to'],
-        callback: () => this.updatePosition(),
-      },
-      {
-        dependencies: ['visible'],
-        callback: () => this.updateVisibility(),
-      },
-    ]);
+    const { from, to, visible } = options;
+    const needToUpdatePosition = (from !== undefined && from !== this.options.from)
+      || (to !== undefined && to !== this.options.to);
+    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
+    this.options = { ...this.options, ...options };
+
+    if (needToUpdatePosition) this.updatePosition();
+    if (needToUpdateVisibility) this.updateVisibility();
   }
 
-  private init(): void {
+  private updateView(): void {
     this.updatePosition();
     this.updateVisibility();
   }

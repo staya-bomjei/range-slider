@@ -1,7 +1,7 @@
-import { calcNewOptions, calcNearestStepValue, checkType } from '../helpers/utils';
+import { calcNearestStepValue } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
 import { ModelOptions } from './types';
-import { defaultOptions, optionsTypes } from './const';
+import { defaultOptions } from './const';
 import IncorrectValueError from '../helpers/IncorrectValueError';
 
 class Model extends EventObserver<Partial<ModelOptions>> {
@@ -15,20 +15,18 @@ class Model extends EventObserver<Partial<ModelOptions>> {
   }
 
   getOptions(): ModelOptions {
-    return this.options;
+    return { ...this.options };
   }
 
   setOptions(options: Partial<ModelOptions>): void {
-    Model.checkTypes(options);
     this.checkRange(options);
     if (options.isRange === false) delete this.options.valueTo;
     Model.checkStrings(options);
-    const newOptions = calcNewOptions(this.options, options);
-    const hasNoNewOptions = Object.keys(newOptions).length === 0;
+    const hasNoNewOptions = Object.keys(options).length === 0;
 
     if (hasNoNewOptions) return;
 
-    const checkedNewOptions = this.validateStrings(newOptions);
+    const checkedNewOptions = this.validateStrings(options);
     const mergedOptions = { ...this.options, ...checkedNewOptions };
     Model.checkOptions(mergedOptions);
     this.options = mergedOptions;
@@ -57,15 +55,6 @@ class Model extends EventObserver<Partial<ModelOptions>> {
     }
 
     return options;
-  }
-
-  static checkTypes(options: Partial<ModelOptions>): void {
-    const keys = Object.keys(options) as Array<keyof ModelOptions>;
-    keys.forEach((key) => {
-      if (!checkType(options[key], optionsTypes[key])) {
-        Model.throwError(key, `${key} must be ${optionsTypes[key]}`);
-      }
-    });
   }
 
   private checkRange(options: Partial<ModelOptions>): void {

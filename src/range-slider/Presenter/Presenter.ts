@@ -1,12 +1,10 @@
 import {
   valueToPercent,
   calcNearestStepValue,
-  callFunctionsForNewOptions,
   rectsIntersect,
   isFirstCloser,
 } from '../helpers/utils';
 import Model from '../Model/Model';
-import { ModelOptions } from '../Model/types';
 import View from '../View/View';
 import { THUMB_DRAGGED } from '../View/const';
 import {
@@ -45,12 +43,12 @@ class Presenter {
   }
 
   private attachEventHandlers(): void {
-    this.model.subscribe((options) => this.handleModelChange(options));
+    this.model.subscribe(() => this.handleModelChange());
     this.view.subscribe((options) => this.handleViewChange(options));
   }
 
-  private handleModelChange(newModelOptions: Partial<ModelOptions>): void {
-    const newViewOptions = this.convertToViewOptions(newModelOptions);
+  private handleModelChange(): void {
+    const newViewOptions = this.calcViewOptions();
     this.view.setOptions(newViewOptions);
     this.handleTooltipsOverlap();
   }
@@ -238,58 +236,6 @@ class Presenter {
     const leftTooltipRect = leftTooltipEl.getBoundingClientRect();
     const rightTooltipRect = rightTooltipEl.getBoundingClientRect();
     return rectsIntersect(leftTooltipRect, rightTooltipRect);
-  }
-
-  private convertToViewOptions(newModelOptions: Partial<ModelOptions>): Partial<ViewOptions> {
-    // Модель уже изменила своё состояние и в эту функцию были переданы
-    // лишь те её параметры, которые были изменены, поэтому далее должны
-    // быть вычислены новые опции ViewOptions, которые зависят от новых
-    // опций модели, при этом недостающие опции будут взяты из оригинала.
-    const { isRange } = this.model.getOptions();
-    const viewOptions: Partial<ViewOptions> = {};
-
-    callFunctionsForNewOptions(null, newModelOptions, [
-      {
-        dependencies: ['orientation'],
-        callback: () => {
-          viewOptions.isVertical = this.calcIsVertical();
-        },
-      },
-      {
-        dependencies: ['valueFrom', 'valueTo', 'isRange', 'min', 'max', 'showProgress'],
-        callback: () => {
-          viewOptions.progress = this.calcProgressOptions();
-        },
-      },
-      {
-        dependencies: ['min', 'max', 'step', 'strings', 'scaleParts', 'showScale'],
-        callback: () => {
-          viewOptions.scale = this.calcScaleOptions();
-        },
-      },
-      {
-        dependencies: ['valueFrom', 'min', 'max'],
-        callback: () => {
-          viewOptions.leftThumb = this.calcThumbOptions(true);
-        },
-      },
-      {
-        dependencies: ['valueTo', 'min', 'max', 'isRange'],
-        callback: () => {
-          viewOptions.rightThumb = this.calcThumbOptions(false);
-        },
-      },
-      {
-        dependencies: ['valueFrom', 'valueTo', 'min', 'max', 'showTooltip'],
-        callback: () => {
-          viewOptions.leftTooltip = this.calcTooltipOptions(true);
-          if (!isRange) return;
-          viewOptions.rightTooltip = this.calcTooltipOptions(false);
-        },
-      },
-    ]);
-
-    return viewOptions;
   }
 
   private calcViewOptions(): ViewOptions {

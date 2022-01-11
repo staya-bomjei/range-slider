@@ -1,5 +1,4 @@
 import EventObserver from '../../helpers/EventObserver';
-import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
 import { ThumbOptions, ViewEvent } from '../types';
 
@@ -13,34 +12,27 @@ class Thumb extends EventObserver<ViewEvent> {
 
     this.el = el;
     this.options = { ...options };
-    this.init();
+    this.updateView();
     this.attachEventHandlers();
   }
 
   getOptions(): ThumbOptions {
-    return this.options;
+    return { ...this.options };
   }
 
   setOptions(options: Partial<ThumbOptions>): void {
-    const originalOptions = this.options;
-    this.options = { ...originalOptions, ...options };
-    callFunctionsForNewOptions(originalOptions, options, [
-      {
-        dependencies: ['position'],
-        callback: () => this.updatePosition(),
-      },
-      {
-        dependencies: ['visible'],
-        callback: () => this.updateVisibility(),
-      },
-      {
-        dependencies: ['isHigher'],
-        callback: () => this.updateZIndex(),
-      },
-    ]);
+    const { position, visible, isHigher } = options;
+    const needToUpdatePosition = position !== undefined && position !== this.options.position;
+    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
+    const needToUpdateZIndex = isHigher !== undefined && isHigher !== this.options.isHigher;
+    this.options = { ...this.options, ...options };
+
+    if (needToUpdatePosition) this.updatePosition();
+    if (needToUpdateVisibility) this.updateVisibility();
+    if (needToUpdateZIndex) this.updateZIndex();
   }
 
-  private init(): void {
+  private updateView(): void {
     this.updatePosition();
     this.updateVisibility();
     this.updateZIndex();

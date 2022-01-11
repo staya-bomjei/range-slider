@@ -1,10 +1,7 @@
 import {
   calcNearestStepValue,
   valueToPercent,
-  calcNewOptions,
-  callFunctionsForNewOptions,
   isFirstCloser,
-  checkType,
   rectsIntersect,
 } from './utils';
 
@@ -26,39 +23,6 @@ describe('calcNearestStepValue function:', () => {
   });
   test('should throw error', () => {
     expect(() => calcNearestStepValue(-44.75, -23, 0)).toThrow();
-  });
-});
-
-describe('checkType function:', () => {
-  test('should return true', () => {
-    expect(checkType(10, 'number')).toEqual(true);
-  });
-  test('should return true', () => {
-    expect(checkType(false, 'boolean')).toEqual(true);
-  });
-  test('should return true', () => {
-    expect(checkType(['1', '2', '3'], 'string[]')).toEqual(true);
-  });
-  test('should return true', () => {
-    expect(checkType('horizontal', 'orientation')).toEqual(true);
-  });
-  test('should return true', () => {
-    expect(checkType('vertical', 'orientation')).toEqual(true);
-  });
-  test('should return false', () => {
-    expect(checkType(['1', '2', 3], 'string[]')).toEqual(false);
-  });
-  test('should return false', () => {
-    expect(checkType('1234', 'number')).toEqual(false);
-  });
-  test('should return false', () => {
-    expect(checkType(1, 'boolean')).toEqual(false);
-  });
-  test('should return false', () => {
-    expect(checkType('verbtical', 'orientation')).toEqual(false);
-  });
-  test('should return false', () => {
-    expect(checkType(true, 'orientation')).toEqual(false);
   });
 });
 
@@ -128,48 +92,5 @@ describe('valueToPercent function:', () => {
   });
   test('should return 30', () => {
     expect(valueToPercent(0.3, 1)).toEqual(30);
-  });
-});
-
-describe('calcNewOptions function:', () => {
-  test('should return empty object', () => {
-    const first = { prop1: 10 };
-    const second = {};
-    expect(calcNewOptions(first, second)).toMatchObject({});
-  });
-
-  test('should return all second properties', () => {
-    const first = { prop1: 1, prop2: '', prop3: {} };
-    const second = { prop1: 1002, prop2: '1003' };
-    expect(calcNewOptions(first, second)).toMatchObject(second);
-  });
-
-  test('should return new properties', () => {
-    const first = { prop1: 1002, prop2: '1002', prop3: { p: 'p' } };
-    const second = { prop1: 1002, prop2: '1003', prop3: { p: 'пэ' } };
-    expect(calcNewOptions(first, second)).toMatchObject({ prop2: '1003', prop3: { p: 'пэ' } });
-  });
-});
-
-describe('callFunctionsForNewOptions function:', () => {
-  test('should call all functions for new properties:', () => {
-    const first = { prop1: 0, prop2: '1' };
-    const second = { prop1: 1, prop2: '1' };
-    const prop1Callback = jest.fn();
-    const prop2Callback = jest.fn();
-
-    callFunctionsForNewOptions(first, second, [
-      {
-        dependencies: ['prop1'],
-        callback: prop1Callback,
-      },
-      {
-        dependencies: ['prop2'],
-        callback: prop2Callback,
-      },
-    ]);
-
-    expect(prop1Callback).toHaveBeenCalled();
-    expect(prop2Callback).not.toHaveBeenCalled();
   });
 });

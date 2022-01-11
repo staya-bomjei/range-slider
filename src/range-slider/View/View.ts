@@ -1,4 +1,3 @@
-import { callFunctionsForNewOptions } from '../helpers/utils';
 import EventObserver from '../helpers/EventObserver';
 import Track from './subviews/Track';
 import Scale from './subviews/Scale';
@@ -29,21 +28,17 @@ class View extends EventObserver<ViewEvent> {
 
     this.el = el;
     this.options = { ...options };
-    this.init();
     this.render();
     this.subViews = this.calcSubViews();
+    this.updateView();
     this.attachEventHandlers();
   }
 
   getOptions(): ViewOptions {
-    if (this.options === null) {
-      throw new Error('you cannot get options without initializing them');
-    }
-
-    return this.options;
+    return { ...this.options };
   }
 
-  setOptions(options: Partial<ViewOptions>) {
+  setOptions(options: Partial<ViewOptions>): void {
     const {
       isVertical,
       progress,
@@ -53,63 +48,30 @@ class View extends EventObserver<ViewEvent> {
       leftTooltip,
       rightTooltip,
     } = options;
-
-    callFunctionsForNewOptions(this.options, options, [
-      {
-        dependencies: ['isVertical'],
-        callback: () => {
-          if (isVertical === undefined) return;
-          this.updateOrientation(isVertical);
-        },
-      },
-      {
-        dependencies: ['progress'],
-        callback: () => {
-          if (progress === undefined) return;
-          this.subViews.progress.setOptions(progress);
-        },
-      },
-      {
-        dependencies: ['scale'],
-        callback: () => {
-          if (scale === undefined) return;
-          this.subViews.scale.setOptions(scale);
-        },
-      },
-      {
-        dependencies: ['leftThumb'],
-        callback: () => {
-          if (leftThumb === undefined) return;
-          this.subViews.leftThumb.setOptions(leftThumb);
-        },
-      },
-      {
-        dependencies: ['rightThumb'],
-        callback: () => {
-          if (rightThumb === undefined) return;
-          this.subViews.rightThumb.setOptions(rightThumb);
-        },
-      },
-      {
-        dependencies: ['leftTooltip'],
-        callback: () => {
-          if (leftTooltip === undefined) return;
-          this.subViews.leftTooltip.setOptions(leftTooltip);
-        },
-      },
-      {
-        dependencies: ['rightTooltip'],
-        callback: () => {
-          if (rightTooltip === undefined) return;
-          this.subViews.rightTooltip.setOptions(rightTooltip);
-        },
-      },
-    ]);
-
+    const needToUpdateOrientation = isVertical !== undefined
+      && isVertical !== this.options.isVertical;
+    const needToUpdateProgress = progress !== undefined && progress !== this.options.progress;
+    const needToUpdateScale = scale !== undefined && scale !== this.options.scale;
+    const needToUpdateLeftThumb = leftThumb !== undefined
+      && leftThumb !== this.options.leftThumb;
+    const needToUpdateRightThumb = rightThumb !== undefined
+      && rightThumb !== this.options.rightThumb;
+    const needToUpdateLeftTooltip = leftTooltip !== undefined
+      && leftTooltip !== this.options.leftTooltip;
+    const needToUpdateRightTooltip = rightTooltip !== undefined
+      && rightTooltip !== this.options.rightTooltip;
     this.options = { ...this.options, ...options };
+
+    if (needToUpdateOrientation) this.updateOrientation(isVertical);
+    if (needToUpdateProgress) this.subViews.progress.setOptions(progress);
+    if (needToUpdateScale) this.subViews.scale.setOptions(scale);
+    if (needToUpdateLeftThumb) this.subViews.leftThumb.setOptions(leftThumb);
+    if (needToUpdateRightThumb) this.subViews.rightThumb.setOptions(rightThumb);
+    if (needToUpdateLeftTooltip) this.subViews.leftTooltip.setOptions(leftTooltip);
+    if (needToUpdateRightTooltip) this.subViews.rightTooltip.setOptions(rightTooltip);
   }
 
-  private init(): void {
+  private updateView(): void {
     const { isVertical } = this.options;
     this.updateOrientation(isVertical);
   }
@@ -173,7 +135,7 @@ class View extends EventObserver<ViewEvent> {
     };
   }
 
-  private attachEventHandlers() {
+  private attachEventHandlers(): void {
     const {
       track,
       scale,

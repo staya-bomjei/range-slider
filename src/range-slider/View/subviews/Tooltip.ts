@@ -1,4 +1,3 @@
-import { callFunctionsForNewOptions } from '../../helpers/utils';
 import { TooltipOptions } from '../types';
 import { TOOLTIP_HIDDEN } from '../const';
 
@@ -10,29 +9,24 @@ class Tooltip {
   constructor(el: HTMLElement, options: TooltipOptions) {
     this.el = el;
     this.options = { ...options };
-    this.init();
+    this.updateView();
   }
 
   getOptions(): TooltipOptions {
-    return this.options;
+    return { ...this.options };
   }
 
   setOptions(options: Partial<TooltipOptions>): void {
-    const originalOptions = this.options;
-    this.options = { ...originalOptions, ...options };
-    callFunctionsForNewOptions(originalOptions, options, [
-      {
-        dependencies: ['text'],
-        callback: () => this.updateText(),
-      },
-      {
-        dependencies: ['visible'],
-        callback: () => this.updateVisibility(),
-      },
-    ]);
+    const { text, visible } = options;
+    const needToUpdateText = text !== undefined && text !== this.options.text;
+    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
+    this.options = { ...this.options, ...options };
+
+    if (needToUpdateText) this.updateText();
+    if (needToUpdateVisibility) this.updateVisibility();
   }
 
-  private init(): void {
+  private updateView(): void {
     this.updateText();
     this.updateVisibility();
   }

@@ -1,6 +1,6 @@
 import EventObserver from '../../helpers/EventObserver';
-import { calcNearestStepValue, callFunctionsForNewOptions, valueToPercent } from '../../helpers/utils';
-import { ScaleItemOptions, ScaleOptions, ViewEvent } from '../types';
+import { calcNearestStepValue, valueToPercent } from '../../helpers/utils';
+import { ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
@@ -16,46 +16,37 @@ class Scale extends EventObserver<ViewEvent> {
 
     this.el = el;
     this.options = { ...options };
-    this.init();
+    this.updateView();
   }
 
   getOptions(): ScaleOptions {
-    return this.options;
+    return { ...this.options };
   }
 
   setOptions(options: Partial<ScaleOptions>): void {
-    const originalOptions = this.options;
-    this.options = { ...originalOptions, ...options };
+    const {
+      min,
+      max,
+      step,
+      partsCounter,
+      strings,
+      visible,
+    } = options;
+    const needToUpdateItems = (min !== undefined && min !== this.options.min)
+      || (max !== undefined && max !== this.options.max)
+      || (step !== undefined && step !== this.options.step)
+      || (partsCounter !== undefined && partsCounter !== this.options.partsCounter)
+      || (strings !== undefined && strings !== this.options.strings);
+    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
+    this.options = { ...this.options, ...options };
 
-    callFunctionsForNewOptions(originalOptions, options, [
-      {
-        dependencies: ['min', 'max', 'step', 'strings', 'partsCounter'],
-        callback: () => this.updateItems(),
-      },
-      {
-        dependencies: ['visible'],
-        callback: () => this.updateVisibility(),
-      },
-    ]);
+    if (needToUpdateItems) this.updateItems();
+    if (needToUpdateVisibility) this.updateVisibility();
   }
 
-  private init(): void {
+  private updateView(): void {
     this.updateItems();
     this.updateVisibility();
-  }
-
-  private renderItems(): void {
-    const { partsCounter } = this.options;
-    this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
-
-    this.items = [];
-    Array.from(this.el.children).forEach((el) => {
-      if (!(el instanceof HTMLElement)) {
-        throw new Error('cannot get HTMLElements from scale render structure');
-      }
-
-      this.items.push(new ScaleItem(el));
-    });
   }
 
   private attachEventHandlers(): void {
@@ -75,63 +66,45 @@ class Scale extends EventObserver<ViewEvent> {
   }
 
   private updateItems(): void {
-    this.renderItems();
-    this.attachEventHandlers();
-
-    const correctValues = this.calcCorrectValues();
-    const correctPositions = this.calcCorrectPositions(correctValues);
-    const correctTexts = this.calcCorrectTexts(correctValues);
-
-    this.items.forEach((item, index) => {
-      const position = correctPositions[index];
-      const text = correctTexts[index];
-      const options: Partial<ScaleItemOptions> = {};
-
-      if (position !== undefined) options.position = position;
-      if (text !== undefined) options.text = text;
-
-      item.setOptions(options);
-    });
-  }
-
-  private calcCorrectValues(): Array<number> {
     const {
       min,
       max,
       step,
       partsCounter,
     } = this.options;
+    this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
+    this.items = [];
     const valuePerPart = (max - min) / partsCounter;
-    const correctValues = [...Array(partsCounter)];
 
-    correctValues.forEach((_, index) => {
+    Array.from(this.el.children).forEach((el, index) => {
+      if (!(el instanceof HTMLElement)) {
+        throw new Error('cannot get HTMLElements from scale render structure');
+      }
       const value = valuePerPart * index + min;
       const nearestCorrectValue = calcNearestStepValue(value, step, min);
-      correctValues[index] = nearestCorrectValue;
+      const options = {
+        position: this.calcPosition(nearestCorrectValue),
+        text: this.calcText(nearestCorrectValue),
+      };
+      this.items.push(new ScaleItem(el, options));
     });
-    correctValues.push(max);
 
-    return correctValues;
+    this.attachEventHandlers();
   }
 
-  private calcCorrectPositions(correctValues: Array<number>): Array<number> {
+  private calcPosition(value: number): number {
     const { min, max } = this.options;
-    return correctValues
-      .map((value) => valueToPercent(value - min, max - min));
+    return valueToPercent(value - min, max - min);
   }
 
-  private calcCorrectTexts(correctValues: Array<number>): Array<string> {
+  private calcText(value: number): string {
     const { strings } = this.options;
+    if (strings === undefined) return String(value);
 
-    return correctValues.map((value) => {
-      if (strings === undefined) return String(value);
+    const string = strings[value];
+    if (string !== undefined) return string;
 
-      const string = strings[value];
-
-      if (string !== undefined) return string;
-
-      throw new Error(`strings(${strings}) must have string item with index ${value}`);
-    });
+    throw new Error(`strings(${strings}) must have string item with index ${value}`);
   }
 }
 

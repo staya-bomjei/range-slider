@@ -7,13 +7,11 @@ describe('ScaleItem class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const scaleItem = new ScaleItem(el);
+  const options = { position: 10, text: 'test' };
+  const scaleItem = new ScaleItem(el, options);
 
   test('Can set and get options', () => {
-    const newOptions = { position: 10, text: 'test' };
-
-    scaleItem.setOptions(newOptions);
-    expect(scaleItem.getOptions()).toMatchObject(newOptions);
+    expect(scaleItem.getOptions()).toMatchObject(options);
   });
 
   test('It handles pointerdown event', () => {

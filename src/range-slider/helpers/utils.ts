@@ -29,41 +29,6 @@ function valueToPercent(value: number, maxValue: number): number {
   return (value / maxValue) * 100;
 }
 
-function calcNewOptions<T extends Record<string, unknown>>(
-  original: T,
-  other: Partial<T>,
-): Partial<T> {
-  const newOptions: Partial<T> = {};
-  const keys = Object.keys(other) as Array<keyof T>;
-
-  keys.forEach((key) => {
-    const isNewOption = original[key] !== other[key] && other[key] !== undefined;
-
-    if (isNewOption) {
-      newOptions[key] = other[key];
-    }
-  });
-
-  return newOptions;
-}
-
-function callFunctionsForNewOptions<O extends Record<string, unknown>>(
-  original: O | null,
-  other: Partial<O>,
-  callbacks: Array<{ dependencies: Array<keyof O>, callback: () => void}>,
-): void {
-  const newOptions = (original) ? calcNewOptions(original, other) : other;
-  const keys = Object.keys(newOptions) as Array<keyof O>;
-
-  callbacks.forEach(({ dependencies, callback }) => {
-    const needToCall = dependencies.some((dependence) => (
-      keys.some((key) => key === dependence)
-    ));
-
-    if (needToCall) callback();
-  });
-}
-
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   if (rect1.height === 0 && rect2.height === 0) return false;
 
@@ -79,30 +44,9 @@ function isFirstCloser(position: number, first: number, second: number) {
   return firstRange < secondRange;
 }
 
-type Type = 'number' | 'boolean' | 'string[]' | 'orientation' | undefined;
-function checkType(value: unknown, type: Type): boolean {
-  switch (type) {
-    case 'number':
-    case 'boolean':
-      return value !== undefined && typeof value === type;
-    case 'string[]':
-      return value !== undefined
-        && Array.isArray(value)
-        && value.every((item) => typeof item === 'string');
-    case 'orientation':
-      return value !== undefined
-        && (value === 'vertical' || value === 'horizontal');
-    default:
-      throw new Error(`Unknown type '${type}'`);
-  }
-}
-
 export {
   calcNearestStepValue,
   valueToPercent,
-  calcNewOptions,
-  callFunctionsForNewOptions,
   rectsIntersect,
   isFirstCloser,
-  checkType,
 };

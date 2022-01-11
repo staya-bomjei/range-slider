@@ -72,4 +72,35 @@ describe('Presenter class:', () => {
       });
     }).toThrow('valueFrom(NaN) must be a multiple of 1');
   });
+
+  test('handles tooltip overlap', () => {
+    const { leftTooltip, rightTooltip } = view.subViews;
+    const getRectMock = jest.fn();
+    getRectMock.mockReturnValue({
+      height: 100,
+      width: 100,
+      x: 0,
+      y: 0,
+      top: 0,
+      bottom: 100,
+      left: 0,
+      right: 100,
+    });
+    leftTooltip.el.getBoundingClientRect = getRectMock;
+    rightTooltip.el.getBoundingClientRect = getRectMock;
+
+    model.setOptions({ valueFrom: 0, valueTo: 1, isRange: true });
+
+    expect(rightTooltip.getOptions().text).toEqual('');
+  });
+
+  test('it works with strings correctly', () => {
+    const { leftTooltip } = view.subViews;
+    model.setOptions({
+      valueFrom: 0,
+      strings: ['один', 'два', 'три', 'четыре', 'пять'],
+    });
+
+    expect(leftTooltip.getOptions().text).toEqual('один');
+  });
 });

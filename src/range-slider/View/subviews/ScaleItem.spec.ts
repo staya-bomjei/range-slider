@@ -11,7 +11,16 @@ describe('ScaleItem class:', () => {
   const scaleItem = new ScaleItem(el, options);
 
   test('Can set and get options', () => {
-    expect(scaleItem.getOptions()).toMatchObject(options);
+    const newOptions = { position: 40, text: 'new text' };
+    scaleItem.setOptions(newOptions);
+    expect(scaleItem.getOptions()).toMatchObject({ ...options, ...newOptions });
+  });
+
+  test('it should do nothing', () => {
+    const originalOptions = scaleItem.getOptions();
+    const newOptions = {};
+    scaleItem.setOptions(newOptions);
+    expect(scaleItem.getOptions()).toMatchObject(originalOptions);
   });
 
   test('It handles pointerdown event', () => {

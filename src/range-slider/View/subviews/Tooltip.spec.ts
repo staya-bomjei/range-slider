@@ -3,7 +3,11 @@ import Tooltip from './Tooltip';
 describe('Tooltip class:', () => {
   document.body.innerHTML = '<div><div>';
   const [el] = document.body.children;
-  const tooltip = new Tooltip(el as HTMLElement);
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
+  const tooltip = new Tooltip(el);
   const newOptions = {
     text: 'test',
     visible: true,

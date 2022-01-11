@@ -22,7 +22,9 @@ class View extends EventObserver<ViewEvent> {
 
   readonly el: HTMLElement;
 
-  private options: ViewOptions = {} as ViewOptions;
+  // У меня никак не получается избавиться от этого type assertion,
+  // потому что
+  private options = {} as ViewOptions;
 
   constructor(el: HTMLElement) {
     super();
@@ -34,6 +36,10 @@ class View extends EventObserver<ViewEvent> {
   }
 
   getOptions(): ViewOptions {
+    if (this.options === null) {
+      throw new Error('you cannot get options without initializing them');
+    }
+
     return this.options;
   }
 
@@ -99,6 +105,7 @@ class View extends EventObserver<ViewEvent> {
         },
       },
     ]);
+
     this.options = { ...this.options, ...options };
   }
 
@@ -139,24 +146,25 @@ class View extends EventObserver<ViewEvent> {
     const hasNoTooltips = leftTooltipEl === undefined || rightTooltipEl === undefined;
     if (hasNoTooltips) throw new Error('render does wrong dom structure');
 
-    // Далее использую type assertions т.к. это единственная возможность привести
-    // Element к HTMLElement, при том гарантируется, что у приведённого объекта будут
-    // все нужные свойства.
-    const track = new Track(trackEl as HTMLElement);
-    const scale = new Scale(scaleEl as HTMLElement);
-    const progress = new Progress(progressEl as HTMLElement);
-    const leftThumb = new Thumb(leftThumbEl as HTMLElement);
-    const rightThumb = new Thumb(rightThumbEl as HTMLElement);
-    const leftTooltip = new Tooltip(leftTooltipEl as HTMLElement);
-    const rightTooltip = new Tooltip(rightTooltipEl as HTMLElement);
+    const isAllHTMLElements = trackEl instanceof HTMLElement
+      && scaleEl instanceof HTMLElement
+      && progressEl instanceof HTMLElement
+      && leftThumbEl instanceof HTMLElement
+      && rightThumbEl instanceof HTMLElement
+      && leftTooltipEl instanceof HTMLElement
+      && rightTooltipEl instanceof HTMLElement;
+    if (!isAllHTMLElements) {
+      throw new Error('can\'t get HTMLElements from render structure');
+    }
+
     return {
-      track,
-      progress,
-      scale,
-      leftThumb,
-      rightThumb,
-      leftTooltip,
-      rightTooltip,
+      track: new Track(trackEl),
+      progress: new Progress(progressEl),
+      scale: new Scale(scaleEl),
+      leftThumb: new Thumb(leftThumbEl),
+      rightThumb: new Thumb(rightThumbEl),
+      leftTooltip: new Tooltip(leftTooltipEl),
+      rightTooltip: new Tooltip(rightTooltipEl),
     };
   }
 

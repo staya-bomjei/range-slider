@@ -2,7 +2,11 @@ import ScaleItem from './ScaleItem';
 
 describe('ScaleItem class:', () => {
   document.body.innerHTML = '<div><div>';
-  const el = document.body.children[0] as HTMLElement;
+  const [el] = document.body.children;
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
   const scaleItem = new ScaleItem(el);
 
   test('Can set and get options', () => {

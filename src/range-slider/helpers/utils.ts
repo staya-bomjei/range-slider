@@ -44,7 +44,7 @@ function calcNewOptions<T extends Record<string, unknown>>(
     }
   });
 
-  return newOptions as T;
+  return newOptions;
 }
 
 function callFunctionsForNewOptions<O extends Record<string, unknown>>(

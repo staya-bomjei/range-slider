@@ -75,55 +75,50 @@ describe('isFirstCloser function:', () => {
 });
 
 describe('rectsIntersect function:', () => {
-  const baseRect = {
-    height: 100,
-    width: 100,
-    top: 0,
-    bottom: 100,
-    left: 0,
-    right: 100,
-  } as DOMRect;
+  // Вообще тут стоило бы использовать new DOMRect(...), но по какой-то
+  // причине jest выбрасывает в меня это: ReferenceError: DOMRect is not defined
+  const createRect = (x: number, y: number, width: number, height: number) => ({
+    x,
+    y,
+    width,
+    height,
+    left: (width > 0) ? x : x + width,
+    right: (width > 0) ? x + width : x,
+    top: (height > 0) ? y : y + height,
+    bottom: (height > 0) ? y + height : y,
+    toJSON: () => null,
+  });
+  const first = createRect(0, 0, 100, 100);
 
   test('should return true', () => {
-    const first = { ...baseRect };
-    const second = { ...baseRect, left: 99, right: 199 };
+    const second = createRect(99, 0, 100, 100);
     expect(rectsIntersect(first, second)).toEqual(true);
   });
 
   test('should return false', () => {
-    const first = { ...baseRect };
-    const second = { ...baseRect, left: 100, right: 200 };
+    const second = createRect(100, 0, 100, 100);
     expect(rectsIntersect(first, second)).toEqual(false);
   });
 
   test('should return true', () => {
-    const first = { ...baseRect };
-    const second = { ...baseRect, top: 99, bottom: 199 };
+    const second = createRect(0, 99, 100, 100);
     expect(rectsIntersect(first, second)).toEqual(true);
   });
 
   test('should return false', () => {
-    const first = { ...baseRect };
-    const second = { ...baseRect, top: 100, bottom: 200 };
+    const second = createRect(0, 100, 100, 100);
     expect(rectsIntersect(first, second)).toEqual(false);
   });
 
   test('should return false', () => {
-    const first = { ...baseRect };
-    const second = { height: 0 } as DOMRect;
+    const second = createRect(0, 0, 100, 0);
     expect(rectsIntersect(first, second)).toEqual(false);
   });
 
   test('should return false', () => {
-    const second = { ...baseRect };
-    const first = { height: 0 } as DOMRect;
-    expect(rectsIntersect(first, second)).toEqual(false);
-  });
-
-  test('should return false', () => {
-    const second = { height: 0 } as DOMRect;
-    const first = { height: 0 } as DOMRect;
-    expect(rectsIntersect(first, second)).toEqual(false);
+    const second = createRect(0, 0, 100, 0);
+    const third = createRect(0, 0, 100, 0);
+    expect(rectsIntersect(third, second)).toEqual(false);
   });
 });
 
@@ -137,40 +132,29 @@ describe('valueToPercent function:', () => {
 });
 
 describe('calcNewOptions function:', () => {
-  type TestObject = {
-    prop1: number,
-    prop2: string,
-    prop3: Record<string, unknown>,
-   };
-
   test('should return empty object', () => {
-    const first = { prop1: 10 } as TestObject;
-    const second = {} as TestObject;
+    const first = { prop1: 10 };
+    const second = {};
     expect(calcNewOptions(first, second)).toMatchObject({});
   });
 
   test('should return all second properties', () => {
-    const first = { prop3: {} } as TestObject;
-    const second = { prop1: 1002, prop2: '1003' } as TestObject;
+    const first = { prop1: 1, prop2: '', prop3: {} };
+    const second = { prop1: 1002, prop2: '1003' };
     expect(calcNewOptions(first, second)).toMatchObject(second);
   });
 
   test('should return new properties', () => {
-    const first = { prop1: 1002, prop2: '1002' } as TestObject;
-    const second = { prop1: 1002, prop2: '1003', prop3: {} } as TestObject;
-    expect(calcNewOptions(first, second)).toMatchObject({ prop2: '1003', prop3: {} });
+    const first = { prop1: 1002, prop2: '1002', prop3: { p: 'p' } };
+    const second = { prop1: 1002, prop2: '1003', prop3: { p: 'пэ' } };
+    expect(calcNewOptions(first, second)).toMatchObject({ prop2: '1003', prop3: { p: 'пэ' } });
   });
 });
 
 describe('callFunctionsForNewOptions function:', () => {
-  type TestObject = {
-    prop1: number,
-    prop2: string,
-   };
-
   test('should call all functions for new properties:', () => {
-    const first = { prop1: 0, prop2: '1' } as TestObject;
-    const second = { prop1: 1, prop2: '1' } as TestObject;
+    const first = { prop1: 0, prop2: '1' };
+    const second = { prop1: 1, prop2: '1' };
     const prop1Callback = jest.fn();
     const prop2Callback = jest.fn();
 

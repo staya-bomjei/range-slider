@@ -5,7 +5,7 @@ import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
 class Scale extends EventObserver<ViewEvent> {
-  items = [] as Array<ScaleItem>;
+  items: Array<ScaleItem> = [];
 
   readonly el: HTMLElement;
 
@@ -43,7 +43,11 @@ class Scale extends EventObserver<ViewEvent> {
 
     this.items = [];
     Array.from(this.el.children).forEach((el) => {
-      this.items.push(new ScaleItem(el as HTMLElement));
+      if (!(el instanceof HTMLElement)) {
+        throw new Error('cannot get HTMLElements from scale render structure');
+      }
+
+      this.items.push(new ScaleItem(el));
     });
   }
 

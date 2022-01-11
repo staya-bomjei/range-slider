@@ -1,11 +1,14 @@
 import Model from '../Model/Model';
-import ScaleItem from '../View/subviews/ScaleItem';
 import View from '../View/View';
 import Presenter from './Presenter';
 
 describe('Presenter class:', () => {
   document.body.innerHTML = '<div><div>';
-  const el = document.body.children[0] as HTMLElement;
+  const [el] = document.body.children;
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
   let presenter: Presenter;
   let model: Model;
   let view: View;
@@ -43,7 +46,11 @@ describe('Presenter class:', () => {
   test('Handles scale item pointerdown', () => {
     model.setOptions({ valueFrom: 1, scaleParts: 2 });
     const { scale, leftThumb } = view.subViews;
-    const lastScaleItem = scale.items[scale.items.length - 1] as ScaleItem;
+    const lastScaleItem = scale.items[scale.items.length - 1];
+
+    if (lastScaleItem === undefined) {
+      throw new Error('lastScaleItem should be ScaleItem');
+    }
 
     lastScaleItem.broadcast({
       view: lastScaleItem,

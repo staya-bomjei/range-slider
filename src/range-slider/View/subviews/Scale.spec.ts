@@ -2,7 +2,11 @@ import Scale from './Scale';
 
 describe('Scale class:', () => {
   document.body.innerHTML = '<div><div>';
-  const el = document.body.children[0] as HTMLElement;
+  const [el] = document.body.children;
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
   const scale = new Scale(el);
   const newOptions = {
     min: 0,

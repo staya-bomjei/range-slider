@@ -3,9 +3,13 @@ import View from './View';
 
 describe('View class:', () => {
   document.body.innerHTML = '<div><div>';
-  const el = document.body.children[0] as HTMLElement;
+  const [el] = document.body.children;
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
   const view = new View(el);
-  const newOptions = {
+  const newOptions: ViewOptions = {
     isVertical: true,
     progress: { from: 10, to: 20, visible: true },
     scale: {
@@ -27,7 +31,7 @@ describe('View class:', () => {
       isHigher: false,
     },
     rightTooltip: { text: 'test', visible: true },
-  } as ViewOptions;
+  };
 
   test('Can set and get options', () => {
     view.setOptions(newOptions);

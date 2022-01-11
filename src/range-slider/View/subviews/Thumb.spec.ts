@@ -2,7 +2,11 @@ import Thumb from './Thumb';
 
 describe('Thumb class:', () => {
   document.body.innerHTML = '<div><div>';
-  const el = document.body.children[0] as HTMLElement;
+  const [el] = document.body.children;
+  if (!(el instanceof HTMLElement)) {
+    throw new Error('el should be HTMLElement');
+  }
+
   const thumb = new Thumb(el);
   const newOptions = {
     position: 10,

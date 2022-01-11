@@ -5,10 +5,12 @@ import { PROGRESS_HIDDEN } from '../const';
 class Progress {
   readonly el: HTMLElement;
 
-  private options = {} as ProgressOptions;
+  private options: ProgressOptions;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: ProgressOptions) {
     this.el = el;
+    this.options = { ...options };
+    this.init();
   }
 
   getOptions(): ProgressOptions {
@@ -28,6 +30,11 @@ class Progress {
         callback: () => this.updateVisibility(),
       },
     ]);
+  }
+
+  private init(): void {
+    this.updatePosition();
+    this.updateVisibility();
   }
 
   private updateVisibility(): void {

@@ -7,23 +7,22 @@ describe('Scale class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const scale = new Scale(el);
-  const newOptions = {
+  const options = {
     min: 0,
     max: 10,
     step: 1,
     visible: true,
     partsCounter: 5,
   };
+  const scale = new Scale(el, options);
 
   test('Can set and get options', () => {
-    scale.setOptions(newOptions);
-    expect(scale.getOptions()).toMatchObject(newOptions);
+    expect(scale.getOptions()).toMatchObject(options);
   });
 
   test('Can update options', () => {
     scale.setOptions({ visible: false });
-    expect(scale.getOptions()).toMatchObject({ ...newOptions, visible: false });
+    expect(scale.getOptions()).toMatchObject({ ...options, visible: false });
   });
 
   test('Can set strings', () => {

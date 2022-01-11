@@ -6,12 +6,14 @@ import { ThumbOptions, ViewEvent } from '../types';
 class Thumb extends EventObserver<ViewEvent> {
   readonly el: HTMLElement;
 
-  private options = {} as ThumbOptions;
+  private options: ThumbOptions;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: ThumbOptions) {
     super();
 
     this.el = el;
+    this.options = { ...options };
+    this.init();
     this.attachEventHandlers();
   }
 
@@ -36,6 +38,12 @@ class Thumb extends EventObserver<ViewEvent> {
         callback: () => this.updateZIndex(),
       },
     ]);
+  }
+
+  private init(): void {
+    this.updatePosition();
+    this.updateVisibility();
+    this.updateZIndex();
   }
 
   private attachEventHandlers(): void {

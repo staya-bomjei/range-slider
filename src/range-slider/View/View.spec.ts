@@ -8,8 +8,7 @@ describe('View class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const view = new View(el);
-  const newOptions: ViewOptions = {
+  const options: ViewOptions = {
     isVertical: true,
     progress: { from: 10, to: 20, visible: true },
     scale: {
@@ -33,14 +32,15 @@ describe('View class:', () => {
     rightTooltip: { text: 'test', visible: true },
   };
 
+  const view = new View(el, options);
+
   test('Can set and get options', () => {
-    view.setOptions(newOptions);
-    expect(view.getOptions()).toMatchObject(newOptions);
+    expect(view.getOptions()).toMatchObject(options);
   });
 
   test('Can update options', () => {
     view.setOptions({ isVertical: false });
-    expect(view.getOptions()).toMatchObject({ ...newOptions, isVertical: false });
+    expect(view.getOptions()).toMatchObject({ ...options, isVertical: false });
   });
 
   test('It handles pointerdown events', () => {

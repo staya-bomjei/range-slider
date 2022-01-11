@@ -5,10 +5,12 @@ import { TOOLTIP_HIDDEN } from '../const';
 class Tooltip {
   readonly el: HTMLElement;
 
-  private options = {} as TooltipOptions;
+  private options: TooltipOptions;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: TooltipOptions) {
     this.el = el;
+    this.options = { ...options };
+    this.init();
   }
 
   getOptions(): TooltipOptions {
@@ -28,6 +30,11 @@ class Tooltip {
         callback: () => this.updateVisibility(),
       },
     ]);
+  }
+
+  private init(): void {
+    this.updateText();
+    this.updateVisibility();
   }
 
   private updateVisibility(): void {

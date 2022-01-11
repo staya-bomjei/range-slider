@@ -9,12 +9,14 @@ class Scale extends EventObserver<ViewEvent> {
 
   readonly el: HTMLElement;
 
-  private options = {} as ScaleOptions;
+  private options: ScaleOptions;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: ScaleOptions) {
     super();
 
     this.el = el;
+    this.options = { ...options };
+    this.init();
   }
 
   getOptions(): ScaleOptions {
@@ -35,6 +37,11 @@ class Scale extends EventObserver<ViewEvent> {
         callback: () => this.updateVisibility(),
       },
     ]);
+  }
+
+  private init(): void {
+    this.updateItems();
+    this.updateVisibility();
   }
 
   private renderItems(): void {

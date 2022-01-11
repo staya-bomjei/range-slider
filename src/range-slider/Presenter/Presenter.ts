@@ -12,8 +12,10 @@ import { THUMB_DRAGGED } from '../View/const';
 import {
   ViewOptions,
   ViewEvent,
-  TooltipOptions,
   ScaleOptions,
+  ProgressOptions,
+  ThumbOptions,
+  TooltipOptions,
 } from '../View/types';
 import Thumb from '../View/subviews/Thumb';
 import Track from '../View/subviews/Track';
@@ -29,16 +31,16 @@ class Presenter {
 
   constructor(el: HTMLElement) {
     this.model = new Model();
-    this.view = new View(el);
+    const viewOptions = this.calcViewOptions();
+    this.view = new View(el, viewOptions);
     this.thumbDragged = false;
-    const modelOptions = this.model.getOptions();
+
     //  Такой вызов необходим, т.к. View при инициализации рендерит свои subViews
     //  через innerHTML, что означает, что функция проверки пересечения подсказок
     //  получит DOMRect подсказок до рендеринга в браузере, поэтому далее я делаю
     //  вызов метода асинхронным, чтобы он вызвался сразу же, как только будет
     //  произведён рендеринг браузером
-    setTimeout(() => this.handleModelChange(modelOptions), 0);
-
+    setTimeout(() => this.handleTooltipsOverlap(), 0);
     this.attachEventHandlers();
   }
 
@@ -112,9 +114,11 @@ class Presenter {
     const valuesRange = `${originalLeftText} — ${originalRightText}`;
     const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
     const rightTooltipText = (this.thumbDragged !== 'right') ? '' : valuesRange;
+
+    const { leftTooltip, rightTooltip } = this.view.subViews;
     this.view.setOptions({
-      leftTooltip: { text: leftTooltipText } as TooltipOptions,
-      rightTooltip: { text: rightTooltipText } as TooltipOptions,
+      leftTooltip: { ...leftTooltip.getOptions(), text: leftTooltipText },
+      rightTooltip: { ...rightTooltip.getOptions(), text: rightTooltipText },
     });
   }
 
@@ -184,7 +188,7 @@ class Presenter {
     }
 
     if (valueTo === undefined) {
-      throw new Error('for isLeft: false valueTo should be a number');
+      return '';
     }
 
     if (strings === undefined) {
@@ -241,107 +245,152 @@ class Presenter {
     // лишь те её параметры, которые были изменены, поэтому далее должны
     // быть вычислены новые опции ViewOptions, которые зависят от новых
     // опций модели, при этом недостающие опции будут взяты из оригинала.
-    const {
-      min,
-      max,
-      step,
-      strings,
-      valueFrom,
-      valueTo,
-      isRange,
-      orientation,
-      showScale,
-      scaleParts,
-      showTooltip,
-      showProgress,
-    } = this.model.getOptions();
+    const { isRange } = this.model.getOptions();
     const viewOptions: Partial<ViewOptions> = {};
-
-    const minMaxRange = max - min;
-    const percentFrom = valueToPercent(valueFrom - min, minMaxRange);
-    const percentTo = (valueTo !== undefined)
-      ? valueToPercent(valueTo - min, minMaxRange)
-      : undefined;
-    const needToSetZIndexes = valueFrom === valueTo;
-    const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
-    const isRightThumbHigher = needToSetZIndexes && valueTo === min;
 
     callFunctionsForNewOptions(null, newModelOptions, [
       {
         dependencies: ['orientation'],
         callback: () => {
-          viewOptions.isVertical = orientation === 'vertical';
+          viewOptions.isVertical = this.calcIsVertical();
         },
       },
       {
         dependencies: ['valueFrom', 'valueTo', 'isRange', 'min', 'max', 'showProgress'],
         callback: () => {
-          if (percentTo !== undefined) {
-            viewOptions.progress = {
-              from: percentFrom,
-              to: percentTo,
-              visible: showProgress,
-            };
-          } else {
-            viewOptions.progress = {
-              from: MIN_POSITION,
-              to: percentFrom,
-              visible: showProgress,
-            };
-          }
+          viewOptions.progress = this.calcProgressOptions();
         },
       },
       {
         dependencies: ['min', 'max', 'step', 'strings', 'scaleParts', 'showScale'],
         callback: () => {
-          const scale: ScaleOptions = {
-            min,
-            max,
-            step,
-            partsCounter: scaleParts,
-            visible: showScale,
-          };
-          if (strings !== undefined) scale.strings = strings;
-          viewOptions.scale = scale;
+          viewOptions.scale = this.calcScaleOptions();
         },
       },
       {
         dependencies: ['valueFrom', 'min', 'max'],
         callback: () => {
-          viewOptions.leftThumb = {
-            position: percentFrom,
-            visible: true,
-            isHigher: isLeftThumbHigher,
-          };
+          viewOptions.leftThumb = this.calcThumbOptions(true);
         },
       },
       {
         dependencies: ['valueTo', 'min', 'max', 'isRange'],
         callback: () => {
-          viewOptions.rightThumb = {
-            position: (percentTo === undefined) ? MAX_POSITION : percentTo,
-            visible: isRange,
-            isHigher: isRightThumbHigher,
-          };
+          viewOptions.rightThumb = this.calcThumbOptions(false);
         },
       },
       {
         dependencies: ['valueFrom', 'valueTo', 'min', 'max', 'showTooltip'],
         callback: () => {
-          viewOptions.leftTooltip = {
-            text: this.calcTooltipText(true),
-            visible: showTooltip,
-          };
+          viewOptions.leftTooltip = this.calcTooltipOptions(true);
           if (!isRange) return;
-          viewOptions.rightTooltip = {
-            text: this.calcTooltipText(false),
-            visible: showTooltip,
-          };
+          viewOptions.rightTooltip = this.calcTooltipOptions(false);
         },
       },
     ]);
 
     return viewOptions;
+  }
+
+  private calcViewOptions(): ViewOptions {
+    return {
+      isVertical: this.calcIsVertical(),
+      scale: this.calcScaleOptions(),
+      progress: this.calcProgressOptions(),
+      leftThumb: this.calcThumbOptions(true),
+      rightThumb: this.calcThumbOptions(false),
+      leftTooltip: this.calcTooltipOptions(true),
+      rightTooltip: this.calcTooltipOptions(false),
+    };
+  }
+
+  private calcIsVertical(): boolean {
+    const { orientation } = this.model.getOptions();
+
+    return orientation === 'vertical';
+  }
+
+  private calcScaleOptions(): ScaleOptions {
+    const {
+      min,
+      max,
+      step,
+      scaleParts,
+      showScale,
+      strings,
+    } = this.model.getOptions();
+
+    const scaleOptions: ScaleOptions = {
+      min,
+      max,
+      step,
+      partsCounter: scaleParts,
+      visible: showScale,
+    };
+    if (strings !== undefined) scaleOptions.strings = strings;
+
+    return scaleOptions;
+  }
+
+  private calcProgressOptions(): ProgressOptions {
+    const {
+      min,
+      max,
+      valueFrom,
+      valueTo,
+      showProgress,
+    } = this.model.getOptions();
+
+    const isRange = valueTo !== undefined;
+    const minMaxRange = max - min;
+    const percentFrom = valueToPercent(valueFrom - min, minMaxRange);
+    const percentTo = isRange
+      ? valueToPercent(valueTo - min, minMaxRange)
+      : MIN_POSITION;
+
+    return {
+      from: (isRange) ? percentFrom : percentTo,
+      to: (isRange) ? percentTo : percentFrom,
+      visible: showProgress,
+    };
+  }
+
+  calcThumbOptions(isLeft: boolean): ThumbOptions {
+    const {
+      min,
+      max,
+      valueFrom,
+      valueTo,
+      isRange,
+    } = this.model.getOptions();
+
+    const minMaxRange = max - min;
+    let position: number;
+    if (isLeft) {
+      position = valueToPercent(valueFrom - min, minMaxRange);
+    } else {
+      position = (valueTo !== undefined)
+        ? valueToPercent(valueTo - min, minMaxRange)
+        : MAX_POSITION;
+    }
+    const needToSetZIndexes = valueFrom === valueTo;
+    const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
+    const isRightThumbHigher = needToSetZIndexes && valueTo === min;
+
+    return {
+      position,
+      visible: (isLeft) ? true : isRange,
+      isHigher: (isLeft) ? isLeftThumbHigher : isRightThumbHigher,
+    };
+  }
+
+  calcTooltipOptions(isLeft: boolean): TooltipOptions {
+    const { showTooltip } = this.model.getOptions();
+
+    return {
+      text: this.calcTooltipText(isLeft),
+      visible: showTooltip,
+    };
   }
 }
 

@@ -22,14 +22,14 @@ class View extends EventObserver<ViewEvent> {
 
   readonly el: HTMLElement;
 
-  // У меня никак не получается избавиться от этого type assertion,
-  // потому что
-  private options = {} as ViewOptions;
+  private options: ViewOptions;
 
-  constructor(el: HTMLElement) {
+  constructor(el: HTMLElement, options: ViewOptions) {
     super();
 
     this.el = el;
+    this.options = { ...options };
+    this.init();
     this.render();
     this.subViews = this.calcSubViews();
     this.attachEventHandlers();
@@ -109,6 +109,11 @@ class View extends EventObserver<ViewEvent> {
     this.options = { ...this.options, ...options };
   }
 
+  private init(): void {
+    const { isVertical } = this.options;
+    this.updateOrientation(isVertical);
+  }
+
   private render(): void {
     this.el.className = `${RANGE_SLIDER}`;
     this.el.innerHTML = `
@@ -159,12 +164,12 @@ class View extends EventObserver<ViewEvent> {
 
     return {
       track: new Track(trackEl),
-      progress: new Progress(progressEl),
-      scale: new Scale(scaleEl),
-      leftThumb: new Thumb(leftThumbEl),
-      rightThumb: new Thumb(rightThumbEl),
-      leftTooltip: new Tooltip(leftTooltipEl),
-      rightTooltip: new Tooltip(rightTooltipEl),
+      progress: new Progress(progressEl, this.options.progress),
+      scale: new Scale(scaleEl, this.options.scale),
+      leftThumb: new Thumb(leftThumbEl, this.options.leftThumb),
+      rightThumb: new Thumb(rightThumbEl, this.options.rightThumb),
+      leftTooltip: new Tooltip(leftTooltipEl, this.options.leftTooltip),
+      rightTooltip: new Tooltip(rightTooltipEl, this.options.rightTooltip),
     };
   }
 

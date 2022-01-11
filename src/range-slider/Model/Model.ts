@@ -5,13 +5,13 @@ import { defaultOptions, optionsTypes } from './const';
 import IncorrectValueError from '../helpers/IncorrectValueError';
 
 class Model extends EventObserver<Partial<ModelOptions>> {
-  private options = {} as ModelOptions;
+  private options: ModelOptions;
 
   constructor(options?: Partial<ModelOptions>) {
     super();
 
-    const initOptions = (options) ? { ...defaultOptions, ...options } : defaultOptions;
-    this.setOptions(initOptions);
+    this.options = defaultOptions;
+    if (options) this.setOptions(options);
   }
 
   getOptions(): ModelOptions {

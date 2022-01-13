@@ -7,7 +7,7 @@ import Presenter from './Presenter/Presenter';
 import './range-slider.scss';
 
 (function ($) {
-  $.fn.rangeSlider = function (method, options) {
+  $.fn.rangeSlider = function (methodOrOptions, optionsOrNothing) {
     const methods = {
       init(opts) {
         return this.each(function (_, el) {
@@ -38,14 +38,18 @@ import './range-slider.scss';
       },
     };
 
-    if (methods[method]) {
-      return methods[method].apply(this, [options]);
+    const hasMethod = methods[methodOrOptions] !== undefined;
+    if (hasMethod) {
+      return methods[methodOrOptions].apply(this, [optionsOrNothing]);
     }
-    if (typeof method === 'object' || !method) {
-      const opts = method || {};
+
+    const isInitMethod = typeof methodOrOptions === 'object' || methodOrOptions === undefined;
+    if (isInitMethod) {
+      const opts = (methodOrOptions === undefined) ? {} : methodOrOptions;
       return methods.init.call(this, opts);
     }
-    $.error(`Unknown method '${method}'`);
+
+    $.error(`Unknown method '${methodOrOptions}'`);
     return null;
   };
 })(jQuery);

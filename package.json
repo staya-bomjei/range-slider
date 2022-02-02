@@ -9,7 +9,7 @@
     "start": "webpack-dev-server --env development",
     "test": "jest",
     "deploy": "npm run prod && gh-pages -d dist",
-    "eslint": "npx eslint \"src/**/*.ts\"",
+    "eslint": "npx eslint \"src/**/*.{ts,js}\"",
     "stylelint": "npx stylelint \"src/**/*.scss\""
   },
   "repository": {

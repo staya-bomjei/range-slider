@@ -1,7 +1,7 @@
 {
   "name": "range-slider",
   "version": "1.0.0",
-  "description": "MetaLamp 4nd task",
+  "description": "MetaLamp 4th task",
   "main": "index.js",
   "scripts": {
     "dev": "webpack --env development",

@@ -61,4 +61,18 @@ describe('Scale class:', () => {
       scale.setOptions(newOptions);
     }).toThrow('strings(0,1) must have string item with index 2');
   });
+
+  test('It doesn\'t make the same items', () => {
+    const newOptions = {
+      min: -41,
+      max: 1,
+      step: 20,
+      partsCounter: 4,
+    };
+    scale.setOptions(newOptions);
+
+    const texts = scale.items.map((item) => item.getOptions().text);
+    const uniqueItemsCounter = new Set(texts).size;
+    expect(texts.length).toEqual(uniqueItemsCounter);
+  });
 });

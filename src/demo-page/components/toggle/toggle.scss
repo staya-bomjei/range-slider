@@ -12,10 +12,8 @@
   $center-size: 0.75rem;
 
   &__input {
-    opacity: 0;
     height: 0;
     width: 0;
-    display: none;
 
     &:checked {
       ~ #{$class}__mark {

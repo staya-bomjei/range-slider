@@ -80,6 +80,7 @@ class Scale extends EventObserver<ViewEvent> {
       if (!(el instanceof HTMLElement)) {
         throw new Error('cannot get HTMLElements from scale render structure');
       }
+
       const value = valuePerPart * index + min;
       const nearestCorrectValue = calcNearestStepValue(value, step, min);
       const options = {
@@ -87,6 +88,16 @@ class Scale extends EventObserver<ViewEvent> {
         text: this.calcText(nearestCorrectValue),
       };
       this.items.push(new ScaleItem(el, options));
+    });
+
+    const lastItem = this.items[this.items.length - 1];
+    if (lastItem === undefined) {
+      throw Error('Items must have last item');
+    }
+
+    lastItem.setOptions({
+      position: this.calcPosition(max),
+      text: this.calcText(max),
     });
 
     this.attachEventHandlers();

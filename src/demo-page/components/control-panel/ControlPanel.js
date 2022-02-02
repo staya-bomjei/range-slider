@@ -196,6 +196,7 @@ class ControlPanel {
     this.$from.attr('max', max);
     this.$from.attr('step', step);
     this.$parts.val(scaleParts);
+    this.$parts.attr('disabled', !showScale);
 
     if (isRange) {
       this.$to.attr('disabled', false);

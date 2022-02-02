@@ -75,6 +75,7 @@ class Scale extends EventObserver<ViewEvent> {
     this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
     this.items = [];
     const valuePerPart = (max - min) / partsCounter;
+    let prevValue: number | undefined;
 
     Array.from(this.el.children).forEach((el, index) => {
       if (!(el instanceof HTMLElement)) {
@@ -82,7 +83,12 @@ class Scale extends EventObserver<ViewEvent> {
       }
 
       const value = valuePerPart * index + min;
-      const nearestCorrectValue = calcNearestStepValue(value, step, min);
+      let nearestCorrectValue = calcNearestStepValue(value, step, min);
+      if (nearestCorrectValue === prevValue) {
+        nearestCorrectValue += step;
+      }
+      prevValue = nearestCorrectValue;
+
       const options = {
         position: this.calcPosition(nearestCorrectValue),
         text: this.calcText(nearestCorrectValue),

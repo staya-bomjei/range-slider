@@ -1,10 +1,15 @@
 mixin tapper-view(options = {})
-  - const { tappers = [] } = options;
+  -
+    const {
+      tappers = [],
+      mainTitle = 'Формула Таппера',
+      keyTitle = 'Ключ:',
+    } = options;
 
   .tapper-view.js-tapper-view(data-tappers = tappers)
-    h3.tapper-view__title Формула Таппера
+    h3.tapper-view__title= mainTitle
     .tapper-view__slider-wrapper
       .tapper-view__slider.js-tapper-view__slider
     canvas.tapper-view__canvas.js-tapper-view__canvas
-    h3.tapper-view__title Ключ:
+    h3.tapper-view__title= keyTitle
     textarea.tapper-view__key.js-tapper-view__key

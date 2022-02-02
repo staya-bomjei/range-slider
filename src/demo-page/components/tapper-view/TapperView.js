@@ -33,11 +33,12 @@ class TapperView {
     this.ctx = this.$canvas[0].getContext('2d');
 
     this._update();
+    this._update = this._update.bind(this);
     this._attachEventHandlers();
   }
 
   _attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', () => this._update());
+    this.$slider.rangeSlider('onchange', this._update);
   }
 
   _update() {

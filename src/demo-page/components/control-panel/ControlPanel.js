@@ -36,22 +36,35 @@ class ControlPanel {
     this.$slider.rangeSlider(sliderOptions);
 
     this._updateInputs();
+
+    this._updateInputs = this._updateInputs.bind(this);
+    this._handleMinChange = this._handleMinChange.bind(this);
+    this._handleMaxChange = this._handleMaxChange.bind(this);
+    this._handleStepChange = this._handleStepChange.bind(this);
+    this._handleFromChange = this._handleFromChange.bind(this);
+    this._handleToChange = this._handleToChange.bind(this);
+    this._handlePartsChange = this._handlePartsChange.bind(this);
+    this._handleVerticalChange = this._handleVerticalChange.bind(this);
+    this._handleRangeChange = this._handleRangeChange.bind(this);
+    this._handleScaleChange = this._handleScaleChange.bind(this);
+    this._handleBarChange = this._handleBarChange.bind(this);
+    this._handleTipChange = this._handleTipChange.bind(this);
     this._attachEventHandlers();
   }
 
   _attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', () => this._updateInputs());
-    this.$min.on('change', () => this._handleMinChange());
-    this.$max.on('change', () => this._handleMaxChange());
-    this.$step.on('change', () => this._handleStepChange());
-    this.$from.on('change', () => this._handleFromChange());
-    this.$to.on('change', () => this._handleToChange());
-    this.$parts.on('change', () => this._handlePartsChange());
-    this.$vertical.on('change', () => this._handleVerticalChange());
-    this.$range.on('change', () => this._handleRangeChange());
-    this.$scale.on('change', () => this._handleScaleChange());
-    this.$bar.on('change', () => this._handleBarChange());
-    this.$tip.on('change', () => this._handleTipChange());
+    this.$slider.rangeSlider('onchange', this._updateInputs);
+    this.$min.on('change', this._handleMinChange);
+    this.$max.on('change', this._handleMaxChange);
+    this.$step.on('change', this._handleStepChange);
+    this.$from.on('change', this._handleFromChange);
+    this.$to.on('change', this._handleToChange);
+    this.$parts.on('change', this._handlePartsChange);
+    this.$vertical.on('change', this._handleVerticalChange);
+    this.$range.on('change', this._handleRangeChange);
+    this.$scale.on('change', this._handleScaleChange);
+    this.$bar.on('change', this._handleBarChange);
+    this.$tip.on('change', this._handleTipChange);
   }
 
   _handleMinChange() {
@@ -118,8 +131,8 @@ class ControlPanel {
     this.$slider.rangeSlider('set', options);
   }
 
-  _setValidOptions(options, rCnt = 0) {
-    if (rCnt > 10) {
+  _setValidOptions(options, recursionCounter = 0) {
+    if (recursionCounter > 10) {
       throw new Error('Stack Overflow');
     }
     try {
@@ -143,15 +156,15 @@ class ControlPanel {
       console.error(`error message: ${error.message}`);
 
       if (isNeedsValueTo || isWrongValueTo) {
-        this._setValidOptions({ ...options, valueTo: max }, rCnt + 1);
+        this._setValidOptions({ ...options, valueTo: max }, recursionCounter + 1);
       }
 
       if (isWrongScaleParts) {
-        this._setValidOptions({ ...options, scaleParts: 1 }, rCnt + 1);
+        this._setValidOptions({ ...options, scaleParts: 1 }, recursionCounter + 1);
       }
 
       if (isWrongValueFrom) {
-        this._setValidOptions({ ...options, valueFrom: min }, rCnt + 1);
+        this._setValidOptions({ ...options, valueFrom: min }, recursionCounter + 1);
       }
 
       this._updateInputs();

@@ -320,8 +320,8 @@ class Presenter {
         : MAX_POSITION;
     }
     const needToSetZIndexes = valueFrom === valueTo;
-    const isLeftThumbHigher = needToSetZIndexes && valueFrom === max;
-    const isRightThumbHigher = needToSetZIndexes && valueTo === min;
+    const isLeftThumbHigher = this.thumbDragged === 'left' || (needToSetZIndexes && valueFrom === max);
+    const isRightThumbHigher = this.thumbDragged === 'right' || (needToSetZIndexes && valueTo === min);
 
     return {
       position,

@@ -1,14 +1,30 @@
 import EventObserver from './EventObserver';
 
 describe('EventObserver class', () => {
-  test('It broadcasts data to subscribers', () => {
-    const observer = new EventObserver<{ data: number }>();
-    const subscribers = [...Array(10)];
+  const SUBSCRIBERS_COUNTER = 10;
+  let observer: EventObserver<{ data: number }>;
+  let subscribers: Array<jest.Mock>;
 
-    subscribers.forEach((_, index) => {
-      subscribers[index] = jest.fn();
-      observer.subscribe(subscribers[index]);
+  beforeEach(() => {
+    observer = new EventObserver();
+    subscribers = [...Array(SUBSCRIBERS_COUNTER)].map(() => {
+      const subscriber = jest.fn();
+      observer.subscribe(subscriber);
+      return subscriber;
     });
+  });
+
+  test('It triggers subscribers', () => {
+    const data = { data: 120 };
+
+    observer.broadcast(data);
+
+    subscribers.forEach((subscriber) => {
+      expect(subscriber).toHaveBeenCalled();
+    });
+  });
+
+  test('It broadcasts data to subscribers', () => {
     const data = { data: 120 };
 
     observer.broadcast(data);
@@ -18,23 +34,22 @@ describe('EventObserver class', () => {
     });
   });
 
-  test('It can unsubscribe', () => {
-    const observer = new EventObserver<{ data: number }>();
-    const firstSubscriber = jest.fn();
-    const secondSubscriber = jest.fn();
+  test('It doesn\'t trigger unsubscribed subscribers', () => {
+    const [firstSubscriber, secondSubscriber] = subscribers;
     const firstData = { data: 120 };
+    const secondData = { data: 1337 };
 
-    observer.subscribe(firstSubscriber);
-    observer.subscribe(secondSubscriber);
+    const hasNoSubscriber = firstSubscriber === undefined || secondSubscriber === undefined;
+    if (hasNoSubscriber) {
+      throw new Error('subscribers must have at least two functions');
+    }
+
     observer.broadcast(firstData);
-
     expect(firstSubscriber).toHaveBeenCalledWith(firstData);
     expect(secondSubscriber).toHaveBeenCalledWith(firstData);
 
-    const secondData = { data: 1337 };
     observer.unsubscribe(firstSubscriber);
     observer.broadcast(secondData);
-
     expect(firstSubscriber).toBeCalledTimes(1);
     expect(secondSubscriber).toHaveBeenCalledWith(secondData);
   });

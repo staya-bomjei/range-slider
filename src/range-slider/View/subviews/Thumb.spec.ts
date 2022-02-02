@@ -7,29 +7,35 @@ describe('Thumb class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const options = {
+  const defaultOptions = {
     position: 10,
     visible: true,
     isHigher: false,
   };
-  const thumb = new Thumb(el, options);
+  let thumb: Thumb;
 
-  test('Can set and get options', () => {
-    expect(thumb.getOptions()).toMatchObject(options);
+  beforeEach(() => {
+    thumb = new Thumb(el, defaultOptions);
+  });
+
+  test('Can get options', () => {
+    const thumbOptions = thumb.getOptions();
+    expect(thumbOptions).toMatchObject(defaultOptions);
   });
 
   test('Can update options', () => {
-    thumb.setOptions({ visible: false });
-    expect(thumb.getOptions()).toMatchObject({ ...options, visible: false });
-    thumb.setOptions({ isHigher: true });
-    expect(thumb.getOptions()).toMatchObject({ ...options, visible: false, isHigher: true });
+    const newOptions = { visible: false, isHigher: true };
+    thumb.setOptions(newOptions);
+
+    const thumbOptions = thumb.getOptions();
+    expect(thumbOptions).toMatchObject({ ...defaultOptions, ...newOptions });
   });
 
   test('It handles pointerdown event', () => {
-    jest.spyOn(thumb, 'broadcast');
+    const broadcastMock = jest.spyOn(thumb, 'broadcast');
 
     el.dispatchEvent(new MouseEvent('pointerdown'));
 
-    expect(thumb.broadcast).toBeCalled();
+    expect(broadcastMock).toBeCalled();
   });
 });

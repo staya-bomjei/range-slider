@@ -20,13 +20,10 @@ describe('Presenter class:', () => {
   }, 10);
 
   test('Correctly updates view when model changes', () => {
-    model.setOptions({ valueFrom: 17 });
-    const {
-      progress,
-      leftThumb,
-      leftTooltip,
-    } = view.getOptions();
+    const newOptions = { valueFrom: 17 };
+    model.setOptions(newOptions);
 
+    const { progress, leftThumb, leftTooltip } = view.getOptions();
     expect(progress.to).toEqual(17);
     expect(leftThumb.position).toEqual(17);
     expect(leftTooltip.text).toEqual('17');
@@ -44,12 +41,14 @@ describe('Presenter class:', () => {
   });
 
   test('Handles scale item pointerdown', () => {
-    model.setOptions({ valueFrom: 1, scaleParts: 2 });
+    const newOptions = { valueFrom: 1, scaleParts: 2 };
+    model.setOptions(newOptions);
+
     const { scale, leftThumb } = view.subViews;
     const lastScaleItem = scale.items[scale.items.length - 1];
 
     if (lastScaleItem === undefined) {
-      throw new Error('lastScaleItem should be ScaleItem');
+      throw new Error('scale must have last item');
     }
 
     lastScaleItem.broadcast({
@@ -57,8 +56,7 @@ describe('Presenter class:', () => {
       event: new MouseEvent('pointerdown'),
     });
 
-    const leftThumbPosition = leftThumb.getOptions().position;
-
+    const { position: leftThumbPosition } = leftThumb.getOptions();
     expect(leftThumbPosition).toEqual(100);
   });
 
@@ -91,16 +89,21 @@ describe('Presenter class:', () => {
 
     model.setOptions({ valueFrom: 0, valueTo: 1, isRange: true });
 
-    expect(rightTooltip.getOptions().text).toEqual('');
+    const { text: rightTooltipText } = rightTooltip.getOptions();
+    const { text: leftTooltipText } = leftTooltip.getOptions();
+    expect(rightTooltipText).toEqual('');
+    expect(leftTooltipText).toEqual('0 — 1');
   });
 
   test('it works with strings correctly', () => {
-    const { leftTooltip } = view.subViews;
-    model.setOptions({
+    const newOptions = {
       valueFrom: 0,
       strings: ['один', 'два', 'три', 'четыре', 'пять'],
-    });
+    };
+    model.setOptions(newOptions);
 
-    expect(leftTooltip.getOptions().text).toEqual('один');
+    const { leftTooltip } = view.subViews;
+    const { text: leftTooltipText } = leftTooltip.getOptions();
+    expect(leftTooltipText).toEqual(newOptions.strings[newOptions.valueFrom]);
   });
 });

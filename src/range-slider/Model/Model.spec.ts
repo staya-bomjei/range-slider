@@ -2,30 +2,40 @@ import Model from './Model';
 import { defaultOptions } from './const';
 
 describe('Model class:', () => {
+  let model: Model;
+
+  beforeEach(() => {
+    model = new Model();
+  });
+
   test('should return default options', () => {
-    const model = new Model();
     const modelOptions = model.getOptions();
     expect(modelOptions).toMatchObject(defaultOptions);
   });
 
   test('should extend default options', () => {
     const newOptions = { valueFrom: 50 };
-    const model = new Model(newOptions);
+    model.setOptions(newOptions);
+
     const modelOptions = model.getOptions();
     expect(modelOptions).toMatchObject({ ...defaultOptions, ...newOptions });
   });
 
   test('should update valueFrom to 100', () => {
-    const model = new Model();
-    model.setOptions({ valueFrom: 100 });
+    const newOptions = { valueFrom: 100 };
+    model.setOptions(newOptions);
+
     const modelOptions = model.getOptions();
     expect(modelOptions.valueFrom).toEqual(100);
   });
 
   test('should update strings, min, max, step', () => {
-    const model = new Model();
-    const newStrings = ['one', 'two', 'three', 'four', 'five'];
-    model.setOptions({ valueFrom: 0, strings: [...newStrings] });
+    const newOptions = {
+      valueFrom: 0,
+      strings: ['one', 'two', 'three', 'four', 'five'],
+    };
+    model.setOptions(newOptions);
+
     const {
       min,
       max,
@@ -35,11 +45,10 @@ describe('Model class:', () => {
     expect(min).toEqual(0);
     expect(max).toEqual(4);
     expect(step).toEqual(1);
-    expect(strings).toMatchObject(newStrings);
+    expect(strings).toMatchObject(newOptions.strings);
   });
 
   test('should throw error', () => {
-    const model = new Model();
     const newOptions = {
       valueFrom: 0,
       step: 1,
@@ -52,7 +61,6 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
     const newOptions = {
       valueFrom: 51,
       strings: ['one', 'two', 'three', 'four', 'five'],
@@ -64,10 +72,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      min: 101,
-    };
+    const newOptions = { min: 101 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -75,10 +80,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      step: -1,
-    };
+    const newOptions = { step: -1 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -86,10 +88,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      valueTo: 44,
-    };
+    const newOptions = { valueTo: 44 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -97,10 +96,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      valueFrom: -2,
-    };
+    const newOptions = { valueFrom: -2 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -108,11 +104,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      isRange: true,
-      valueTo: -2,
-    };
+    const newOptions = { isRange: true, valueTo: -2 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -120,10 +112,7 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
-    const newOptions = {
-      valueFrom: 0.5,
-    };
+    const newOptions = { valueFrom: 0.5 };
 
     expect(() => {
       model.setOptions(newOptions);
@@ -131,7 +120,6 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
     const newOptions = {
       isRange: true,
       step: 3,
@@ -145,7 +133,6 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
     const newOptions = {
       isRange: true,
       step: 3,
@@ -159,7 +146,6 @@ describe('Model class:', () => {
   });
 
   test('should throw error', () => {
-    const model = new Model();
     const newOptions = {
       min: 0,
       max: 3,

@@ -9,17 +9,29 @@ describe('calcNearestStepValue function:', () => {
   test('should return 10', () => {
     expect(calcNearestStepValue(11, 10, 0)).toEqual(10);
   });
-  test('should return 10', () => {
-    expect(calcNearestStepValue(10, 10, 0)).toEqual(10);
+  test('should return 9', () => {
+    expect(calcNearestStepValue(9, 9, 9)).toEqual(9);
+  });
+  test('should return 9', () => {
+    expect(calcNearestStepValue(9, 199, 9)).toEqual(9);
   });
   test('should return -10', () => {
     expect(calcNearestStepValue(-15, 10, 0)).toEqual(-10);
   });
+  test('should return -8', () => {
+    expect(calcNearestStepValue(-15, 10, 2)).toEqual(-8);
+  });
   test('should return 0.33', () => {
-    expect(calcNearestStepValue(0.3, 0.33, 0)).toEqual(0.33);
+    expect(calcNearestStepValue(0.3, 0.33, -0.33)).toEqual(0.33);
+  });
+  test('should return 0.3', () => {
+    expect(calcNearestStepValue(0.3, 0.33, -0.33, 1)).toEqual(0.3);
+  });
+  test('should return 0.3', () => {
+    expect(calcNearestStepValue(0.3, 0.35, 0, 1)).toEqual(0.3);
   });
   test('should return -44.5', () => {
-    expect(calcNearestStepValue(-44.75, 0.5, 0)).toEqual(-44.5);
+    expect(calcNearestStepValue(-44.75, 0.5, 122)).toEqual(-44.5);
   });
   test('should throw error', () => {
     expect(() => calcNearestStepValue(-44.75, -23, 0)).toThrow();
@@ -52,7 +64,7 @@ describe('rectsIntersect function:', () => {
     bottom: (height > 0) ? y + height : y,
     toJSON: () => null,
   });
-  const first = createRect(0, 0, 100, 100);
+  const first: DOMRect = createRect(0, 0, 100, 100);
 
   test('should return true', () => {
     const second = createRect(99, 0, 100, 100);
@@ -92,5 +104,8 @@ describe('valueToPercent function:', () => {
   });
   test('should return 30', () => {
     expect(valueToPercent(0.3, 1)).toEqual(30);
+  });
+  test('should Infinity', () => {
+    expect(valueToPercent(20, 0)).toEqual(Infinity);
   });
 });

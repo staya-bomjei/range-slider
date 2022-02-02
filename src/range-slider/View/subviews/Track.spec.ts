@@ -7,13 +7,17 @@ describe('Track class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const track = new Track(el);
+  let track: Track;
+
+  beforeEach(() => {
+    track = new Track(el);
+  });
 
   test('It handles pointerdown event', () => {
-    jest.spyOn(track, 'broadcast');
+    const broadcastMock = jest.spyOn(track, 'broadcast');
 
     el.dispatchEvent(new MouseEvent('pointerdown'));
 
-    expect(track.broadcast).toBeCalled();
+    expect(broadcastMock).toBeCalled();
   });
 });

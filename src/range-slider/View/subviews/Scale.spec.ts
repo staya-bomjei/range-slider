@@ -14,39 +14,51 @@ describe('Scale class:', () => {
     visible: true,
     partsCounter: 5,
   };
-  const scale = new Scale(el, options);
+  let scale: Scale;
 
-  test('Can set and get options', () => {
-    expect(scale.getOptions()).toMatchObject(options);
+  beforeEach(() => {
+    scale = new Scale(el, options);
+  });
+
+  test('Can get options', () => {
+    const scaleOptions = scale.getOptions();
+    expect(scaleOptions).toMatchObject(options);
   });
 
   test('Can update options', () => {
-    scale.setOptions({ visible: false });
-    expect(scale.getOptions()).toMatchObject({ ...options, visible: false });
+    const newOptions = { visible: false };
+    scale.setOptions(newOptions);
+
+    const scaleOptions = scale.getOptions();
+    expect(scaleOptions).toMatchObject({ ...options, ...newOptions });
   });
 
   test('Can set strings', () => {
-    scale.setOptions({ strings: 'test,'.repeat(11).split(',') });
+    const newOptions = { strings: 'test,'.repeat(11).split(',') };
+    scale.setOptions(newOptions);
+
     scale.items.forEach((scaleItem) => {
-      expect(scaleItem.getOptions().text).toEqual('test');
+      const { text } = scaleItem.getOptions();
+      expect(text).toEqual('test');
     });
   });
 
   test('It handles pointerdown event', () => {
-    jest.spyOn(scale, 'broadcast');
-
+    const broadcastMock = jest.spyOn(scale, 'broadcast');
     const scaleItemsCounter = scale.items.length;
 
     scale.items.forEach(({ el: scaleItemEl }) => {
       scaleItemEl.dispatchEvent(new MouseEvent('pointerdown'));
     });
 
-    expect(scale.broadcast).toBeCalledTimes(scaleItemsCounter);
+    expect(broadcastMock).toBeCalledTimes(scaleItemsCounter);
   });
 
   test('should throw error', () => {
+    const newOptions = { strings: ['0', '1'], min: 2, max: 4 };
+
     expect(() => {
-      scale.setOptions({ strings: ['0', '1'], min: 2, max: 4 });
+      scale.setOptions(newOptions);
     }).toThrow('strings(0,1) must have string item with index 2');
   });
 });

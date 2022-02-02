@@ -7,19 +7,26 @@ describe('Tooltip class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const options = {
+  const defaultOptions = {
     text: 'test',
     visible: true,
   };
-  const tooltip = new Tooltip(el, options);
+  let tooltip: Tooltip;
+
+  beforeEach(() => {
+    tooltip = new Tooltip(el, defaultOptions);
+  });
 
   test('Can set and get options', () => {
-    tooltip.setOptions(options);
-    expect(tooltip.getOptions()).toMatchObject(options);
+    const tooltipOptions = tooltip.getOptions();
+    expect(tooltipOptions).toMatchObject(defaultOptions);
   });
 
   test('Can update options', () => {
-    tooltip.setOptions({ visible: false });
-    expect(tooltip.getOptions()).toMatchObject({ ...options, visible: false });
+    const newOptions = { visible: false };
+    tooltip.setOptions(newOptions);
+
+    const tooltipOptions = tooltip.getOptions();
+    expect(tooltipOptions).toMatchObject({ ...defaultOptions, ...newOptions });
   });
 });

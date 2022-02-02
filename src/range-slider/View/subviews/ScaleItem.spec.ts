@@ -7,27 +7,40 @@ describe('ScaleItem class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const options = { position: 10, text: 'test' };
-  const scaleItem = new ScaleItem(el, options);
+  const defaultOptions = { position: 10, text: 'test' };
+  let scaleItem: ScaleItem;
 
-  test('Can set and get options', () => {
+  beforeEach(() => {
+    scaleItem = new ScaleItem(el, defaultOptions);
+  });
+
+  test('Can get options', () => {
+    const scaleItemOptions = scaleItem.getOptions();
+    expect(scaleItemOptions).toMatchObject(defaultOptions);
+  });
+
+  test('Can update options', () => {
     const newOptions = { position: 40, text: 'new text' };
     scaleItem.setOptions(newOptions);
-    expect(scaleItem.getOptions()).toMatchObject({ ...options, ...newOptions });
+
+    const scaleItemOptions = scaleItem.getOptions();
+    expect(scaleItemOptions).toMatchObject({ ...defaultOptions, ...newOptions });
   });
 
   test('it should do nothing', () => {
     const originalOptions = scaleItem.getOptions();
     const newOptions = {};
     scaleItem.setOptions(newOptions);
-    expect(scaleItem.getOptions()).toMatchObject(originalOptions);
+
+    const scaleItemOptions = scaleItem.getOptions();
+    expect(scaleItemOptions).toMatchObject(originalOptions);
   });
 
   test('It handles pointerdown event', () => {
-    jest.spyOn(scaleItem, 'broadcast');
+    const broadcastMock = jest.spyOn(scaleItem, 'broadcast');
 
     el.dispatchEvent(new MouseEvent('pointerdown'));
 
-    expect(scaleItem.broadcast).toBeCalled();
+    expect(broadcastMock).toBeCalled();
   });
 });

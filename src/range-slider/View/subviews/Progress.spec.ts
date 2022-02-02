@@ -7,15 +7,23 @@ describe('Progress class:', () => {
     throw new Error('el should be HTMLElement');
   }
 
-  const options = { from: 10, to: 20, visible: true };
-  const progress = new Progress(el, options);
+  const defaultOptions = { from: 10, to: 20, visible: true };
+  let progress: Progress;
 
-  test('Can set and get options', () => {
-    expect(progress.getOptions()).toMatchObject(options);
+  beforeEach(() => {
+    progress = new Progress(el, defaultOptions);
+  });
+
+  test('Can get options', () => {
+    const progressOptions = progress.getOptions();
+    expect(progressOptions).toMatchObject(defaultOptions);
   });
 
   test('Can update options', () => {
-    progress.setOptions({ visible: false });
-    expect(progress.getOptions()).toMatchObject({ ...options, visible: false });
+    const newOptions = { visible: false };
+    progress.setOptions(newOptions);
+
+    const progressOptions = progress.getOptions();
+    expect(progressOptions).toMatchObject({ ...defaultOptions, ...newOptions });
   });
 });

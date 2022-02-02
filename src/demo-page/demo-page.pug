@@ -8,6 +8,7 @@ include ./components/tapper-view/tapper-view
     keywords,
     slider,
     tapper,
+    titles,
   } = htmlWebpackPlugin.options.getData();
 
 doctype
@@ -39,11 +40,11 @@ html
     script(defer src="./range-slider/range-slider.js")
   body
     main.demo-page
-      h2.demo-page__title Панели конфигурации
+      h2.demo-page__title= titles.panels
       .demo-page__panels
         +control-panel(slider.default)
         +control-panel(slider.range)
         +control-panel(slider.vertical)
-      h2.demo-page__title Примеры использования
+      h2.demo-page__title= titles.examples
       .demo-page__panels
         +tapper-view(tapper)

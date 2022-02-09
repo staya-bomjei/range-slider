@@ -32,8 +32,9 @@ class ControlPanel {
   }
 
   init() {
-    const sliderOptions = JSON.parse(this.$component.attr(SLIDER_OPTIONS));
-    this.$slider.rangeSlider(sliderOptions);
+    const { $slider, $component } = this;
+    const sliderOptions = JSON.parse($component.attr(SLIDER_OPTIONS));
+    $slider.rangeSlider(sliderOptions);
 
     this._updateInputs();
 
@@ -53,47 +54,68 @@ class ControlPanel {
   }
 
   _attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', this._updateInputs);
-    this.$min.on('change', this._handleMinChange);
-    this.$max.on('change', this._handleMaxChange);
-    this.$step.on('change', this._handleStepChange);
-    this.$from.on('change', this._handleFromChange);
-    this.$to.on('change', this._handleToChange);
-    this.$parts.on('change', this._handlePartsChange);
-    this.$vertical.on('change', this._handleVerticalChange);
-    this.$range.on('change', this._handleRangeChange);
-    this.$scale.on('change', this._handleScaleChange);
-    this.$bar.on('change', this._handleBarChange);
-    this.$tip.on('change', this._handleTipChange);
+    const {
+      $slider,
+      $min,
+      $max,
+      $step,
+      $from,
+      $parts,
+      $to,
+      $range,
+      $vertical,
+      $scale,
+      $tip,
+      $bar,
+    } = this;
+
+    $slider.rangeSlider('onchange', this._updateInputs);
+    $min.on('change', this._handleMinChange);
+    $max.on('change', this._handleMaxChange);
+    $step.on('change', this._handleStepChange);
+    $from.on('change', this._handleFromChange);
+    $to.on('change', this._handleToChange);
+    $parts.on('change', this._handlePartsChange);
+    $vertical.on('change', this._handleVerticalChange);
+    $range.on('change', this._handleRangeChange);
+    $scale.on('change', this._handleScaleChange);
+    $bar.on('change', this._handleBarChange);
+    $tip.on('change', this._handleTipChange);
   }
 
   _handleMinChange() {
-    const min = Number(this.$min.val());
+    const { $min } = this;
+    const min = Number($min.val());
     this._setValidOptions({ min });
   }
 
   _handleMaxChange() {
-    const max = Number(this.$max.val());
+    const { $max } = this;
+    const max = Number($max.val());
     this._setValidOptions({ max });
   }
 
   _handleStepChange() {
-    const step = Number(this.$step.val());
+    const { $step } = this;
+    const step = Number($step.val());
     this._setValidOptions({ step });
   }
 
   _handleFromChange() {
-    const valueFrom = Number(this.$from.val());
+    const { $from } = this;
+    const valueFrom = Number($from.val());
     this._setValidOptions({ valueFrom });
   }
 
   _handleToChange() {
-    const valueTo = Number(this.$to.val());
+    const { $to } = this;
+    const valueTo = Number($to.val());
     this._setValidOptions({ valueTo });
   }
 
   _handlePartsChange() {
-    const scaleParts = Number(this.$parts.val());
+    const { $parts } = this;
+    const scaleParts = Number($parts.val());
     this._setValidOptions({ scaleParts });
   }
 
@@ -124,11 +146,13 @@ class ControlPanel {
   }
 
   _getOptions() {
-    return this.$slider.rangeSlider('get');
+    const { $slider } = this;
+    return $slider.rangeSlider('get');
   }
 
   _setOptions(options) {
-    this.$slider.rangeSlider('set', options);
+    const { $slider } = this;
+    $slider.rangeSlider('set', options);
   }
 
   _setValidOptions(options, recursionCounter = 0) {
@@ -175,6 +199,20 @@ class ControlPanel {
 
   _updateInputs() {
     const {
+      $slider,
+      $min,
+      $max,
+      $step,
+      $from,
+      $parts,
+      $to,
+      $range,
+      $vertical,
+      $scale,
+      $tip,
+      $bar,
+    } = this;
+    const {
       min,
       max,
       step,
@@ -186,40 +224,40 @@ class ControlPanel {
       scaleParts,
       showTooltip,
       showProgress,
-    } = this.$slider.rangeSlider('get');
+    } = $slider.rangeSlider('get');
 
-    this.$min.val(min);
-    this.$max.val(max);
-    this.$step.val(step);
-    this.$from.val(valueFrom);
-    this.$from.attr('min', min);
-    this.$from.attr('max', max);
-    this.$from.attr('step', step);
+    $min.val(min);
+    $max.val(max);
+    $step.val(step);
+    $from.val(valueFrom);
+    $from.attr('min', min);
+    $from.attr('max', max);
+    $from.attr('step', step);
 
     if (showScale) {
-      this.$parts.val(scaleParts);
-      this.$parts.attr('disabled', false);
+      $parts.val(scaleParts);
+      $parts.attr('disabled', false);
     } else {
-      this.$parts.val('');
-      this.$parts.attr('disabled', true);
+      $parts.val('');
+      $parts.attr('disabled', true);
     }
 
     if (isRange) {
-      this.$to.attr('disabled', false);
-      this.$to.val(valueTo);
-      this.$to.attr('min', min);
-      this.$to.attr('max', max);
-      this.$to.attr('step', step);
+      $to.attr('disabled', false);
+      $to.val(valueTo);
+      $to.attr('min', min);
+      $to.attr('max', max);
+      $to.attr('step', step);
     } else {
-      this.$to.attr('disabled', true);
-      this.$to.val('');
+      $to.attr('disabled', true);
+      $to.val('');
     }
 
-    this.$range.attr('checked', isRange);
-    this.$vertical.attr('checked', orientation === 'vertical');
-    this.$scale.attr('checked', showScale);
-    this.$tip.attr('checked', showTooltip);
-    this.$bar.attr('checked', showProgress);
+    $range.attr('checked', isRange);
+    $vertical.attr('checked', orientation === 'vertical');
+    $scale.attr('checked', showScale);
+    $tip.attr('checked', showTooltip);
+    $bar.attr('checked', showProgress);
   }
 }
 

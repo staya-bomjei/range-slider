@@ -18,19 +18,18 @@ class TapperView {
   }
 
   init() {
-    const tappers = JSON.parse(this.$component.attr(TAPPERS));
+    const { $component, $slider, $canvas } = this;
+    const tappers = JSON.parse($component.attr(TAPPERS));
     const names = tappers.map((tapper) => tapper.name);
     this.keys = tappers.map((tapper) => tapper.key);
-    this.keysBits = this.keys.map((_, index) => (
-      this._keyToBinaryArray(index)
-    ));
-    this.$slider.rangeSlider({ strings: names, showScale: false });
+    this.keysBits = this.keys.map((_, index) => this._keyToBinaryArray(index));
+    $slider.rangeSlider({ strings: names, showScale: false });
 
     const canvasWidth = CELLS_PER_ROW * CELL_SIZE + ((CELLS_PER_ROW - 1) * CELL_GAP);
     const canvasHeight = CELLS_PER_COLUMN * CELL_SIZE + ((CELLS_PER_COLUMN - 1) * CELL_GAP);
-    this.$canvas.attr('width', canvasWidth);
-    this.$canvas.attr('height', canvasHeight);
-    this.ctx = this.$canvas[0].getContext('2d');
+    $canvas.attr('width', canvasWidth);
+    $canvas.attr('height', canvasHeight);
+    this.ctx = $canvas[0].getContext('2d');
 
     this._update();
     this._update = this._update.bind(this);
@@ -38,7 +37,8 @@ class TapperView {
   }
 
   _attachEventHandlers() {
-    this.$slider.rangeSlider('onchange', this._update);
+    const { $slider } = this;
+    $slider.rangeSlider('onchange', this._update);
   }
 
   _update() {
@@ -47,13 +47,15 @@ class TapperView {
   }
 
   _updateKey() {
-    const { valueFrom } = this.$slider.rangeSlider('get');
-    this.$key.html(this.keys[valueFrom]);
+    const { $slider, $key, keys } = this;
+    const { valueFrom } = $slider.rangeSlider('get');
+    $key.html(keys[valueFrom]);
   }
 
   _updateCanvas() {
-    const { valueFrom } = this.$slider.rangeSlider('get');
-    const bits = this.keysBits[valueFrom];
+    const { $slider, keysBits } = this;
+    const { valueFrom } = $slider.rangeSlider('get');
+    const bits = keysBits[valueFrom];
 
     this._clearCanvas();
     bits.forEach((bit, index) => {
@@ -70,20 +72,23 @@ class TapperView {
     const width = CELL_SIZE;
     const height = CELL_SIZE;
 
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillRect(x, y, width, height);
+    const { ctx } = this;
+    ctx.fillStyle = 'black';
+    ctx.fillRect(x, y, width, height);
   }
 
   _clearCanvas() {
-    const width = Number(this.$canvas.attr('width'));
-    const height = Number(this.$canvas.attr('height'));
+    const { $canvas, ctx } = this;
+    const width = Number($canvas.attr('width'));
+    const height = Number($canvas.attr('height'));
 
-    this.ctx.fillStyle = 'white';
-    this.ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, width, height);
   }
 
   _keyToBinaryArray(index) {
-    const key = BigInt(this.keys[index]);
+    const { keys } = this;
+    const key = BigInt(keys[index]);
     let bigNumber = key / BigInt(CELLS_PER_COLUMN);
     const binaryArray = [];
 

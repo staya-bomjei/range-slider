@@ -20,7 +20,6 @@ class Model extends EventObserver<Partial<ModelOptions>> {
 
   setOptions(options: Partial<ModelOptions>): void {
     this.checkRange(options);
-    if (options.isRange === false) delete this.options.valueTo;
     Model.checkStrings(options);
     const hasNoNewOptions = Object.keys(options).length === 0;
 
@@ -28,6 +27,7 @@ class Model extends EventObserver<Partial<ModelOptions>> {
 
     const checkedNewOptions = this.validateStrings(options);
     const mergedOptions = { ...this.options, ...checkedNewOptions };
+    if (mergedOptions.isRange === false) delete mergedOptions.valueTo;
     Model.checkOptions(mergedOptions);
     this.options = mergedOptions;
     this.broadcast(checkedNewOptions);

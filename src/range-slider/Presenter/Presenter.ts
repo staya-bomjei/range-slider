@@ -3,6 +3,7 @@ import {
   calcNearestStepValue,
   rectsIntersect,
   isFirstCloser,
+  percentToValue,
 } from '../helpers/utils';
 import Model from '../Model/Model';
 import View from '../View/View';
@@ -76,7 +77,7 @@ class Presenter {
       || position < leftPosition;
 
     const modelProperty = (isLeftThumbCloser) ? 'valueFrom' : 'valueTo';
-    this.model.setOptions({ [modelProperty]: this.percentToValue(position) });
+    this.model.setOptions({ [modelProperty]: this.calcNearestValue(position) });
   }
 
   public handleTrackPointerDown(event: MouseEvent) {
@@ -164,7 +165,7 @@ class Presenter {
     const needToUpdate = (!isRange || passesConstraint) && newPosition !== oldPosition;
     if (needToUpdate) {
       const modelProperty = (isLeftThumb) ? 'valueFrom' : 'valueTo';
-      const newValue = this.percentToValue(newPosition);
+      const newValue = this.calcNearestValue(newPosition);
       this.model.setOptions({ [modelProperty]: newValue });
     }
   }
@@ -217,9 +218,9 @@ class Presenter {
     return (isMaxNearest) ? MAX_POSITION : mayNearest;
   }
 
-  private percentToValue(percent: number) {
+  private calcNearestValue(position: number) {
     const { min, max, step } = this.model.getOptions();
-    const value = (percent * (max - min)) / MAX_POSITION + min;
+    const value = percentToValue(position, min, max);
 
     return (value >= max) ? max : calcNearestStepValue(value, step, min);
   }

@@ -25,8 +25,8 @@ function calcNearestStepValue(
   return (minDifference < maxDifference) ? minCorrectValue : maxCorrectValue;
 }
 
-function valueToPercent(value: number, maxValue: number): number {
-  return (value / maxValue) * 100;
+function valueToPercent(value: number, valueRange: number): number {
+  return (value / valueRange) * 100;
 }
 
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {

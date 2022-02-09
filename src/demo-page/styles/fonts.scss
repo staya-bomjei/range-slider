@@ -1,13 +1,17 @@
-@mixin font($name, $style, $weight) {
-  $suffix: 'Regular';
+@mixin font($name, $path-name, $style, $weight) {
+  $suffix: 'regular';
+  $cap-suffix: 'Regular';
 
   @if $style == bold {
-    $suffix: 'Bold';
+    $suffix: 'bold';
+    $cap-suffix: 'Bold';
   }
 
   @font-face {
     font-family: $name;
     src:
+      local($name),
+      local('#{$name}-#{$cap-suffix}'),
       url('../assets/fonts/#{$name}-#{$suffix}.woff') format('woff'),
       url('../assets/fonts/#{$name}-#{$suffix}.ttf') format('truetype'),
       url('../assets/fonts/#{$name}-#{$suffix}.svg') format('svg');
@@ -16,5 +20,5 @@
   }
 }
 
-@include font('Montserrat', normal, 400);
-@include font('Montserrat', bold, 700);
+@include font('Montserrat', 'montserrat', normal, 400);
+@include font('Montserrat', 'montserrat', bold, 700);

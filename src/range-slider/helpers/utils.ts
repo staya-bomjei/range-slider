@@ -2,6 +2,12 @@ function toFixed(number: number, fixedNumbers: number): number {
   return Number(number.toFixed(fixedNumbers));
 }
 
+function isFirstCloser(position: number, first: number, second: number) {
+  const firstRange = Math.abs(position - first);
+  const secondRange = Math.abs(position - second);
+  return firstRange < secondRange;
+}
+
 function calcNearestStepValue(
   value: number,
   step: number,
@@ -17,12 +23,11 @@ function calcNearestStepValue(
 
   let minCorrectValue = Math.trunc(basedValue / step) * step + base;
   minCorrectValue = toFixed(minCorrectValue, fixedNumbers);
-  const minDifference = value - minCorrectValue;
   let maxCorrectValue = (Math.trunc(basedValue / step) + 1) * step + base;
   maxCorrectValue = toFixed(maxCorrectValue, fixedNumbers);
-  const maxDifference = maxCorrectValue - value;
 
-  return (minDifference < maxDifference) ? minCorrectValue : maxCorrectValue;
+  const isMin = isFirstCloser(value, minCorrectValue, maxCorrectValue);
+  return (isMin) ? minCorrectValue : maxCorrectValue;
 }
 
 function valueToPercent(value: number, valueRange: number): number {
@@ -38,15 +43,9 @@ function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   && rect1.bottom - rect1.height < rect2.bottom;
 }
 
-function isFirstCloser(position: number, first: number, second: number) {
-  const firstRange = Math.abs(position - first);
-  const secondRange = Math.abs(position - second);
-  return firstRange < secondRange;
-}
-
 export {
+  isFirstCloser,
   calcNearestStepValue,
   valueToPercent,
   rectsIntersect,
-  isFirstCloser,
 };

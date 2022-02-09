@@ -1,9 +1,22 @@
 import {
-  calcNearestStepValue,
-  valueToPercent,
   isFirstCloser,
+  calcNearestStepValue,
   rectsIntersect,
+  valueToPercent,
+  percentToValue,
 } from './utils';
+
+describe('isFirstCloser function:', () => {
+  test('should return true', () => {
+    expect(isFirstCloser(10, 9, 12)).toEqual(true);
+  });
+  test('should return false', () => {
+    expect(isFirstCloser(-1003, 0, 0)).toEqual(false);
+  });
+  test('should return true', () => {
+    expect(isFirstCloser(0.0001, 0.00002, 0.00001)).toEqual(true);
+  });
+});
 
 describe('calcNearestStepValue function:', () => {
   test('should return 10', () => {
@@ -35,18 +48,6 @@ describe('calcNearestStepValue function:', () => {
   });
   test('should throw error', () => {
     expect(() => calcNearestStepValue(-44.75, -23, 0)).toThrow();
-  });
-});
-
-describe('isFirstCloser function:', () => {
-  test('should return true', () => {
-    expect(isFirstCloser(10, 9, 12)).toEqual(true);
-  });
-  test('should return false', () => {
-    expect(isFirstCloser(-1003, 0, 0)).toEqual(false);
-  });
-  test('should return true', () => {
-    expect(isFirstCloser(0.0001, 0.00002, 0.00001)).toEqual(true);
   });
 });
 
@@ -107,5 +108,14 @@ describe('valueToPercent function:', () => {
   });
   test('should Infinity', () => {
     expect(valueToPercent(20, 0)).toEqual(Infinity);
+  });
+});
+
+describe('percentToValue function:', () => {
+  test('should return 10', () => {
+    expect(percentToValue(10, 0, 100)).toEqual(10);
+  });
+  test('should return 1030', () => {
+    expect(percentToValue(3, 1000, 2000)).toEqual(1030);
   });
 });

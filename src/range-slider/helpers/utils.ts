@@ -30,10 +30,6 @@ function calcNearestStepValue(
   return (isMin) ? minCorrectValue : maxCorrectValue;
 }
 
-function valueToPercent(value: number, valueRange: number): number {
-  return (value / valueRange) * 100;
-}
-
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   if (rect1.height === 0 && rect2.height === 0) return false;
 
@@ -43,9 +39,18 @@ function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   && rect1.bottom - rect1.height < rect2.bottom;
 }
 
+function valueToPercent(value: number, valueRange: number): number {
+  return (value / valueRange) * 100;
+}
+
+function percentToValue(percent: number, min: number, max: number): number {
+  return (percent * (max - min)) / 100 + min;
+}
+
 export {
   isFirstCloser,
   calcNearestStepValue,
-  valueToPercent,
   rectsIntersect,
+  valueToPercent,
+  percentToValue,
 };

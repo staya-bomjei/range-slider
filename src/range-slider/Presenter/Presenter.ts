@@ -328,9 +328,8 @@ class Presenter {
         ? valueToPercent(valueTo - min, minMaxRange)
         : MAX_POSITION;
     }
-    const needToSetZIndexes = valueFrom === valueTo;
-    const isLeftThumbHigher = this.thumbDragged === 'left' || (needToSetZIndexes && valueFrom === max);
-    const isRightThumbHigher = this.thumbDragged === 'right' || (needToSetZIndexes && valueTo === min);
+    const isLeftThumbHigher = this.thumbDragged === 'left';
+    const isRightThumbHigher = this.thumbDragged === 'right';
 
     return {
       position,

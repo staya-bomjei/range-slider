@@ -157,8 +157,8 @@ class Presenter {
     const { position: leftThumbPosition } = leftThumb.getOptions();
     const { position: rightThumbPosition } = rightThumb.getOptions();
     const percentStep = valueToPercent(step, max - min);
-    const leftThumbConstraint = leftThumbPosition + percentStep;
-    const rightThumbConstraint = rightThumbPosition - percentStep;
+    const leftThumbConstraint = (isRange) ? leftThumbPosition + percentStep : leftThumbPosition;
+    const rightThumbConstraint = (isRange) ? rightThumbPosition - percentStep : rightThumbPosition;
     const oldPosition = (isLeftThumb) ? leftThumbPosition : rightThumbPosition;
     const constraint = (isLeftThumb) ? rightThumbConstraint : leftThumbConstraint;
     let newPosition = this.calcNearestPosition(event);

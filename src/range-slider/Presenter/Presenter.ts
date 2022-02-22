@@ -146,13 +146,21 @@ class Presenter {
   }
 
   private moveThumbTo(thumb: Thumb, event: MouseEvent): void {
-    const { isRange } = this.model.getOptions();
+    const {
+      isRange,
+      min,
+      max,
+      step,
+    } = this.model.getOptions();
     const { leftThumb, rightThumb } = this.view.subViews;
     const isLeftThumb = thumb === leftThumb;
     const { position: leftThumbPosition } = leftThumb.getOptions();
     const { position: rightThumbPosition } = rightThumb.getOptions();
+    const percentStep = valueToPercent(step, max - min);
+    const leftThumbConstraint = leftThumbPosition + percentStep;
+    const rightThumbConstraint = rightThumbPosition - percentStep;
     const oldPosition = (isLeftThumb) ? leftThumbPosition : rightThumbPosition;
-    const constraint = (isLeftThumb) ? rightThumbPosition : leftThumbPosition;
+    const constraint = (isLeftThumb) ? rightThumbConstraint : leftThumbConstraint;
     let newPosition = this.calcNearestPosition(event);
 
     const needToSetConstraint = ((isLeftThumb && newPosition > constraint)

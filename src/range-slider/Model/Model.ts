@@ -62,7 +62,7 @@ class Model extends EventObserver<Partial<ModelOptions>> {
 
     const hasNoValueTo = isRange && valueTo === undefined;
     if (hasNoValueTo) {
-      Model.throwError('isRange', 'valueTo is expected instead of isRange: true');
+      Model.throwError('isRange', 'valueTo is expected with isRange: true');
     }
 
     const { isRange: originalIsRange } = this.options;

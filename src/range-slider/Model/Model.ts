@@ -126,7 +126,7 @@ class Model extends EventObserver<Partial<ModelOptions>> {
     if (isIncorrectValueTo) {
       Model.throwError('valueTo', `valueTo(${valueTo}) must be a multiple of ${step}`);
     }
-    const isValueFromBiggerValueTo = valueTo !== undefined && valueFrom > valueTo;
+    const isValueFromBiggerValueTo = valueTo !== undefined && valueFrom >= valueTo;
     if (isValueFromBiggerValueTo) {
       Model.throwError('valueFrom', `valueFrom(${valueFrom}) must be less than ${valueTo}`);
     }

@@ -12,9 +12,9 @@
     src:
       local($name),
       local('#{$name}-#{$cap-suffix}'),
-      url('../assets/fonts/#{$name}-#{$suffix}.woff') format('woff'),
-      url('../assets/fonts/#{$name}-#{$suffix}.ttf') format('truetype'),
-      url('../assets/fonts/#{$name}-#{$suffix}.svg') format('svg');
+      url('../assets/fonts/#{$path-name}-#{$suffix}.woff') format('woff'),
+      url('../assets/fonts/#{$path-name}-#{$suffix}.ttf') format('truetype'),
+      url('../assets/fonts/#{$path-name}-#{$suffix}.svg') format('svg');
     font-style: $style;
     font-weight: $weight;
   }

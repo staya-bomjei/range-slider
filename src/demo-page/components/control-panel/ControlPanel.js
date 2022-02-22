@@ -165,29 +165,30 @@ class ControlPanel {
     } catch (error) {
       const { value } = error;
       if (value === undefined) throw error;
+
+      const originalOptions = this._getOptions();
+      const { valueFrom, valueTo } = { ...originalOptions, ...options };
+      const min = (options.min !== undefined) ? options.min : originalOptions.min;
+      const max = (options.max !== undefined) ? options.max : originalOptions.max;
+
       const isNeedsValueTo = value === 'isRange';
       const isWrongScaleParts = value === 'scaleParts';
       const isWrongValueFrom = value === 'valueFrom';
       const isWrongValueTo = value === 'valueTo';
-
-      const originalOptions = this._getOptions();
-      const min = (options.min !== undefined) ? options.min : originalOptions.min;
-      const max = (options.max !== undefined) ? options.max : originalOptions.max;
+      const isValuesEqual = isWrongValueFrom && valueFrom === valueTo;
 
       console.warn('start validation');
       console.warn('original options: ', originalOptions);
       console.warn('trying to set options: ', options);
       console.error(`error message: ${error.message}`);
 
-      if (isNeedsValueTo || isWrongValueTo) {
+      if (isValuesEqual) {
+        this._setValidOptions({ ...options, valueFrom: min, valueTo: max }, recursionCounter + 1);
+      } else if (isNeedsValueTo || isWrongValueTo) {
         this._setValidOptions({ ...options, valueTo: max }, recursionCounter + 1);
-      }
-
-      if (isWrongScaleParts) {
+      } else if (isWrongScaleParts) {
         this._setValidOptions({ ...options, scaleParts: 1 }, recursionCounter + 1);
-      }
-
-      if (isWrongValueFrom) {
+      } else if (isWrongValueFrom) {
         this._setValidOptions({ ...options, valueFrom: min }, recursionCounter + 1);
       }
 

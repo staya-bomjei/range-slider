@@ -1,10 +1,18 @@
 import EventObserver from '../helpers/EventObserver';
+import { StateDependencies } from '../helpers/types';
+import { getChangedOptions, updateState } from '../helpers/utils';
 import Track from './subviews/Track';
 import Scale from './subviews/Scale';
 import Progress from './subviews/Progress';
 import Thumb from './subviews/Thumb';
 import Tooltip from './subviews/Tooltip';
-import { ViewOptions, SubViews, ViewEvent } from './types';
+import {
+  ViewOptions,
+  SubViews,
+  ViewEvent,
+  ThumbOptions,
+  TooltipOptions,
+} from './types';
 import {
   PROGRESS,
   RANGE_SLIDER,
@@ -23,6 +31,37 @@ class View extends EventObserver<ViewEvent> {
 
   private options: ViewOptions;
 
+  private stateDependencies: StateDependencies<ViewOptions> = [
+    {
+      dependencies: ['isVertical'],
+      setState: () => this.updateOrientation(),
+    },
+    {
+      dependencies: ['progress'],
+      setState: () => this.updateProgress(),
+    },
+    {
+      dependencies: ['scale'],
+      setState: () => this.updateScale(),
+    },
+    {
+      dependencies: ['leftThumb'],
+      setState: () => this.updateThumb(true),
+    },
+    {
+      dependencies: ['rightThumb'],
+      setState: () => this.updateThumb(false),
+    },
+    {
+      dependencies: ['leftTooltip'],
+      setState: () => this.updateTooltip(true),
+    },
+    {
+      dependencies: ['rightTooltip'],
+      setState: () => this.updateTooltip(false),
+    },
+  ];
+
   constructor(el: HTMLElement, options: ViewOptions) {
     super();
 
@@ -30,7 +69,7 @@ class View extends EventObserver<ViewEvent> {
     this.options = { ...options };
     this.render();
     this.subViews = this.calcSubViews();
-    this.updateView();
+    this.update();
     this.attachEventHandlers();
   }
 
@@ -38,42 +77,10 @@ class View extends EventObserver<ViewEvent> {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<ViewOptions>): void {
-    const {
-      isVertical,
-      progress,
-      scale,
-      leftThumb,
-      rightThumb,
-      leftTooltip,
-      rightTooltip,
-    } = options;
-    const needToUpdateOrientation = isVertical !== undefined
-      && isVertical !== this.options.isVertical;
-    const needToUpdateProgress = progress !== undefined && progress !== this.options.progress;
-    const needToUpdateScale = scale !== undefined && scale !== this.options.scale;
-    const needToUpdateLeftThumb = leftThumb !== undefined
-      && leftThumb !== this.options.leftThumb;
-    const needToUpdateRightThumb = rightThumb !== undefined
-      && rightThumb !== this.options.rightThumb;
-    const needToUpdateLeftTooltip = leftTooltip !== undefined
-      && leftTooltip !== this.options.leftTooltip;
-    const needToUpdateRightTooltip = rightTooltip !== undefined
-      && rightTooltip !== this.options.rightTooltip;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdateOrientation) this.updateOrientation(isVertical);
-    if (needToUpdateProgress) this.subViews.progress.setOptions(progress);
-    if (needToUpdateScale) this.subViews.scale.setOptions(scale);
-    if (needToUpdateLeftThumb) this.subViews.leftThumb.setOptions(leftThumb);
-    if (needToUpdateRightThumb) this.subViews.rightThumb.setOptions(rightThumb);
-    if (needToUpdateLeftTooltip) this.subViews.leftTooltip.setOptions(leftTooltip);
-    if (needToUpdateRightTooltip) this.subViews.rightTooltip.setOptions(rightTooltip);
-  }
-
-  private updateView(): void {
-    const { isVertical } = this.options;
-    this.updateOrientation(isVertical);
+  setOptions(newOptions: Partial<ViewOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
   private render(): void {
@@ -149,12 +156,68 @@ class View extends EventObserver<ViewEvent> {
     rightThumb.subscribe((event) => this.broadcast(event));
   }
 
-  private updateOrientation(isVertical: boolean): void {
+  private update(options?: Partial<ViewOptions>) {
+    if (!options) {
+      this.updateOrientation();
+      this.updateProgress();
+      this.updateScale();
+      this.updateThumb(true);
+      this.updateThumb(false);
+      this.updateTooltip(true);
+      this.updateTooltip(false);
+    } else {
+      updateState(options, this.stateDependencies);
+    }
+  }
+
+  private updateOrientation(): void {
+    const { isVertical } = this.options;
+
     if (isVertical) {
       this.el.classList.add(RANGE_SLIDER_VERTICAL);
     } else {
       this.el.classList.remove(RANGE_SLIDER_VERTICAL);
     }
+  }
+
+  private updateProgress(): void {
+    const { progress: options } = this.options;
+    this.subViews.progress.setOptions(options);
+  }
+
+  private updateScale(): void {
+    const { scale: options } = this.options;
+    this.subViews.scale.setOptions(options);
+  }
+
+  private updateThumb(isLeft: boolean): void {
+    let thumb: Thumb;
+    let options: ThumbOptions;
+
+    if (isLeft) {
+      thumb = this.subViews.leftThumb;
+      options = this.options.leftThumb;
+    } else {
+      thumb = this.subViews.rightThumb;
+      options = this.options.rightThumb;
+    }
+
+    thumb.setOptions(options);
+  }
+
+  private updateTooltip(isLeft: boolean): void {
+    let tooltip: Tooltip;
+    let options: TooltipOptions;
+
+    if (isLeft) {
+      tooltip = this.subViews.leftTooltip;
+      options = this.options.leftTooltip;
+    } else {
+      tooltip = this.subViews.rightTooltip;
+      options = this.options.rightTooltip;
+    }
+
+    tooltip.setOptions(options);
   }
 }
 

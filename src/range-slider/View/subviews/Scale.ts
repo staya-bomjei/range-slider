@@ -1,5 +1,11 @@
 import EventObserver from '../../helpers/EventObserver';
-import { calcNearestStepValue, valueToPercent } from '../../helpers/utils';
+import { StateDependencies } from '../../helpers/types';
+import {
+  calcNearestStepValue,
+  valueToPercent,
+  getChangedOptions,
+  updateState,
+} from '../../helpers/utils';
 import { ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
@@ -11,48 +17,48 @@ class Scale extends EventObserver<ViewEvent> {
 
   private options: ScaleOptions;
 
+  private stateDependencies: StateDependencies<ScaleOptions> = [
+    {
+      dependencies: ['min', 'max', 'step', 'partsCounter', 'strings'],
+      setState: () => this.updateItems(),
+    },
+    {
+      dependencies: ['visible'],
+      setState: () => this.updateVisibility(),
+    },
+  ];
+
   constructor(el: HTMLElement, options: ScaleOptions) {
     super();
 
     this.el = el;
     this.options = { ...options };
-    this.updateView();
+    this.update();
   }
 
   getOptions(): ScaleOptions {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<ScaleOptions>): void {
-    const {
-      min,
-      max,
-      step,
-      partsCounter,
-      strings,
-      visible,
-    } = options;
-    const needToUpdateItems = (min !== undefined && min !== this.options.min)
-      || (max !== undefined && max !== this.options.max)
-      || (step !== undefined && step !== this.options.step)
-      || (partsCounter !== undefined && partsCounter !== this.options.partsCounter)
-      || (strings !== undefined && strings !== this.options.strings);
-    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdateItems) this.updateItems();
-    if (needToUpdateVisibility) this.updateVisibility();
-  }
-
-  private updateView(): void {
-    this.updateItems();
-    this.updateVisibility();
+  setOptions(newOptions: Partial<ScaleOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
   private attachEventHandlers(): void {
     this.items.forEach((item) => {
       item.subscribe((event) => this.broadcast(event));
     });
+  }
+
+  private update(options?: Partial<ScaleOptions>): void {
+    if (!options) {
+      this.updateItems();
+      this.updateVisibility();
+    } else {
+      updateState(options, this.stateDependencies);
+    }
   }
 
   private updateVisibility(): void {

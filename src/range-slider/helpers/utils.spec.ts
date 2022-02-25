@@ -1,9 +1,12 @@
+import { StateDependencies } from './types';
 import {
   isFirstCloser,
   calcNearestStepValue,
   rectsIntersect,
   valueToPercent,
   percentToValue,
+  getChangedOptions,
+  updateState,
 } from './utils';
 
 describe('isFirstCloser function:', () => {
@@ -117,5 +120,89 @@ describe('percentToValue function:', () => {
   });
   test('should return 1030', () => {
     expect(percentToValue(3, 1000, 2000)).toEqual(1030);
+  });
+});
+
+describe('getChangedOptions function:', () => {
+  const options = {
+    option1: 'option1',
+    option2: 2,
+    option3: false,
+  };
+
+  test('should return empty object', () => {
+    const newOptions = {};
+    const changedOptions = getChangedOptions(options, newOptions);
+
+    expect(changedOptions).toMatchObject({});
+  });
+
+  test('should return all new options', () => {
+    const newOptions = {
+      option1: 'o1',
+      option2: 3,
+    };
+    const changedOptions = getChangedOptions(options, newOptions);
+
+    expect(changedOptions).toMatchObject(newOptions);
+  });
+
+  test('should return some new options', () => {
+    const newOptions = {
+      option1: 'o1',
+      option2: 3,
+      option3: false,
+    };
+    const changedOptions = getChangedOptions(options, newOptions);
+
+    expect(changedOptions).toMatchObject({
+      option1: 'o1',
+      option2: 3,
+    });
+  });
+});
+
+describe('updateState function:', () => {
+  type Options = {
+    option1: string,
+    option2: number,
+    option3: boolean,
+  };
+  const setOption1 = jest.fn();
+  const setOption23 = jest.fn();
+
+  const stateDependencies: StateDependencies<Options> = [
+    {
+      dependencies: ['option1'],
+      setState: setOption1,
+    },
+    {
+      dependencies: ['option2', 'option3'],
+      setState: setOption23,
+    },
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should do nothing', () => {
+    const newOptions: Partial<Options> = {};
+    updateState(newOptions, stateDependencies);
+
+    expect(setOption1).not.toBeCalled();
+    expect(setOption23).not.toBeCalled();
+  });
+
+  test('should call every setState callback', () => {
+    const newOptions: Partial<Options> = {
+      option1: '1',
+      option2: 2,
+      option3: true,
+    };
+    updateState(newOptions, stateDependencies);
+
+    expect(setOption1).toBeCalledTimes(1);
+    expect(setOption23).toBeCalledTimes(1);
   });
 });

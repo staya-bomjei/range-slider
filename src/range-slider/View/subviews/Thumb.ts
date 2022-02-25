@@ -1,4 +1,6 @@
 import EventObserver from '../../helpers/EventObserver';
+import { StateDependencies } from '../../helpers/types';
+import { getChangedOptions, updateState } from '../../helpers/utils';
 import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
 import { ThumbOptions, ViewEvent } from '../types';
 
@@ -7,12 +9,27 @@ class Thumb extends EventObserver<ViewEvent> {
 
   private options: ThumbOptions;
 
+  private stateDependencies: StateDependencies<ThumbOptions> = [
+    {
+      dependencies: ['position'],
+      setState: () => this.updatePosition(),
+    },
+    {
+      dependencies: ['visible'],
+      setState: () => this.updateVisibility(),
+    },
+    {
+      dependencies: ['isHigher'],
+      setState: () => this.updateZIndex(),
+    },
+  ];
+
   constructor(el: HTMLElement, options: ThumbOptions) {
     super();
 
     this.el = el;
     this.options = { ...options };
-    this.updateView();
+    this.update();
     this.attachEventHandlers();
   }
 
@@ -20,22 +37,10 @@ class Thumb extends EventObserver<ViewEvent> {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<ThumbOptions>): void {
-    const { position, visible, isHigher } = options;
-    const needToUpdatePosition = position !== undefined && position !== this.options.position;
-    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
-    const needToUpdateZIndex = isHigher !== undefined && isHigher !== this.options.isHigher;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdatePosition) this.updatePosition();
-    if (needToUpdateVisibility) this.updateVisibility();
-    if (needToUpdateZIndex) this.updateZIndex();
-  }
-
-  private updateView(): void {
-    this.updatePosition();
-    this.updateVisibility();
-    this.updateZIndex();
+  setOptions(newOptions: Partial<ThumbOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
   private attachEventHandlers(): void {
@@ -45,6 +50,16 @@ class Thumb extends EventObserver<ViewEvent> {
       this.broadcast({ view: this, event });
     });
     this.el.ondragstart = null;
+  }
+
+  private update(options?: Partial<ThumbOptions>): void {
+    if (!options) {
+      this.updatePosition();
+      this.updateVisibility();
+      this.updateZIndex();
+    } else {
+      updateState(options, this.stateDependencies);
+    }
   }
 
   private updateVisibility(): void {

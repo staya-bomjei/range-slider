@@ -1,3 +1,5 @@
+import { StateDependencies } from './types';
+
 function toFixed(number: number, fixedNumbers: number): number {
   return Number(number.toFixed(fixedNumbers));
 }
@@ -31,8 +33,6 @@ function calcNearestStepValue(
 }
 
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
-  if (rect1.height === 0 && rect2.height === 0) return false;
-
   return rect1.left + rect1.width > rect2.left
   && rect1.right - rect1.width < rect2.right
   && rect1.top + rect1.height > rect2.top
@@ -47,10 +47,31 @@ function percentToValue(percent: number, min: number, max: number): number {
   return (percent * (max - min)) / 100 + min;
 }
 
+function getChangedOptions<T extends Record<string, unknown>>(
+  options: T,
+  newOptions: Partial<T>,
+): Partial<T> {
+  return Object.keys(newOptions)
+    .filter((key) => options[key] !== newOptions[key])
+    .reduce((result, key) => ({ ...result, [key]: newOptions[key] }), {});
+}
+
+function updateState<T extends Record<string, unknown>>(
+  options: Partial<T>,
+  state: StateDependencies<T>,
+): void {
+  state.forEach(({ dependencies, setState }) => {
+    const needToCall = dependencies.some((dependence) => dependence in options);
+    if (needToCall) setState();
+  });
+}
+
 export {
   isFirstCloser,
   calcNearestStepValue,
   rectsIntersect,
   valueToPercent,
   percentToValue,
+  getChangedOptions,
+  updateState,
 };

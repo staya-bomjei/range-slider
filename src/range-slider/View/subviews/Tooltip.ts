@@ -1,3 +1,5 @@
+import { StateDependencies } from '../../helpers/types';
+import { getChangedOptions, updateState } from '../../helpers/utils';
 import { TooltipOptions } from '../types';
 import { TOOLTIP_HIDDEN } from '../const';
 
@@ -6,29 +8,40 @@ class Tooltip {
 
   private options: TooltipOptions;
 
+  private stateDependencies: StateDependencies<TooltipOptions> = [
+    {
+      dependencies: ['visible'],
+      setState: () => this.updateVisibility(),
+    },
+    {
+      dependencies: ['text'],
+      setState: () => this.updateText(),
+    },
+  ];
+
   constructor(el: HTMLElement, options: TooltipOptions) {
     this.el = el;
     this.options = { ...options };
-    this.updateView();
+    this.update();
   }
 
   getOptions(): TooltipOptions {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<TooltipOptions>): void {
-    const { text, visible } = options;
-    const needToUpdateText = text !== undefined && text !== this.options.text;
-    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdateText) this.updateText();
-    if (needToUpdateVisibility) this.updateVisibility();
+  setOptions(newOptions: Partial<TooltipOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
-  private updateView(): void {
-    this.updateText();
-    this.updateVisibility();
+  private update(options?: Partial<TooltipOptions>): void {
+    if (!options) {
+      this.updateText();
+      this.updateVisibility();
+    } else {
+      updateState(options, this.stateDependencies);
+    }
   }
 
   private updateVisibility(): void {

@@ -1,3 +1,5 @@
+import { StateDependencies } from '../../helpers/types';
+import { getChangedOptions, updateState } from '../../helpers/utils';
 import { ProgressOptions } from '../types';
 import { PROGRESS_HIDDEN } from '../const';
 
@@ -6,30 +8,40 @@ class Progress {
 
   private options: ProgressOptions;
 
+  private stateDependencies: StateDependencies<ProgressOptions> = [
+    {
+      dependencies: ['from', 'to'],
+      setState: () => this.updatePosition(),
+    },
+    {
+      dependencies: ['visible'],
+      setState: () => this.updateVisibility(),
+    },
+  ];
+
   constructor(el: HTMLElement, options: ProgressOptions) {
     this.el = el;
     this.options = { ...options };
-    this.updateView();
+    this.update();
   }
 
   getOptions(): ProgressOptions {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<ProgressOptions>): void {
-    const { from, to, visible } = options;
-    const needToUpdatePosition = (from !== undefined && from !== this.options.from)
-      || (to !== undefined && to !== this.options.to);
-    const needToUpdateVisibility = visible !== undefined && visible !== this.options.visible;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdatePosition) this.updatePosition();
-    if (needToUpdateVisibility) this.updateVisibility();
+  setOptions(newOptions: Partial<ProgressOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
-  private updateView(): void {
-    this.updatePosition();
-    this.updateVisibility();
+  private update(options?: Partial<ProgressOptions>): void {
+    if (!options) {
+      this.updatePosition();
+      this.updateVisibility();
+    } else {
+      updateState(options, this.stateDependencies);
+    }
   }
 
   private updateVisibility(): void {

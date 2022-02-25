@@ -1,4 +1,6 @@
 import EventObserver from '../../helpers/EventObserver';
+import { StateDependencies } from '../../helpers/types';
+import { getChangedOptions, updateState } from '../../helpers/utils';
 import { ScaleItemOptions, ViewEvent } from '../types';
 import { SCALE_ITEM } from '../const';
 
@@ -7,13 +9,24 @@ class ScaleItem extends EventObserver<ViewEvent> {
 
   private options: ScaleItemOptions;
 
+  private stateDependencies: StateDependencies<ScaleItemOptions> = [
+    {
+      dependencies: ['position'],
+      setState: () => this.updatePosition(),
+    },
+    {
+      dependencies: ['text'],
+      setState: () => this.updateText(),
+    },
+  ];
+
   constructor(el: HTMLElement, options: ScaleItemOptions) {
     super();
 
     this.el = el;
     this.options = { ...options };
     this.render();
-    this.updateView();
+    this.update();
     this.attachEventHandlers();
   }
 
@@ -21,14 +34,10 @@ class ScaleItem extends EventObserver<ViewEvent> {
     return { ...this.options };
   }
 
-  setOptions(options: Partial<ScaleItemOptions>): void {
-    const { position, text } = options;
-    const needToUpdatePosition = position !== undefined && position !== this.options.position;
-    const needToUpdateText = text !== undefined && text !== this.options.text;
-    this.options = { ...this.options, ...options };
-
-    if (needToUpdatePosition) this.updatePosition();
-    if (needToUpdateText) this.updateText();
+  setOptions(newOptions: Partial<ScaleItemOptions>): void {
+    const changedOptions = getChangedOptions(this.options, newOptions);
+    this.options = { ...this.options, ...changedOptions };
+    this.update(changedOptions);
   }
 
   private render(): void {
@@ -44,9 +53,13 @@ class ScaleItem extends EventObserver<ViewEvent> {
     });
   }
 
-  private updateView(): void {
-    this.updatePosition();
-    this.updateText();
+  private update(options?: Partial<ScaleItemOptions>): void {
+    if (!options) {
+      this.updatePosition();
+      this.updateText();
+    } else {
+      updateState(options, this.stateDependencies);
+    }
   }
 
   private updatePosition(): void {

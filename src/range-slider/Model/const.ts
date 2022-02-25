@@ -13,24 +13,7 @@ const defaultOptions: ModelOptions = {
   showProgress: true,
 };
 
-const optionsTypes: {
-  [key in keyof ModelOptions]: 'number' | 'boolean' | 'string[]' | 'orientation'
-} = {
-  min: 'number',
-  max: 'number',
-  step: 'number',
-  strings: 'string[]',
-  valueFrom: 'number',
-  valueTo: 'number',
-  isRange: 'boolean',
-  orientation: 'orientation',
-  showScale: 'boolean',
-  scaleParts: 'number',
-  showTooltip: 'boolean',
-  showProgress: 'boolean',
-};
-
 export {
+  // eslint-disable-next-line import/prefer-default-export
   defaultOptions,
-  optionsTypes,
 };

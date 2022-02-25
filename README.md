@@ -1,5 +1,5 @@
 # range-slider
-Четвертое задание из обучающей программы MetaLamp.
+Четвертое задание из обучающей программы MetaLamp. [Задание 4.  Практика JavaScript.](https://coda.io/@metalamp/education/front-end-2#_lu0Gp)
 
 ## Описание проекта
 Проект представляет из себя [JQuery](https://jquery.com/) плагин, реализующий функционал слайдера с ползунком.

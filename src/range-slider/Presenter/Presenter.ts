@@ -45,7 +45,7 @@ class Presenter {
 
   private attachEventHandlers(): void {
     this.model.subscribe(() => this.handleModelChange());
-    this.view.subscribe((options) => this.handleViewChange(options));
+    this.view.subscribe((options) => this.handleViewEvent(options));
   }
 
   private handleModelChange(): void {
@@ -54,7 +54,7 @@ class Presenter {
     this.handleTooltipsOverlap();
   }
 
-  private handleViewChange({ view, event }: ViewEvent): void {
+  private handleViewEvent({ view, event }: ViewEvent): void {
     if (view instanceof Thumb) {
       this.handleThumbPointerDown(view, event);
     } else if (view instanceof ScaleItem) {

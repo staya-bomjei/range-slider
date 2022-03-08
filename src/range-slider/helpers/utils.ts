@@ -36,16 +36,19 @@ function calcStepValues(min: number, max: number, step: number, parts: number): 
   const valuePerPart = (max - min) / parts;
   let prevValue: number;
 
-  return [...new Array(parts + 1)].map((_, index) => {
+  const stepValues = [...new Array(parts + 1)].map((_, index) => {
     const value = valuePerPart * index + min;
     let nearestCorrectValue = calcNearestStepValue(value, step, min);
 
     if (nearestCorrectValue === prevValue) nearestCorrectValue += step;
-    if (nearestCorrectValue > max) nearestCorrectValue = max;
     prevValue = nearestCorrectValue;
 
     return nearestCorrectValue;
   });
+
+  stepValues[stepValues.length - 1] = max;
+
+  return stepValues;
 }
 
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {

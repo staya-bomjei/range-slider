@@ -4,6 +4,7 @@ import {
   rectsIntersect,
   isFirstCloser,
   percentToValue,
+  calcStepValues,
 } from '../helpers/utils';
 import Model from '../Model/Model';
 import View from '../View/View';
@@ -15,6 +16,7 @@ import {
   ProgressOptions,
   ThumbOptions,
   TooltipOptions,
+  ScaleItemOptions,
 } from '../View/types';
 import Thumb from '../View/subviews/Thumb';
 import Track from '../View/subviews/Track';
@@ -275,16 +277,30 @@ class Presenter {
       strings,
     } = this.model.getOptions();
 
-    const scaleOptions: ScaleOptions = {
-      min,
-      max,
-      step,
-      partsCounter: scaleParts,
-      visible: showScale,
-    };
-    if (strings !== undefined) scaleOptions.strings = strings;
+    const stepValues = calcStepValues(min, max, step, scaleParts);
+    const items: Array<ScaleItemOptions> = stepValues.map((value) => {
+      const position = valueToPercent(value - min, max - min);
+      let text: string;
 
-    return scaleOptions;
+      if (strings === undefined) {
+        text = String(value);
+      } else {
+        const string = strings[value];
+
+        if (string !== undefined) {
+          text = string;
+        } else {
+          throw new Error(`strings must contain string with index ${value}`);
+        }
+      }
+
+      return { position, text };
+    });
+
+    return {
+      visible: showScale,
+      items,
+    };
   }
 
   private calcProgressOptions(): ProgressOptions {

@@ -8,11 +8,21 @@ describe('Scale class:', () => {
   }
 
   const options = {
-    min: 0,
-    max: 10,
-    step: 1,
     visible: true,
-    partsCounter: 5,
+    items: [
+      {
+        position: 0,
+        text: '0',
+      },
+      {
+        position: 50,
+        text: '1',
+      },
+      {
+        position: 100,
+        text: '2',
+      },
+    ],
   };
   let scale: Scale;
 
@@ -33,14 +43,31 @@ describe('Scale class:', () => {
     expect(scaleOptions).toMatchObject({ ...options, ...newOptions });
   });
 
-  test('Can set strings', () => {
-    const newOptions = { strings: 'test,'.repeat(11).split(',') };
+  test('It adds new ScaleItem', () => {
+    const newOptions = {
+      items: [
+        {
+          position: 0,
+          text: '0',
+        },
+        {
+          position: 25,
+          text: '1.5',
+        },
+        {
+          position: 50,
+          text: '1',
+        },
+        {
+          position: 100,
+          text: '2',
+        },
+      ],
+    };
     scale.setOptions(newOptions);
 
-    scale.items.forEach((scaleItem) => {
-      const { text } = scaleItem.getOptions();
-      expect(text).toEqual('test');
-    });
+    const scaleOptions = scale.getOptions();
+    expect(scaleOptions).toMatchObject({ ...options, ...newOptions });
   });
 
   test('It handles pointerdown event', () => {
@@ -52,27 +79,5 @@ describe('Scale class:', () => {
     });
 
     expect(broadcastMock).toBeCalledTimes(scaleItemsCounter);
-  });
-
-  test('should throw error', () => {
-    const newOptions = { strings: ['0', '1'], min: 2, max: 4 };
-
-    expect(() => {
-      scale.setOptions(newOptions);
-    }).toThrow('strings(0,1) must have string item with index 2');
-  });
-
-  test('It doesn\'t make the same items', () => {
-    const newOptions = {
-      min: -41,
-      max: 1,
-      step: 20,
-      partsCounter: 4,
-    };
-    scale.setOptions(newOptions);
-
-    const texts = scale.items.map((item) => item.getOptions().text);
-    const uniqueItemsCounter = new Set(texts).size;
-    expect(texts.length).toEqual(uniqueItemsCounter);
   });
 });

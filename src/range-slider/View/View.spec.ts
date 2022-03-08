@@ -12,11 +12,21 @@ describe('View class:', () => {
     isVertical: true,
     progress: { from: 10, to: 20, visible: true },
     scale: {
-      min: 0,
-      max: 10,
-      step: 1,
       visible: true,
-      partsCounter: 5,
+      items: [
+        {
+          position: 0,
+          text: '0',
+        },
+        {
+          position: 50,
+          text: '1',
+        },
+        {
+          position: 100,
+          text: '2',
+        },
+      ],
     },
     leftThumb: {
       position: 10,

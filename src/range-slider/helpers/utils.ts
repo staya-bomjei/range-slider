@@ -32,6 +32,22 @@ function calcNearestStepValue(
   return (isMin) ? minCorrectValue : maxCorrectValue;
 }
 
+function calcStepValues(min: number, max: number, step: number, parts: number): Array<number> {
+  const valuePerPart = (max - min) / parts;
+  let prevValue: number;
+
+  return [...new Array(parts + 1)].map((_, index) => {
+    const value = valuePerPart * index + min;
+    let nearestCorrectValue = calcNearestStepValue(value, step, min);
+
+    if (nearestCorrectValue === prevValue) nearestCorrectValue += step;
+    if (nearestCorrectValue > max) nearestCorrectValue = max;
+    prevValue = nearestCorrectValue;
+
+    return nearestCorrectValue;
+  });
+}
+
 function rectsIntersect(rect1: DOMRect, rect2: DOMRect): boolean {
   return rect1.left + rect1.width > rect2.left
   && rect1.right - rect1.width < rect2.right
@@ -69,6 +85,7 @@ function updateState<T extends Record<string, unknown>>(
 export {
   isFirstCloser,
   calcNearestStepValue,
+  calcStepValues,
   rectsIntersect,
   valueToPercent,
   percentToValue,

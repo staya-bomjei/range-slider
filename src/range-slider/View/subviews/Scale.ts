@@ -1,12 +1,7 @@
 import EventObserver from '../../helpers/EventObserver';
 import { StateDependencies } from '../../helpers/types';
-import {
-  calcNearestStepValue,
-  valueToPercent,
-  getChangedOptions,
-  updateState,
-} from '../../helpers/utils';
-import { ScaleOptions, ViewEvent } from '../types';
+import { getChangedOptions, updateState } from '../../helpers/utils';
+import { ScaleItemOptions, ScaleOptions, ViewEvent } from '../types';
 import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
@@ -19,7 +14,7 @@ class Scale extends EventObserver<ViewEvent> {
 
   private stateDependencies: StateDependencies<ScaleOptions> = [
     {
-      dependencies: ['min', 'max', 'step', 'partsCounter', 'strings'],
+      dependencies: ['items'],
       setState: () => this.updateItems(),
     },
     {
@@ -46,12 +41,6 @@ class Scale extends EventObserver<ViewEvent> {
     this.update(changedOptions);
   }
 
-  private attachEventHandlers(): void {
-    this.items.forEach((item) => {
-      item.subscribe((event) => this.broadcast(event));
-    });
-  }
-
   private update(options?: Partial<ScaleOptions>): void {
     if (!options) {
       this.updateItems();
@@ -72,62 +61,37 @@ class Scale extends EventObserver<ViewEvent> {
   }
 
   private updateItems(): void {
-    const {
-      min,
-      max,
-      step,
-      partsCounter,
-    } = this.options;
-    this.el.innerHTML = '<div></div>'.repeat(partsCounter + 1);
-    this.items = [];
-    const valuePerPart = (max - min) / partsCounter;
-    let prevValue: number | undefined;
+    const { items } = this.options;
 
-    Array.from(this.el.children).forEach((el, index) => {
-      if (!(el instanceof HTMLElement)) {
-        throw new Error('cannot get HTMLElements from scale render structure');
+    items.forEach((options, index) => {
+      const current = this.items[index];
+
+      if (current !== undefined) {
+        current.setOptions(options);
+      } else {
+        this.pushItem(options);
       }
-
-      const value = valuePerPart * index + min;
-      let nearestCorrectValue = calcNearestStepValue(value, step, min);
-      if (nearestCorrectValue === prevValue) {
-        nearestCorrectValue += step;
-      }
-      prevValue = nearestCorrectValue;
-
-      const options = {
-        position: this.calcPosition(nearestCorrectValue),
-        text: this.calcText(nearestCorrectValue),
-      };
-      this.items.push(new ScaleItem(el, options));
     });
 
-    const lastItem = this.items[this.items.length - 1];
-    if (lastItem === undefined) {
-      throw Error('Items must have last item');
-    }
-
-    lastItem.setOptions({
-      position: this.calcPosition(max),
-      text: this.calcText(max),
-    });
-
-    this.attachEventHandlers();
+    this.deleteItems(items.length);
   }
 
-  private calcPosition(value: number): number {
-    const { min, max } = this.options;
-    return valueToPercent(value - min, max - min);
+  private pushItem(options: ScaleItemOptions): void {
+    const itemEl = document.createElement('div');
+    const item = new ScaleItem(itemEl, options);
+    item.subscribe((event) => this.broadcast(event));
+    this.el.append(itemEl);
+    this.items.push(item);
   }
 
-  private calcText(value: number): string {
-    const { strings } = this.options;
-    if (strings === undefined) return String(value);
+  private deleteItems(start: number): void {
+    const { items } = this;
 
-    const string = strings[value];
-    if (string !== undefined) return string;
+    if (start >= items.length) return;
 
-    throw new Error(`strings(${strings}) must have string item with index ${value}`);
+    items
+      .splice(start)
+      .forEach((item) => item.el.remove());
   }
 }
 

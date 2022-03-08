@@ -11,18 +11,14 @@ type ProgressOptions = {
   visible: boolean,
 };
 
-type ScaleOptions = {
-  min: number,
-  max: number,
-  step: number,
-  strings?: Array<string>,
-  partsCounter: number,
-  visible: boolean,
-};
-
 type ScaleItemOptions = {
   position: number,
   text: string,
+};
+
+type ScaleOptions = {
+  visible: boolean,
+  items: Array<ScaleItemOptions>;
 };
 
 type ThumbOptions = {

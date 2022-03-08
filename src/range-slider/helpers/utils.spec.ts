@@ -2,6 +2,7 @@ import { StateDependencies } from './types';
 import {
   isFirstCloser,
   calcNearestStepValue,
+  calcStepValues,
   rectsIntersect,
   valueToPercent,
   percentToValue,
@@ -51,6 +52,21 @@ describe('calcNearestStepValue function:', () => {
   });
   test('should throw error', () => {
     expect(() => calcNearestStepValue(-44.75, -23, 0)).toThrow();
+  });
+});
+
+describe('calcStepValues function:', () => {
+  test('should return [0, 1, 2, 3, 4, 5]', () => {
+    expect(calcStepValues(0, 5, 1, 5)).toMatchObject([0, 1, 2, 3, 4, 5]);
+  });
+  test('should return [0, 1, 3, 4]', () => {
+    expect(calcStepValues(0, 4, 1, 3)).toMatchObject([0, 1, 3, 4]);
+  });
+  test('should return [-5, 1, 6]', () => {
+    expect(calcStepValues(-5, 6, 2, 2)).toMatchObject([-5, 1, 6]);
+  });
+  test('should return [-41, -21, -1, 1]', () => {
+    expect(calcStepValues(-41, 1, 20, 3)).toMatchObject([-41, -21, -1, 1]);
   });
 });
 

@@ -6,7 +6,7 @@ import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
 class Scale extends EventObserver<ViewEvent> {
-  items: Array<ScaleItem> = [];
+  readonly items: Array<ScaleItem> = [];
 
   readonly el: HTMLElement;
 

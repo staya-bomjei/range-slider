@@ -24,9 +24,9 @@ import ScaleItem from '../View/subviews/ScaleItem';
 import { MAX_POSITION, MIN_POSITION } from './const';
 
 class Presenter {
-  model: Model;
+  readonly model: Model;
 
-  view: View;
+  readonly view: View;
 
   private thumbDragged: 'left' | 'right' | false;
 

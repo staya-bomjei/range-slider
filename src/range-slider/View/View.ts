@@ -25,7 +25,7 @@ import {
 } from './const';
 
 class View extends EventObserver<ViewEvent> {
-  subViews: SubViews;
+  readonly subViews: SubViews;
 
   readonly el: HTMLElement;
 

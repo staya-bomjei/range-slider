@@ -1,5 +1,5 @@
 class IncorrectValueError<T extends Record<string, unknown>> extends Error {
-  value: keyof T;
+  readonly value: keyof T;
 
   constructor(value: keyof T, message: string) {
     super(message);

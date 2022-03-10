@@ -326,7 +326,7 @@ class Presenter {
     };
   }
 
-  calcThumbOptions(isLeft: boolean): ThumbOptions {
+  private calcThumbOptions(isLeft: boolean): ThumbOptions {
     const {
       min,
       max,
@@ -354,7 +354,7 @@ class Presenter {
     };
   }
 
-  calcTooltipOptions(isLeft: boolean): TooltipOptions {
+  private calcTooltipOptions(isLeft: boolean): TooltipOptions {
     const { showTooltip } = this.model.getOptions();
 
     return {

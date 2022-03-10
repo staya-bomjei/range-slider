@@ -11,7 +11,7 @@ class Track extends EventObserver<ViewEvent> {
     this.attachEventHandlers();
   }
 
-  public getEl(): HTMLElement {
+  getEl(): HTMLElement {
     return this.el;
   }
 

@@ -25,7 +25,7 @@ class Tooltip {
     this.update();
   }
 
-  public getEl(): HTMLElement {
+  getEl(): HTMLElement {
     return this.el;
   }
 

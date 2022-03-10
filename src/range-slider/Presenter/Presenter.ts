@@ -91,7 +91,7 @@ class Presenter {
     this.model.setOptions({ [modelProperty]: this.calcNearestValue(position) });
   }
 
-  public handleTrackPointerDown(event: MouseEvent) {
+  private handleTrackPointerDown(event: MouseEvent) {
     const { isRange } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
     const subViews = this.view.getSubViews();

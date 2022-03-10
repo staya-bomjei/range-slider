@@ -72,10 +72,12 @@ describe('Scale class:', () => {
 
   test('It handles pointerdown event', () => {
     const broadcastMock = jest.spyOn(scale, 'broadcast');
-    const scaleItemsCounter = scale.items.length;
+    const items = scale.getItems();
+    const scaleItemsCounter = items.length;
 
-    scale.items.forEach(({ el: scaleItemEl }) => {
-      scaleItemEl.dispatchEvent(new MouseEvent('pointerdown'));
+    items.forEach((item) => {
+      const itemEl = item.getEl();
+      itemEl.dispatchEvent(new MouseEvent('pointerdown'));
     });
 
     expect(broadcastMock).toBeCalledTimes(scaleItemsCounter);

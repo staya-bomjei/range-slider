@@ -5,7 +5,7 @@ import { ScaleItemOptions, ViewEvent } from '../types';
 import { SCALE_ITEM } from '../const';
 
 class ScaleItem extends EventObserver<ViewEvent> {
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: ScaleItemOptions;
 
@@ -28,6 +28,10 @@ class ScaleItem extends EventObserver<ViewEvent> {
     this.render();
     this.update();
     this.attachEventHandlers();
+  }
+
+  getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): ScaleItemOptions {

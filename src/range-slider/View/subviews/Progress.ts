@@ -4,7 +4,7 @@ import { ProgressOptions } from '../types';
 import { PROGRESS_HIDDEN } from '../const';
 
 class Progress {
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: ProgressOptions;
 
@@ -23,6 +23,10 @@ class Progress {
     this.el = el;
     this.options = { ...options };
     this.update();
+  }
+
+  getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): ProgressOptions {

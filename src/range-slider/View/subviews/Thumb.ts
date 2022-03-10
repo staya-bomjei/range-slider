@@ -5,7 +5,7 @@ import { THUMB_HIDDEN, THUMB_HIGHER } from '../const';
 import { ThumbOptions, ViewEvent } from '../types';
 
 class Thumb extends EventObserver<ViewEvent> {
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: ThumbOptions;
 
@@ -31,6 +31,10 @@ class Thumb extends EventObserver<ViewEvent> {
     this.options = { ...options };
     this.update();
     this.attachEventHandlers();
+  }
+
+  getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): ThumbOptions {

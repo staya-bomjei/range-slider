@@ -24,9 +24,9 @@ import ScaleItem from '../View/subviews/ScaleItem';
 import { MAX_POSITION, MIN_POSITION } from './const';
 
 class Presenter {
-  readonly model: Model;
+  private model: Model;
 
-  readonly view: View;
+  private view: View;
 
   private thumbDragged: 'left' | 'right' | false;
 
@@ -43,6 +43,14 @@ class Presenter {
     //  произведён рендеринг браузером
     setTimeout(() => this.handleTooltipsOverlap(), 0);
     this.attachEventHandlers();
+  }
+
+  getModel(): Model {
+    return this.model;
+  }
+
+  getView(): View {
+    return this.view;
   }
 
   private attachEventHandlers(): void {
@@ -71,7 +79,8 @@ class Presenter {
   private handleScaleItemPointerDown(scaleItem: ScaleItem) {
     const { position } = scaleItem.getOptions();
     const { isRange } = this.model.getOptions();
-    const { leftThumb, rightThumb } = this.view.subViews;
+    const subViews = this.view.getSubViews();
+    const { leftThumb, rightThumb } = subViews;
     const leftPosition = leftThumb.getOptions().position;
     const rightPosition = rightThumb.getOptions().position;
     const isLeftThumbCloser = !isRange
@@ -85,9 +94,10 @@ class Presenter {
   public handleTrackPointerDown(event: MouseEvent) {
     const { isRange } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
-    const { leftThumb, rightThumb } = this.view.subViews;
-    const { el: leftThumbEl } = leftThumb;
-    const { el: rightThumbEl } = rightThumb;
+    const subViews = this.view.getSubViews();
+    const { leftThumb, rightThumb } = subViews;
+    const leftThumbEl = leftThumb.getEl();
+    const rightThumbEl = rightThumb.getEl();
     const leftThumbRect = leftThumbEl.getBoundingClientRect();
     const rightThumbRect = rightThumbEl.getBoundingClientRect();
     const leftThumbCoord = (isVertical) ? leftThumbRect.y : leftThumbRect.x;
@@ -116,7 +126,8 @@ class Presenter {
     const leftTooltipText = (this.thumbDragged !== 'right') ? valuesRange : '';
     const rightTooltipText = (this.thumbDragged !== 'right') ? '' : valuesRange;
 
-    const { leftTooltip, rightTooltip } = this.view.subViews;
+    const subViews = this.view.getSubViews();
+    const { leftTooltip, rightTooltip } = subViews;
     this.view.setOptions({
       leftTooltip: { ...leftTooltip.getOptions(), text: leftTooltipText },
       rightTooltip: { ...rightTooltip.getOptions(), text: rightTooltipText },
@@ -124,9 +135,10 @@ class Presenter {
   }
 
   private handleThumbPointerDown(thumb: Thumb, event: MouseEvent): void {
-    const { leftThumb } = this.view.subViews;
+    const subViews = this.view.getSubViews();
+    const { leftThumb } = subViews;
     const isLeftThumb = thumb === leftThumb;
-    const { el } = thumb;
+    const el = thumb.getEl();
 
     this.thumbDragged = (isLeftThumb) ? 'left' : 'right';
     el.classList.add(THUMB_DRAGGED);
@@ -154,7 +166,8 @@ class Presenter {
       max,
       step,
     } = this.model.getOptions();
-    const { leftThumb, rightThumb } = this.view.subViews;
+    const subViews = this.view.getSubViews();
+    const { leftThumb, rightThumb } = subViews;
     const isLeftThumb = thumb === leftThumb;
     const { position: leftThumbPosition } = leftThumb.getOptions();
     const { position: rightThumbPosition } = rightThumb.getOptions();
@@ -213,8 +226,10 @@ class Presenter {
   private calcNearestPosition(event: MouseEvent): number {
     const { min, max, step } = this.model.getOptions();
     const { isVertical } = this.view.getOptions();
-    const { track } = this.view.subViews;
-    const trackRect = track.el.getBoundingClientRect();
+    const subViews = this.view.getSubViews();
+    const { track } = subViews;
+    const trackEl = track.getEl();
+    const trackRect = trackEl.getBoundingClientRect();
     const pageCoord = (isVertical) ? event.clientY : event.clientX;
     const trackOffset = (isVertical) ? trackRect.top : trackRect.left;
     const trackLength = (isVertical) ? trackRect.height : trackRect.width;
@@ -236,14 +251,10 @@ class Presenter {
   }
 
   private isTooltipsOverlap(): boolean {
-    const {
-      leftTooltip: {
-        el: leftTooltipEl,
-      },
-      rightTooltip: {
-        el: rightTooltipEl,
-      },
-    } = this.view.subViews;
+    const subViews = this.view.getSubViews();
+    const { leftTooltip, rightTooltip } = subViews;
+    const leftTooltipEl = leftTooltip.getEl();
+    const rightTooltipEl = rightTooltip.getEl();
     const leftTooltipRect = leftTooltipEl.getBoundingClientRect();
     const rightTooltipRect = rightTooltipEl.getBoundingClientRect();
     return rectsIntersect(leftTooltipRect, rightTooltipRect);

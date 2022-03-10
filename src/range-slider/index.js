@@ -12,28 +12,29 @@ import './range-slider.scss';
       init(opts) {
         return this.each(function (_, el) {
           const presenter = new Presenter(el);
-          presenter.model.setOptions(opts);
+          const model = presenter.getModel();
+          model.setOptions(opts);
           $(el).data().rangeSlider = presenter;
         });
       },
       get() {
         const rangeSlider = $(this).data('rangeSlider');
-        const { model } = rangeSlider;
+        const model = rangeSlider.getModel();
         return model.getOptions();
       },
       set(opts) {
         const rangeSlider = $(this).data('rangeSlider');
-        const { model } = rangeSlider;
+        const model = rangeSlider.getModel();
         model.setOptions(opts);
       },
       onchange(callback) {
         const rangeSlider = $(this).data('rangeSlider');
-        const { model } = rangeSlider;
+        const model = rangeSlider.getModel();
         model.subscribe(callback);
       },
       unsubscribe(callback) {
         const rangeSlider = $(this).data('rangeSlider');
-        const { model } = rangeSlider;
+        const model = rangeSlider.getModel();
         model.unsubscribe(callback);
       },
     };

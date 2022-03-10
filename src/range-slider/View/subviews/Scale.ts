@@ -6,9 +6,9 @@ import { SCALE_HIDDEN } from '../const';
 import ScaleItem from './ScaleItem';
 
 class Scale extends EventObserver<ViewEvent> {
-  readonly items: Array<ScaleItem> = [];
+  private items: Array<ScaleItem> = [];
 
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: ScaleOptions;
 
@@ -29,6 +29,14 @@ class Scale extends EventObserver<ViewEvent> {
     this.el = el;
     this.options = { ...options };
     this.update();
+  }
+
+  getItems(): Array<ScaleItem> {
+    return this.items;
+  }
+
+  getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): ScaleOptions {
@@ -91,7 +99,7 @@ class Scale extends EventObserver<ViewEvent> {
 
     items
       .splice(start)
-      .forEach((item) => item.el.remove());
+      .forEach((item) => item.getEl().remove());
   }
 }
 

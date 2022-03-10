@@ -1,4 +1,5 @@
 import Model from '../Model/Model';
+import { SubViews } from '../View/types';
 import View from '../View/View';
 import Presenter from './Presenter';
 
@@ -12,11 +13,13 @@ describe('Presenter class:', () => {
   let presenter: Presenter;
   let model: Model;
   let view: View;
+  let subViews: SubViews;
 
   beforeEach(() => {
     presenter = new Presenter(el);
-    model = presenter.model;
-    view = presenter.view;
+    model = presenter.getModel();
+    view = presenter.getView();
+    subViews = view.getSubViews();
   }, 10);
 
   test('Correctly updates view when model changes', () => {
@@ -30,7 +33,7 @@ describe('Presenter class:', () => {
   });
 
   test('Handles thumb pointerdown', () => {
-    const { leftThumb } = view.subViews;
+    const { leftThumb } = subViews;
 
     expect(() => {
       leftThumb.broadcast({
@@ -44,8 +47,9 @@ describe('Presenter class:', () => {
     const newOptions = { valueFrom: 1, scaleParts: 2 };
     model.setOptions(newOptions);
 
-    const { scale, leftThumb } = view.subViews;
-    const lastScaleItem = scale.items[scale.items.length - 1];
+    const { scale, leftThumb } = subViews;
+    const items = scale.getItems();
+    const lastScaleItem = items[items.length - 1];
 
     if (lastScaleItem === undefined) {
       throw new Error('scale must have last item');
@@ -61,7 +65,7 @@ describe('Presenter class:', () => {
   });
 
   test('Handles track pointerdown', () => {
-    const { track } = view.subViews;
+    const { track } = subViews;
 
     expect(() => {
       track.broadcast({
@@ -72,7 +76,7 @@ describe('Presenter class:', () => {
   });
 
   test('handles tooltip overlap', () => {
-    const { leftTooltip, rightTooltip } = view.subViews;
+    const { leftTooltip, rightTooltip } = subViews;
     const getRectMock = jest.fn();
     getRectMock.mockReturnValue({
       height: 100,
@@ -84,8 +88,10 @@ describe('Presenter class:', () => {
       left: 0,
       right: 100,
     });
-    leftTooltip.el.getBoundingClientRect = getRectMock;
-    rightTooltip.el.getBoundingClientRect = getRectMock;
+    const leftTooltipEl = leftTooltip.getEl();
+    const rightTooltipEl = rightTooltip.getEl();
+    leftTooltipEl.getBoundingClientRect = getRectMock;
+    rightTooltipEl.getBoundingClientRect = getRectMock;
 
     model.setOptions({ valueFrom: 0, valueTo: 1, isRange: true });
 
@@ -102,7 +108,7 @@ describe('Presenter class:', () => {
     };
     model.setOptions(newOptions);
 
-    const { leftTooltip } = view.subViews;
+    const { leftTooltip } = subViews;
     const { text: leftTooltipText } = leftTooltip.getOptions();
     expect(leftTooltipText).toEqual(newOptions.strings[newOptions.valueFrom]);
   });

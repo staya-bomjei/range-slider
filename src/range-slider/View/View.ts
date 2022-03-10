@@ -25,9 +25,9 @@ import {
 } from './const';
 
 class View extends EventObserver<ViewEvent> {
-  readonly subViews: SubViews;
+  private subViews: SubViews;
 
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: ViewOptions;
 
@@ -71,6 +71,14 @@ class View extends EventObserver<ViewEvent> {
     this.subViews = this.calcSubViews();
     this.update();
     this.attachEventHandlers();
+  }
+
+  getSubViews(): SubViews {
+    return this.subViews;
+  }
+
+  getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): ViewOptions {

@@ -4,7 +4,7 @@ import { TooltipOptions } from '../types';
 import { TOOLTIP_HIDDEN } from '../const';
 
 class Tooltip {
-  readonly el: HTMLElement;
+  private el: HTMLElement;
 
   private options: TooltipOptions;
 
@@ -23,6 +23,10 @@ class Tooltip {
     this.el = el;
     this.options = { ...options };
     this.update();
+  }
+
+  public getEl(): HTMLElement {
+    return this.el;
   }
 
   getOptions(): TooltipOptions {

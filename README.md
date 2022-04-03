@@ -180,7 +180,7 @@ $slider.rangeSlider('set', newOptions);
 Если вам нужно выполнить какое-либо действие при изменении слайдера, то вы можете использовать метод `onchange`:
 
 ```javascript
-const callback(data) {
+function callback(data) {
   console.log('DON\'t TOUCH ME THERE!');
   console.log('THERE:', data);
 };

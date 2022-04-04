@@ -37,11 +37,11 @@ class Presenter {
     this.thumbDragged = false;
 
     //  Такой вызов необходим, т.к. View при инициализации рендерит свои subViews
-    //  через innerHTML, что означает, что функция проверки пересечения подсказок
-    //  получит DOMRect подсказок до рендеринга в браузере, поэтому далее я делаю
+    //  через innerHTML, что означает, что функция проверки пересечения элементов
+    //  получит их DOMRect до рендеринга в браузере, поэтому далее я делаю
     //  вызов метода асинхронным, чтобы он вызвался сразу же, как только будет
-    //  произведён рендеринг браузером
-    setTimeout(() => this.handleTooltipsOverlap(), 0);
+    //  произведён рендеринг браузером.
+    setTimeout(() => this.handleOverlaps(), 0);
     this.attachEventHandlers();
   }
 
@@ -61,7 +61,7 @@ class Presenter {
   private handleModelChange(): void {
     const newViewOptions = this.calcViewOptions();
     this.view.setOptions(newViewOptions);
-    this.handleTooltipsOverlap();
+    this.handleOverlaps();
   }
 
   private handleViewEvent({ view, event }: ViewEvent): void {
@@ -112,6 +112,11 @@ class Presenter {
     this.handleThumbPointerDown(thumb, event);
   }
 
+  private handleOverlaps(): void {
+    this.handleTooltipsOverlap();
+    this.handleScaleItemsOverlap();
+  }
+
   private handleTooltipsOverlap(): void {
     const { isRange, valueFrom, valueTo } = this.model.getOptions();
     const needToHandle = isRange
@@ -132,6 +137,21 @@ class Presenter {
       leftTooltip: { ...leftTooltip.getOptions(), text: leftTooltipText },
       rightTooltip: { ...rightTooltip.getOptions(), text: rightTooltipText },
     });
+  }
+
+  private handleScaleItemsOverlap(): void {
+    const { showScale, scaleParts } = this.model.getOptions();
+    if (!showScale) return;
+
+    const scaleItems = this.view.getSubViews().scale.getItems();
+    const isOverlap = this.isScaleItemsOverlap();
+    const needToHideScale = isOverlap && scaleItems.length === 2;
+
+    if (needToHideScale) {
+      this.model.setOptions({ showScale: false });
+    } else if (isOverlap) {
+      this.model.setOptions({ scaleParts: scaleParts - 1 });
+    }
   }
 
   private handleThumbPointerDown(thumb: Thumb, event: MouseEvent): void {
@@ -258,6 +278,27 @@ class Presenter {
     const leftTooltipRect = leftTooltipEl.getBoundingClientRect();
     const rightTooltipRect = rightTooltipEl.getBoundingClientRect();
     return rectsIntersect(leftTooltipRect, rightTooltipRect);
+  }
+
+  private isScaleItemsOverlap(): boolean {
+    const scaleItems = this.view.getSubViews().scale.getItems();
+    let prevItem = scaleItems[0];
+
+    if (prevItem === undefined) return false;
+
+    for (let i = 1; i < scaleItems.length; i += 1) {
+      const currentItem = scaleItems[i];
+      const isIncorrectItems = prevItem === undefined || currentItem === undefined;
+      if (isIncorrectItems) throw new Error('Scale items array has undefined item');
+
+      const prevItemRect = prevItem.getEl().getBoundingClientRect();
+      const currentItemRect = currentItem.getEl().getBoundingClientRect();
+      if (rectsIntersect(prevItemRect, currentItemRect)) return true;
+
+      prevItem = currentItem;
+    }
+
+    return false;
   }
 
   private calcViewOptions(): ViewOptions {

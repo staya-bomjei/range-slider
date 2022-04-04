@@ -6,3 +6,8 @@ html,
 body {
   min-height: 100%;
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  cursor: pointer;
+}

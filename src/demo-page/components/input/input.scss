@@ -27,6 +27,11 @@
     outline: none;
     border: none;
 
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      cursor: pointer;
+    }
+
     &::selection {
       color: $background;
       background: rgba($dark, 50%);

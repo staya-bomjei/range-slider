@@ -282,23 +282,20 @@ class Presenter {
 
   private isScaleItemsOverlap(): boolean {
     const scaleItems = this.view.getSubViews().scale.getItems();
-    let prevItem = scaleItems[0];
+    let prevItem: ScaleItem;
 
-    if (prevItem === undefined) return false;
+    return scaleItems.some((currentItem) => {
+      let isOverlap = false;
 
-    for (let i = 1; i < scaleItems.length; i += 1) {
-      const currentItem = scaleItems[i];
-      const isIncorrectItems = prevItem === undefined || currentItem === undefined;
-      if (isIncorrectItems) throw new Error('Scale items array has undefined item');
-
-      const prevItemRect = prevItem.getEl().getBoundingClientRect();
-      const currentItemRect = currentItem.getEl().getBoundingClientRect();
-      if (rectsIntersect(prevItemRect, currentItemRect)) return true;
+      if (prevItem !== undefined) {
+        const prevItemRect = prevItem.getEl().getBoundingClientRect();
+        const currentItemRect = currentItem.getEl().getBoundingClientRect();
+        if (rectsIntersect(prevItemRect, currentItemRect)) isOverlap = true;
+      }
 
       prevItem = currentItem;
-    }
-
-    return false;
+      return isOverlap;
+    });
   }
 
   private calcViewOptions(): ViewOptions {
